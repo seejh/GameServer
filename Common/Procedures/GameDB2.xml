@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameDB>
+	<!--TABLE Account========================================================================================================   -->
+	<Table name="Account">
+		<Column name="AccountDbId" type="int" notnull="true" identity="1,1" />
+		<Column name="AccountPw" type="int" notnull="true"/>
+		<Column name="AccountName" type="nvarchar(50)" notnull="true" />
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="AccountDbId" />
+			<UniqueKey/>
+			<Column name="AccountName" />
+		</Index>
+	</Table>
+
+	<!-- TABLE Account Procedures -->
+	<!--INSERT-->
+	<Procedure name="spInsertAccount">
+		<Param name="@AccountPw" type="int" />
+		<Param name="@AccountName" type="nvarchar(50)" />
+		<Body>
+			<![CDATA[
+			INSERT INTO [dbo].[Account]([AccountPw], [AccountName]) VALUES(@AccountPw, @AccountName);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE AccountDbId-->
+	<Procedure name="spSelectAccountByAccountDbId">
+		<Param name="@AccountDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SELECT AccountDbId, AccountPw, AccountName FROM [dbo].[Account] WHERE AccountDbId = (@AccountDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE AccountName-->
+	<Procedure name="spSelectAccountByAccountName">
+		<Param name="@AccountName" type="nvarchar(50)" />
+		<Body>
+			<![CDATA[
+			SELECT AccountDbId, AccountPw, AccountName FROM [dbo].[Account] WHERE AccountName = (@AccountName);
+			]]>
+		</Body>
+	</Procedure>
+
+	<!--TABLE Player===========================================================================================================	-->
+	<Table name="Player">
+		<Column name="PlayerDbId" type="int" notnull="true" identity="1,1" />
+		<Column name="PlayerName" type="nvarchar(50)" notnull="true" />
+		<Column name="AccountDbId" type="int" notnull="true" />
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="PlayerDbId" />
+		</Index>
+	</Table>
+
+	<!--TABLE Player Procedures-->
+	<!--INSERT-->
+	<Procedure name="spInsertPlayer">
+		<Param name="@PlayerName" type="nvarchar(50)"/>
+		<Param name="@AccountDbId" type="int" />
+		<Body>
+			<![CDATA[
+			INSERT INTO [dbo].[Player]([PlayerName], [AccountDbId]) VALUES(@PlayerName, @AccountDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE PlayerDbId-->
+	<Procedure name="spSelectPlayerByPlayerDbId">
+		<Param name="@PlayerDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SELECT PlayerDbId, PlayerName, AccountDbId FROM [dbo].[Player] WHERE PlayerDbId = (@PlayerDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE AccountDbId-->
+	<Procedure name="spSelectPlayerByAccountDbId">
+		<Param name="@AccountDbId" type="int" />
+		<Body>
+			<![CDATA[
+			SELECT PlayerDbId, PlayerName, AccountDbId FROM [dbo].[Player] WHERE AccountDbId = (@AccountDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--TABLE Stat==================================================================================================================-->
+	<Table name="Stat">
+		<Column name="StatDbId" type="int" notnull="true" identity="1,1" />
+		<Column name="Level" type="int" notnull="true"/>
+		<Column name="TotalExp" type="int" notnull="true" />
+		<Column name="MaxHp" type="int" notnull="true" />
+		<Column name="Hp" type="int" notnull="true" />
+		<Column name="Damage" type="int" notnull="true" />
+		<Column name="PlayerDbId" type="int" notnull="true" />
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="StatDbId" />
+		</Index>
+	</Table>
+
+	<!--TABLE Stat Procedures-->
+	<!--INSERT-->
+	<Procedure name="spInsertStat">
+		<Param name="@Level" type="int" />
+		<Param name="@TotalExp" type="int" />
+		<Param name="@MaxHp" type="int" />
+		<Param name="@Hp" type="int" />
+		<Param name="@Damage" type="int" />
+		<Param name="@PlayerDbId" type="int" />
+		<Body>
+			<![CDATA[
+			INSERT INTO [dbo].[Stat]([Level], [TotalExp], [MaxHp], [Hp], [Damage], [PlayerDbId]) VALUES(@Level, @TotalExp, @MaxHp, @Hp, @Damage, @PlayerDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE StatDbId-->
+	<Procedure name="spSelectStatByStatDbId">
+		<Param name="@StatDbId" type="int" />
+		<Body>
+			<![CDATA[
+			SELECT StatDbId, Level, TotalExp, MaxHp, Hp, Damage, PlayerDbId FROM [dbo].[Stat] WHERE StatDbId = (@StatDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE PlayerDbId-->
+	<Procedure name="spSelectStatByPlayerDbId">
+		<Param name="@PlayerDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SELECT StatDbId, Level, TotalExp, MaxHp, Hp, Damage, PlayerDbId FROM [dbo].[Stat] WHERE PlayerDbId = (@PlayerDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--TABLE Pos===================================================================================================================-->
+	<Table name="Pos">
+		<Column name="PosDbId" type="int" notnull="true" identity="1,1" />
+		<Column name="LocationX" type="float" notnull="true" />
+		<Column name="LocationY" type="float" notnull="true" />
+		<Column name="LocationZ" type="float" notnull="true" />
+		<Column name="PlayerDbId" type="int" notnull="true" />
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="PosDbId" />
+		</Index>
+	</Table>
+
+	<!--TABLE Pos Procedures-->
+	<!--INSERT-->
+	<Procedure name="spInsertPos">
+		<Param name="@LocationX" type="float"/>
+		<Param name="@LocationY" type="float"/>
+		<Param name="@LocationZ" type="float"/>
+		<Param name="@PlayerDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			INSERT INTO [dbo].[Pos]([LocationX], [LocationY], [LocationZ], [PlayerDbId]) VALUES(@LocationX, @LocationY, @LocationZ, @PlayerDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE PosDbId-->
+	<Procedure name="spSelectPosByPosDbId">
+		<Param name="@PosDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SELECT PosDbId, LocationX, LocationY, LocationZ, PlayerDbId FROM [dbo].[Pos] WHERE PosDbId = (@PosDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE PlayerDbId-->
+	<Procedure name="spSelectPosByPlayerDbId">
+		<Param name="@PlayerDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SELECT PosDbId, LocationX, LocationY, LocationZ, PlayerDbId FROM [dbo].[Pos] WHERE PlayerDbId = (@PlayerDbId);
+			]]>
+		</Body>
+	</Procedure>
+
+	<!--TABLE Item================================================================================================================ -->
+	<Table name="Item">
+		<Column name="ItemDbId" type="int" notnull="true" identity="1,1" />
+		<Column name="TemplateId" type="int" notnull="true" />
+		<Column name="Count" type="int" notnull="true" />
+		<Column name="Slot" type="int" notnull="true" />
+		<Column name="Equipped" type="tinyint" notnull="true" />
+		<Column name="PlayerDbId" type="int" notnull="false" />
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="ItemDbId" />
+		</Index>
+	</Table>
+
+	<!--TABLE Item Procedures-->
+	<!--INSERT-->
+	<Procedure name="spInsertItem">
+		<Param name="@TemplateId" type="int"/>
+		<Param name="@Count" type="int"/>
+		<Param name="@Slot" type="int" />
+		<Param name="@Equipped" type="tinyint" />
+		<Param name="@PlayerDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			INSERT INTO [dbo].[Item]([TemplateId], [Count], [Slot], [Equipped], [PlayerDbId]) VALUES(@TemplateId, @Count, @Slot, @Equipped, @PlayerDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE ItemDbId-->
+	<Procedure name="spSelectItemByItemDbId">
+		<Param name="@ItemDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SELECT ItemDbId, TemplateId, Count, Slot, Equipped, PlayerDbId FROM [dbo].[Item] WHERE ItemDbId = (@ItemDbId);
+			]]>
+		</Body>
+	</Procedure>
+	<!--SELECT ALL WHERE PlayerDbId-->
+	<Procedure name="spSelectItemByPlayerDbId">
+		<Param name="@PlayerDbId" type="int" />
+		<Body>
+			<![CDATA[
+			SELECT ItemDbId, TemplateId, Count, Slot, Equipped, PlayerDbId FROM [dbo].[Item] WHERE PlayerDbId = (@PlayerDbId);
+			]]>
+		</Body>
+	</Procedure>
+</GameDB>

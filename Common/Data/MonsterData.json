@@ -1,0 +1,77 @@
+{
+	"monsters": [
+		{
+			"id": 0,
+			"name": "Crunch",
+			"stat": {
+				"level": 1,
+				"totalexp": 250,
+				"maxhp": 500,
+				"hp": 500,
+				"damage": 40,
+				"defence" : 20,
+				"speed": 350,
+				"attackdistance": 250,
+				"noticedistance": 800,
+				"returndistance": 2000,
+				"attackcooltime": 2000
+			},
+			"rewards": [
+				{
+					"percent": 40,
+					"itemid": 2,
+					"count": 1
+				},
+				{
+					"percent": 50,
+					"itemid": 100,
+					"count": 1
+				},
+				{
+					"percent": 60,
+					"itemid": 101,
+					"count": 1
+				},
+				{
+					"percent": 90,
+					"itemid": 200,
+					"count": 5
+				}
+			]
+		},
+		{
+			"id": 1,
+			"name": "BlackCrunch",
+			"stat": {
+				"level": 1,
+				"totalexp": 500,
+				"maxhp": 1500,
+				"hp": 1500,
+				"damage": 100,
+				"defence": 50,
+				"speed": 350,
+				"attackdistance": 250,
+				"noticedistance": 800,
+				"returndistance": 2000,
+				"attackcooltime": 1000
+			},
+			"rewards": [
+				{
+					"percent": 60,
+					"itemid": 3,
+					"count": 1
+				},
+				{
+					"percent": 70,
+					"itemid": 102,
+					"count": 1
+				},
+				{
+					"percent": 80,
+					"itemid": 103,
+					"count": 1
+				}
+			]
+		}
+	]
+}

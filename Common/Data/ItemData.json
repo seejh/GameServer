@@ -1,0 +1,80 @@
+{
+  "weapons": [
+    {
+      "id": 1,
+      "name": "초심자의 검",
+      "description": "초심자의 검이다.",
+      "weaponType": "Sword",
+      "damage": 100,
+      "iconPath": "/Game/Icons/Weapon_BeginnerSword"
+    },
+    {
+      "id": 2,
+      "name": "평범한 도끼",
+      "description": "평범한 도끼이다.",
+      "weaponType": "Axe",
+      "damage": 300,
+      "iconPath": "/Game/Icons/Weapon_NormalAxe"
+    },
+    {
+      "id": 3,
+      "name": "훌륭한 검",
+      "description": "훌륭한 검이다.",
+      "weaponType": "Sword",
+      "damage": 700,
+      "iconPath": "/Game/Icons/Weapon_EliteSword"
+    }
+  ],
+  "armors": [
+    {
+      "id": 100,
+      "name": "평범한 갑옷",
+      "description": "평범한 갑옷이다.",
+      "armorType": "Armor",
+      "defence": 30,
+      "iconPath": "/Game/Icons/Armor_NormalArmor"
+    },
+    {
+      "id": 101,
+      "name": "평범한 투구",
+      "description": "평범한 투구다.",
+      "armorType": "Helmet",
+      "defence": 30,
+      "iconPath": "/Game/Icons/Armor_NormalHelmet"
+    },
+    {
+      "id": 102,
+      "name": "훌륭한 갑옷",
+      "description": "훌륭한 갑옷이다.",
+      "armorType": "Armor",
+      "defence": 50,
+      "iconPath": "/Game/Icons/Armor_EliteArmor"
+    },
+    {
+      "id": 103,
+      "name": "훌륭한 투구",
+      "description": "훌륭한 투구이다.",
+      "armorType": "Helmet",
+      "defence": 50,
+      "iconPath": "/Game/Icons/Armor_EliteHelmet"
+    }
+  ],
+  "consumables": [
+    {
+      "id": 200,
+      "name": "HP 물약",
+      "description": "HP를 회복시킨다.",
+      "consumableType": "Potion",
+      "recovery": 100,
+      "iconPath": "/Game/Icons/Consumable_HPPotion"
+    },
+    {
+      "id": 201,
+      "name": "MP 물약",
+      "description": "MP를 회복시킨다.",
+      "consumableType": "Potion",
+      "recovery": 100,
+      "iconPath": "/Game/Icons/Consumable_MPPotion"
+    }
+  ]
+} 

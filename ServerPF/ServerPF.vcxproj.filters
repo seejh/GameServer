@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="VisionCube.cpp">
+      <Filter>Room</Filter>
+    </ClCompile>
+    <ClCompile Include="Zone.cpp">
+      <Filter>Room</Filter>
+    </ClCompile>
+    <ClCompile Include="Inventory.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="State.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="DBTransaction.cpp">
+      <Filter>DB</Filter>
+    </ClCompile>
+    <ClCompile Include="DBDataModel.cpp">
+      <Filter>DB</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomManager.cpp">
+      <Filter>Room</Filter>
+    </ClCompile>
+    <ClCompile Include="Room.cpp">
+      <Filter>Room</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol3.pb.cc">
+      <Filter>Proto</Filter>
+    </ClCompile>
+    <ClCompile Include="DataManager.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="DataContents.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientSession.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientPacketHandler.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="CSVReader.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectManager.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="SessionManager.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="VisionCube.h">
+      <Filter>Room</Filter>
+    </ClInclude>
+    <ClInclude Include="Zone.h">
+      <Filter>Room</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="DBTransaction.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="DBDataModel.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="GenProcedures.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="RoomManager.h">
+      <Filter>Room</Filter>
+    </ClInclude>
+    <ClInclude Include="Room.h">
+      <Filter>Room</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol3.pb.h">
+      <Filter>Proto</Filter>
+    </ClInclude>
+    <ClInclude Include="DataManager.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="DataContents.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientSession.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientPacketHandler.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVReader.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectManager.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="SessionManager.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Main">
+      <UniqueIdentifier>{fea97747-504f-466c-a720-0bdaba3986ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{ca1948ad-e384-4a97-841d-c28ccb90b310}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Contents">
+      <UniqueIdentifier>{d0380a8a-2fad-40b8-965b-36086730e7ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DB">
+      <UniqueIdentifier>{e21dbab5-04c0-4b8f-88c7-660aca5f731e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Room">
+      <UniqueIdentifier>{9b9b5c49-047b-4517-b068-c9e3d9275397}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Proto">
+      <UniqueIdentifier>{f4578909-1172-4396-8d4c-729b4a7561d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{e54ac6f5-103b-453f-9433-a8ed70c039be}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\Common\Procedures\GameDB.xml">
+      <Filter>DB</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Common\Procedures\GenProcs.bat">
+      <Filter>DB</Filter>
+    </None>
+  </ItemGroup>
+</Project>

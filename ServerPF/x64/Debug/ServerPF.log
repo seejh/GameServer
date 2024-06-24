@@ -1,0 +1,324 @@
+﻿  
+  #pragma once
+  #include "Types.h"
+  #include <windows.h>
+  #include "DBBind.h"
+  
+  namespace SP
+  {
+  	
+      class InsertAccount : public DBBind<2,0>
+      {
+      public:
+      	InsertAccount(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertAccount(?,?)}") { }
+      	void In_AccountPw(int32& v) { BindParam(0, v); };
+      	void In_AccountPw(int32&& v) { _accountPw = std::move(v); BindParam(0, _accountPw); };
+      	template<int32 N> void In_AccountName(WCHAR(&v)[N]) { BindParam(1, v); };
+      	template<int32 N> void In_AccountName(const WCHAR(&v)[N]) { BindParam(1, v); };
+      	void In_AccountName(WCHAR* v, int32 count) { BindParam(1, v, count); };
+      	void In_AccountName(const WCHAR* v, int32 count) { BindParam(1, v, count); };
+  
+      private:
+      	int32 _accountPw = {};
+      };
+  
+      class SelectAccountByAccountDbId : public DBBind<1,3>
+      {
+      public:
+      	SelectAccountByAccountDbId(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectAccountByAccountDbId(?)}") { }
+      	void In_AccountDbId(int32& v) { BindParam(0, v); };
+      	void In_AccountDbId(int32&& v) { _accountDbId = std::move(v); BindParam(0, _accountDbId); };
+      	void Out_AccountDbId(OUT int32& v) { BindCol(0, v); };
+      	void Out_AccountPw(OUT int32& v) { BindCol(1, v); };
+      	template<int32 N> void Out_AccountName(OUT WCHAR(&v)[N]) { BindCol(2, v); };
+  
+      private:
+      	int32 _accountDbId = {};
+      };
+  
+      class SelectAccountByAccountName : public DBBind<1,3>
+      {
+      public:
+      	SelectAccountByAccountName(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectAccountByAccountName(?)}") { }
+      	template<int32 N> void In_AccountName(WCHAR(&v)[N]) { BindParam(0, v); };
+      	template<int32 N> void In_AccountName(const WCHAR(&v)[N]) { BindParam(0, v); };
+      	void In_AccountName(WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void In_AccountName(const WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void Out_AccountDbId(OUT int32& v) { BindCol(0, v); };
+      	void Out_AccountPw(OUT int32& v) { BindCol(1, v); };
+      	template<int32 N> void Out_AccountName(OUT WCHAR(&v)[N]) { BindCol(2, v); };
+  
+      private:
+      };
+  
+      class InsertPlayer : public DBBind<10,0>
+      {
+      public:
+      	InsertPlayer(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertPlayer(?,?,?,?,?,?,?,?,?,?)}") { }
+      	template<int32 N> void In_PlayerName(WCHAR(&v)[N]) { BindParam(0, v); };
+      	template<int32 N> void In_PlayerName(const WCHAR(&v)[N]) { BindParam(0, v); };
+      	void In_PlayerName(WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void In_PlayerName(const WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void In_Level(int32& v) { BindParam(1, v); };
+      	void In_Level(int32&& v) { _level = std::move(v); BindParam(1, _level); };
+      	void In_TotalExp(int32& v) { BindParam(2, v); };
+      	void In_TotalExp(int32&& v) { _totalExp = std::move(v); BindParam(2, _totalExp); };
+      	void In_MaxHp(int32& v) { BindParam(3, v); };
+      	void In_MaxHp(int32&& v) { _maxHp = std::move(v); BindParam(3, _maxHp); };
+      	void In_Hp(int32& v) { BindParam(4, v); };
+      	void In_Hp(int32&& v) { _hp = std::move(v); BindParam(4, _hp); };
+      	void In_Damage(int32& v) { BindParam(5, v); };
+      	void In_Damage(int32&& v) { _damage = std::move(v); BindParam(5, _damage); };
+      	void In_LocationX(float& v) { BindParam(6, v); };
+      	void In_LocationX(float&& v) { _locationX = std::move(v); BindParam(6, _locationX); };
+      	void In_LocationY(float& v) { BindParam(7, v); };
+      	void In_LocationY(float&& v) { _locationY = std::move(v); BindParam(7, _locationY); };
+      	void In_LocationZ(float& v) { BindParam(8, v); };
+      	void In_LocationZ(float&& v) { _locationZ = std::move(v); BindParam(8, _locationZ); };
+      	void In_AccountDbId(int32& v) { BindParam(9, v); };
+      	void In_AccountDbId(int32&& v) { _accountDbId = std::move(v); BindParam(9, _accountDbId); };
+  
+      private:
+      	int32 _level = {};
+      	int32 _totalExp = {};
+      	int32 _maxHp = {};
+      	int32 _hp = {};
+      	int32 _damage = {};
+      	float _locationX = {};
+      	float _locationY = {};
+      	float _locationZ = {};
+      	int32 _accountDbId = {};
+      };
+  
+      class UpdatePlayer : public DBBind<9,0>
+      {
+      public:
+      	UpdatePlayer(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spUpdatePlayer(?,?,?,?,?,?,?,?,?)}") { }
+      	void In_PlayerDbId(int32& v) { BindParam(0, v); };
+      	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(0, _playerDbId); };
+      	void In_Level(int32& v) { BindParam(1, v); };
+      	void In_Level(int32&& v) { _level = std::move(v); BindParam(1, _level); };
+      	void In_TotalExp(int32& v) { BindParam(2, v); };
+      	void In_TotalExp(int32&& v) { _totalExp = std::move(v); BindParam(2, _totalExp); };
+      	void In_MaxHp(int32& v) { BindParam(3, v); };
+      	void In_MaxHp(int32&& v) { _maxHp = std::move(v); BindParam(3, _maxHp); };
+      	void In_Hp(int32& v) { BindParam(4, v); };
+      	void In_Hp(int32&& v) { _hp = std::move(v); BindParam(4, _hp); };
+      	void In_Damage(int32& v) { BindParam(5, v); };
+      	void In_Damage(int32&& v) { _damage = std::move(v); BindParam(5, _damage); };
+      	void In_LocationX(float& v) { BindParam(6, v); };
+      	void In_LocationX(float&& v) { _locationX = std::move(v); BindParam(6, _locationX); };
+      	void In_LocationY(float& v) { BindParam(7, v); };
+      	void In_LocationY(float&& v) { _locationY = std::move(v); BindParam(7, _locationY); };
+      	void In_LocationZ(float& v) { BindParam(8, v); };
+      	void In_LocationZ(float&& v) { _locationZ = std::move(v); BindParam(8, _locationZ); };
+  
+      private:
+      	int32 _playerDbId = {};
+      	int32 _level = {};
+      	int32 _totalExp = {};
+      	int32 _maxHp = {};
+      	int32 _hp = {};
+      	int32 _damage = {};
+      	float _locationX = {};
+      	float _locationY = {};
+      	float _locationZ = {};
+      };
+  
+      class SelectPlayerName : public DBBind<1,1>
+      {
+      public:
+      	SelectPlayerName(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectPlayerName(?)}") { }
+      	template<int32 N> void In_PlayerName(WCHAR(&v)[N]) { BindParam(0, v); };
+      	template<int32 N> void In_PlayerName(const WCHAR(&v)[N]) { BindParam(0, v); };
+      	void In_PlayerName(WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void In_PlayerName(const WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void Out_PlayerDbId(OUT int32& v) { BindCol(0, v); };
+  
+      private:
+      };
+  
+      class SelectPlayerByPlayerDbId : public DBBind<1,11>
+      {
+      public:
+      	SelectPlayerByPlayerDbId(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectPlayerByPlayerDbId(?)}") { }
+      	void In_PlayerDbId(int32& v) { BindParam(0, v); };
+      	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(0, _playerDbId); };
+      	void Out_PlayerDbId(OUT int32& v) { BindCol(0, v); };
+      	template<int32 N> void Out_PlayerName(OUT WCHAR(&v)[N]) { BindCol(1, v); };
+      	void Out_Level(OUT int32& v) { BindCol(2, v); };
+      	void Out_TotalExp(OUT int32& v) { BindCol(3, v); };
+      	void Out_MaxHp(OUT int32& v) { BindCol(4, v); };
+      	void Out_Hp(OUT int32& v) { BindCol(5, v); };
+      	void Out_Damage(OUT int32& v) { BindCol(6, v); };
+      	void Out_LocationX(OUT float& v) { BindCol(7, v); };
+      	void Out_LocationY(OUT float& v) { BindCol(8, v); };
+      	void Out_LocationZ(OUT float& v) { BindCol(9, v); };
+      	void Out_AccountDbId(OUT int32& v) { BindCol(10, v); };
+  
+      private:
+      	int32 _playerDbId = {};
+      };
+  
+      class SelectPlayerByAccountDbId : public DBBind<1,11>
+      {
+      public:
+      	SelectPlayerByAccountDbId(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectPlayerByAccountDbId(?)}") { }
+      	void In_AccountDbId(int32& v) { BindParam(0, v); };
+      	void In_AccountDbId(int32&& v) { _accountDbId = std::move(v); BindParam(0, _accountDbId); };
+      	void Out_PlayerDbId(OUT int32& v) { BindCol(0, v); };
+      	template<int32 N> void Out_PlayerName(OUT WCHAR(&v)[N]) { BindCol(1, v); };
+      	void Out_Level(OUT int32& v) { BindCol(2, v); };
+      	void Out_TotalExp(OUT int32& v) { BindCol(3, v); };
+      	void Out_MaxHp(OUT int32& v) { BindCol(4, v); };
+      	void Out_Hp(OUT int32& v) { BindCol(5, v); };
+      	void Out_Damage(OUT int32& v) { BindCol(6, v); };
+      	void Out_LocationX(OUT float& v) { BindCol(7, v); };
+      	void Out_LocationY(OUT float& v) { BindCol(8, v); };
+      	void Out_LocationZ(OUT float& v) { BindCol(9, v); };
+      	void Out_AccountDbId(OUT int32& v) { BindCol(10, v); };
+  
+      private:
+      	int32 _accountDbId = {};
+      };
+  
+      class SelectTest : public DBBind<0,1>
+      {
+      public:
+      	SelectTest(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectTest}") { }
+      	void Out_Identity(OUT int64& v) { BindCol(0, v); };
+  
+      private:
+      };
+  
+      class InsertItem : public DBBind<5,0>
+      {
+      public:
+      	InsertItem(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertItem(?,?,?,?,?)}") { }
+      	void In_TemplateId(int32& v) { BindParam(0, v); };
+      	void In_TemplateId(int32&& v) { _templateId = std::move(v); BindParam(0, _templateId); };
+      	void In_Count(int32& v) { BindParam(1, v); };
+      	void In_Count(int32&& v) { _count = std::move(v); BindParam(1, _count); };
+      	void In_Slot(int32& v) { BindParam(2, v); };
+      	void In_Slot(int32&& v) { _slot = std::move(v); BindParam(2, _slot); };
+      	void In_Equipped(bool& v) { BindParam(3, v); };
+      	void In_Equipped(bool&& v) { _equipped = std::move(v); BindParam(3, _equipped); };
+      	void In_PlayerDbId(int32& v) { BindParam(4, v); };
+      	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(4, _playerDbId); };
+  
+      private:
+      	int32 _templateId = {};
+      	int32 _count = {};
+      	int32 _slot = {};
+      	bool _equipped = {};
+      	int32 _playerDbId = {};
+      };
+  
+      class UpdateItem : public DBBind<6,0>
+      {
+      public:
+      	UpdateItem(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spUpdateItem(?,?,?,?,?,?)}") { }
+      	void In_ItemDbId(int32& v) { BindParam(0, v); };
+      	void In_ItemDbId(int32&& v) { _itemDbId = std::move(v); BindParam(0, _itemDbId); };
+      	void In_TemplateId(int32& v) { BindParam(1, v); };
+      	void In_TemplateId(int32&& v) { _templateId = std::move(v); BindParam(1, _templateId); };
+      	void In_Count(int32& v) { BindParam(2, v); };
+      	void In_Count(int32&& v) { _count = std::move(v); BindParam(2, _count); };
+      	void In_Slot(int32& v) { BindParam(3, v); };
+      	void In_Slot(int32&& v) { _slot = std::move(v); BindParam(3, _slot); };
+      	void In_Equipped(bool& v) { BindParam(4, v); };
+      	void In_Equipped(bool&& v) { _equipped = std::move(v); BindParam(4, _equipped); };
+      	void In_PlayerDbId(int32& v) { BindParam(5, v); };
+      	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(5, _playerDbId); };
+  
+      private:
+      	int32 _itemDbId = {};
+      	int32 _templateId = {};
+      	int32 _count = {};
+      	int32 _slot = {};
+      	bool _equipped = {};
+      	int32 _playerDbId = {};
+      };
+  
+      class DeleteItem : public DBBind<1,0>
+      {
+      public:
+      	DeleteItem(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spDeleteItem(?)}") { }
+      	void In_ItemDbId(int32& v) { BindParam(0, v); };
+      	void In_ItemDbId(int32&& v) { _itemDbId = std::move(v); BindParam(0, _itemDbId); };
+  
+      private:
+      	int32 _itemDbId = {};
+      };
+  
+      class SelectIdentity : public DBBind<0,1>
+      {
+      public:
+      	SelectIdentity(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectIdentity}") { }
+      	void Out_Identity(OUT int64& v) { BindCol(0, v); };
+  
+      private:
+      };
+  
+      class SelectItemByItemDbId : public DBBind<1,6>
+      {
+      public:
+      	SelectItemByItemDbId(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectItemByItemDbId(?)}") { }
+      	void In_ItemDbId(int32& v) { BindParam(0, v); };
+      	void In_ItemDbId(int32&& v) { _itemDbId = std::move(v); BindParam(0, _itemDbId); };
+      	void Out_ItemDbId(OUT int32& v) { BindCol(0, v); };
+      	void Out_TemplateId(OUT int32& v) { BindCol(1, v); };
+      	void Out_Count(OUT int32& v) { BindCol(2, v); };
+      	void Out_Slot(OUT int32& v) { BindCol(3, v); };
+      	void Out_Equipped(OUT bool& v) { BindCol(4, v); };
+      	void Out_PlayerDbId(OUT int32& v) { BindCol(5, v); };
+  
+      private:
+      	int32 _itemDbId = {};
+      };
+  
+      class SelectItemByPlayerDbId : public DBBind<1,6>
+      {
+      public:
+      	SelectItemByPlayerDbId(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectItemByPlayerDbId(?)}") { }
+      	void In_PlayerDbId(int32& v) { BindParam(0, v); };
+      	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(0, _playerDbId); };
+      	void Out_ItemDbId(OUT int32& v) { BindCol(0, v); };
+      	void Out_TemplateId(OUT int32& v) { BindCol(1, v); };
+      	void Out_Count(OUT int32& v) { BindCol(2, v); };
+      	void Out_Slot(OUT int32& v) { BindCol(3, v); };
+      	void Out_Equipped(OUT bool& v) { BindCol(4, v); };
+      	void Out_PlayerDbId(OUT int32& v) { BindCol(5, v); };
+  
+      private:
+      	int32 _playerDbId = {};
+      };
+  
+  
+       
+  };
+  C:GenProcedures.h
+  1개 파일이 복사되었습니다.
+  계속하려면 아무 키나 누르십시오 . . . 
+  ClientPacketHandler.cpp
+  ClientSession.cpp
+C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(102,53): warning C4267: '인수': 'size_t'에서 'int32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(223,54): warning C4267: '인수': 'size_t'에서 'int32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(277,25): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  DBTransaction.cpp
+C:\Users\see\source\repos\ServerPF\ServerPF\DBTransaction.cpp(66,21): warning C4244: '인수': 'int64'에서 'int32_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  GameObject.cpp
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.cpp(455,29): warning C4244: '=': 'float'에서 'uint64'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Main.cpp
+ClientSession.obj : error LNK2019: "public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class google::protobuf::Arena *)" (?Set@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@1234@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAVArena@34@@Z)"public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set<struct google::protobuf::internal::ArenaStringPtr::EmptyDefault>(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,char const *,class google::protobuf::Arena *)" (??$Set@UEmptyDefault@ArenaStringPtr@internal@protobuf@google@@@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@0123@PEBDPEAVArena@23@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
+GameObject.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class google::protobuf::Arena *)" (?Set@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@1234@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAVArena@34@@Z)
+Protocol3.pb.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class google::protobuf::Arena *)" (?Set@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@1234@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAVArena@34@@Z)
+Room.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class google::protobuf::Arena *)" (?Set@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@1234@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAVArena@34@@Z)
+Protocol3.pb.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: virtual void __cdecl google::protobuf::Message::CopyFrom(class google::protobuf::Message const &)" (?CopyFrom@Message@protobuf@google@@UEAAXAEBV123@@Z)
+Protocol3.pb.obj : error LNK2001: 확인할 수 없는 외부 기호 "protected: static void __cdecl google::protobuf::Message::CopyWithSizeCheck(class google::protobuf::Message *,class google::protobuf::Message const &)" (?CopyWithSizeCheck@Message@protobuf@google@@KAXPEAV123@AEBV123@@Z)
+Protocol3.pb.obj : error LNK2001: 확인할 수 없는 외부 기호 "class google::protobuf::internal::ExplicitlyConstructed<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > > google::protobuf::internal::fixed_address_empty_string" (?fixed_address_empty_string@internal@protobuf@google@@3V?$ExplicitlyConstructed@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@123@A)
+Protocol3.pb.obj : error LNK2019: "public: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > * __cdecl google::protobuf::internal::ArenaStringPtr::Mutable(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class google::protobuf::Arena *)" (?Mutable@ArenaStringPtr@internal@protobuf@google@@QEAAPEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@UEmptyDefault@1234@PEAVArena@34@@Z)"private: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > * __cdecl PROTOCOL::C_Login::_internal_mutable_id(void)" (?_internal_mutable_id@C_Login@PROTOCOL@@AEAAPEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ) 함수에서 참조되는 확인할 수 없는 외부 기호
+Protocol3.pb.obj : error LNK2019: "private: void __cdecl google::protobuf::internal::ArenaStringPtr::DestroyNoArenaSlowPath(void)" (?DestroyNoArenaSlowPath@ArenaStringPtr@internal@protobuf@google@@AEAAXXZ)"public: void __cdecl google::protobuf::internal::ArenaStringPtr::DestroyNoArena(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const *)" (?DestroyNoArena@ArenaStringPtr@internal@protobuf@google@@QEAAXPEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
+Room.obj : error LNK2019: "public: int const * __cdecl google::protobuf::RepeatedField<int>::begin(void)const " (?begin@?$RepeatedField@H@protobuf@google@@QEBAPEBHXZ)"public: void __cdecl Room::ActorSkill(class std::shared_ptr<class GameObject>,class PROTOCOL::C_Skill)" (?ActorSkill@Room@@QEAAXV?$shared_ptr@VGameObject@@@std@@VC_Skill@PROTOCOL@@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
+Room.obj : error LNK2019: "public: int const * __cdecl google::protobuf::RepeatedField<int>::end(void)const " (?end@?$RepeatedField@H@protobuf@google@@QEBAPEBHXZ)"public: void __cdecl Room::ActorSkill(class std::shared_ptr<class GameObject>,class PROTOCOL::C_Skill)" (?ActorSkill@Room@@QEAAXV?$shared_ptr@VGameObject@@@std@@VC_Skill@PROTOCOL@@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
+C:\Users\see\source\repos\ServerPF\x64\Debug\ServerPF.exe : fatal error LNK1120: 8개의 확인할 수 없는 외부 참조입니다.
