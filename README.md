@@ -3,7 +3,8 @@
 
 **기술 및 환경** : C++, IOCP, MSSQL, Windows<br/>
 **컨텐츠 구현** : 로그인, 캐릭터 생성, 인벤토리(아이템), 몬스터 AI<br/>
-**영상(유튜브)** : 경로<br/>
+**영상(유튜브)** : https://www.youtube.com/watch?v=S3F_YfWpQFE<br/>
+**게임 클라이언트** : https://github.com/seejh/UnrealClient<br/>
 
 **프로그램 설명**<br/>
 ![image](https://github.com/seejh/ServerPortfolio/assets/152791315/fb1d0163-3a41-4ad5-a077-5162a11ef021)
