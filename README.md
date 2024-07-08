@@ -8,7 +8,7 @@
 **PPT** : https://docs.google.com/presentation/d/e/2PACX-1vTtF1DSAc5PI5ahFQDwn1GDq-nnUYIgpfZc4JpvFfdC26cMdELmuquaj6gUC54CHBmDTh0cXCBKEkHr/embed?start=false&loop=false&delayms=3000<br/>
 
 **프로그램 설명**<br/>
-![image](https://github.com/seejh/ServerPortfolio/assets/152791315/fb1d0163-3a41-4ad5-a077-5162a11ef021)
+![image](https://github.com/seejh/GameServer/assets/152791315/36763679-5cb1-45ff-a4e7-f753224c59b7)
 <br/>
 
 **기본 동작**<br/>
