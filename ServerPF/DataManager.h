@@ -12,8 +12,6 @@ public:
 	}
 
 	bool Init();
-
-	// TEST
 	bool OpenAndParseJson(string path, rapidjson::Document& doc);
 
 	// Load

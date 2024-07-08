@@ -352,7 +352,7 @@ Monster::Monster() : _currentState(StateIdle::Instance())
 
 void Monster::Update()
 {
-	// 델타 타임 - 이동에 사용
+	// 델타
 	uint64 nowTime = GetTickCount64();
 	_deltaTime = (float)(nowTime - _lastUpdateTime) / 1000;
 	_lastUpdateTime = nowTime;
@@ -378,7 +378,7 @@ void Monster::OnDead(shared_ptr<GameObject> attacker)
 
 	// 공격자 == 플레이어
 	if (attacker->_info.objecttype() == PROTOCOL::GameObjectType::PLAYER) {
-		// 경험치 보상, 몬스터 exp 조회해서 플레이어 exp 올리기, 그 과정에서 레벨업이 될 수도
+		// 경험치 보상
 		int exp = DataManager::Instance()->_monsterTable[_templateId].stat.totalexp();
 		static_pointer_cast<Player>(attacker)->AddExp(exp);
 

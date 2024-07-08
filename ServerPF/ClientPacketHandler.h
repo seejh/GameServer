@@ -69,7 +69,6 @@ public:
 		return GPacketHandler[header->_id](session, buffer, len);
 	}
 
-
 	static shared_ptr<SendBuffer> MakeSendBuffer(PROTOCOL::S_Login& pkt) {
 		return MakeSendBuffer(pkt, PROTOCOL::MsgId::S_LOGIN);
 	}
