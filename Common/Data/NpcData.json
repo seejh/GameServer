@@ -1,0 +1,58 @@
+{
+  "Npcs": [
+    {
+      "Id": 1,
+      "Name": "NPC_1",
+      "NpcType": "Normal",
+      "Greeting": "Hello Player, Im NPC_1.",
+      "Quests": [
+        1, 3
+      ],
+      "Dialogues": [
+        {
+          "DialogueId": 1,
+          "Talks": [
+            "NPC_2가 도와줄 사람을 찾던데요...",
+            "시간이 나신다면 NPC_2를 찾아가보세요."
+          ],
+          "TalkEnds": [
+            "NPC_2는 뒤편에 있습니다.",
+            "생각이 바뀌면 다시 오세요."
+          ]
+        },
+        {
+          "DialogueId": 2,
+          "Talks": [
+            "크런치 5마리 처치해주세요."
+          ],
+          "TalkEnds": [
+            "감사합니다."
+          ]
+        }
+      ]
+    },
+    {
+      "Id": 2,
+      "Name": "NPC_2",
+      "NpcType": "Normal",
+      "Greeting": "Hello Player, Im NPC_2.",
+      "Quests": [
+        2
+      ],
+      "Dialogues": [
+        {
+          "DialogueId": 1,
+          "Talks": [
+            "요즘 마을이 위험해.",
+            "내가 자리를 비울 수가 없어서 말이야...",
+            "나 대신 크런치 10마리를 처치해줘."
+          ],
+          "TalkEnds": [
+            "고마워, 잘 부탁해",
+            "알겠어, 어쩔 수 없지."
+          ]
+        }
+      ]
+    }
+  ]
+}

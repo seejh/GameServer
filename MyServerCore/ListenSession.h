@@ -15,7 +15,7 @@ public:
 	virtual HANDLE GetHandle() override;
 	virtual void Dispatch(IocpEvent* iocpEvent, int len) override;
 
-	bool Init();
+	bool Init(string ip, int port);
 
 	bool RegisterAccept(AcceptEvent* acceptEvent);
 	void ProcessAccept(AcceptEvent* acceptEvent);

@@ -1,1 +1,33 @@
-﻿  MyServerCore.vcxproj -> C:\Users\see\source\repos\ServerPF\Library\lib\MyServerCore\Debug\MyServerCore.lib
+﻿  pch.cpp
+  Allocator.cpp
+  ConsoleLog.cpp
+  DBBind.cpp
+  DBConnection.cpp
+  DBConnectionPool.cpp
+  CoreGlobal.cpp
+  DBModel.cpp
+  DBSynchronizer.cpp
+  FileUtils.cpp
+  GlobalQueue.cpp
+  IocpCore.cpp
+  IocpEvent.cpp
+  Job.cpp
+  JobQueue.cpp
+  JobTimer.cpp
+  ListenSession.cpp
+  LockQueue.cpp
+  Memory.cpp
+  MemoryPool.cpp
+  NetService.cpp
+  코드를 생성하고 있습니다...
+  컴파일하고 있습니다...
+  SocketUtils.cpp
+  ObjectPool.cpp
+  RecvBuffer.cpp
+  SendBuffer.cpp
+  Session.cpp
+  ThreadManager.cpp
+  CorePch.cpp
+  XmlParser.cpp
+  코드를 생성하고 있습니다...
+  MyServerCore.vcxproj -> C:\Users\see\source\repos\ServerPF\Library\Lib\MyServerCore\Debug\MyServerCore.lib

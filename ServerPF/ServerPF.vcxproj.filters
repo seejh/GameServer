@@ -16,7 +16,7 @@
     <ClCompile Include="State.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="DBTransaction.cpp">
+    <ClCompile Include="GameDBManager.cpp">
       <Filter>DB</Filter>
     </ClCompile>
     <ClCompile Include="DBDataModel.cpp">
@@ -27,9 +27,6 @@
     </ClCompile>
     <ClCompile Include="Room.cpp">
       <Filter>Room</Filter>
-    </ClCompile>
-    <ClCompile Include="Protocol3.pb.cc">
-      <Filter>Proto</Filter>
     </ClCompile>
     <ClCompile Include="DataManager.cpp">
       <Filter>Data</Filter>
@@ -61,6 +58,33 @@
     <ClCompile Include="SessionManager.cpp">
       <Filter>Main</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigManager.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedDBManager.cpp">
+      <Filter>DB</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonParser.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="DBManager.cpp">
+      <Filter>DB</Filter>
+    </ClCompile>
+    <ClCompile Include="RedisManager.cpp">
+      <Filter>DB</Filter>
+    </ClCompile>
+    <ClCompile Include="JwtHandler.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="QuestManager.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Quest.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol3.pb.cc">
+      <Filter>Proto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VisionCube.h">
@@ -78,7 +102,7 @@
     <ClInclude Include="State.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="DBTransaction.h">
+    <ClInclude Include="GameDBManager.h">
       <Filter>DB</Filter>
     </ClInclude>
     <ClInclude Include="DBDataModel.h">
@@ -92,9 +116,6 @@
     </ClInclude>
     <ClInclude Include="Room.h">
       <Filter>Room</Filter>
-    </ClInclude>
-    <ClInclude Include="Protocol3.pb.h">
-      <Filter>Proto</Filter>
     </ClInclude>
     <ClInclude Include="DataManager.h">
       <Filter>Data</Filter>
@@ -122,6 +143,36 @@
     </ClInclude>
     <ClInclude Include="SessionManager.h">
       <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigManager.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GenSharedDBProcedures.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedDBManager.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonParser.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="DBManager.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="RedisManager.h">
+      <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="JwtHandler.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="QuestManager.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Quest.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol3.pb.h">
+      <Filter>Proto</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -151,10 +202,35 @@
     <Xml Include="..\Common\Procedures\GameDB.xml">
       <Filter>DB</Filter>
     </Xml>
+    <Xml Include="..\Common\Procedures\SharedDB.xml">
+      <Filter>DB</Filter>
+    </Xml>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\Procedures\GenProcs.bat">
       <Filter>DB</Filter>
+    </None>
+    <None Include="packages.config" />
+    <None Include="..\Common\Data\ItemData.json">
+      <Filter>Data</Filter>
+    </None>
+    <None Include="..\Common\Data\MonsterData.json">
+      <Filter>Data</Filter>
+    </None>
+    <None Include="..\Common\Data\ServerConfig.json">
+      <Filter>Data</Filter>
+    </None>
+    <None Include="..\Common\Data\SkillData.json">
+      <Filter>Data</Filter>
+    </None>
+    <None Include="..\Common\Data\StatData.json">
+      <Filter>Data</Filter>
+    </None>
+    <None Include="..\Common\Data\NpcData.json">
+      <Filter>Data</Filter>
+    </None>
+    <None Include="..\Common\Data\QuestData.json">
+      <Filter>Data</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -31,14 +31,34 @@ public:
 	void EnterRoom(shared_ptr<GameObject> object);
 	void LeaveRoom(int objectId);
 
+	// 패킷 핸들
+	void HandleAddItem(shared_ptr<Player> player, PROTOCOL::C_AddItem fromPkt);
+	void HandleUseItem(shared_ptr<Player> player, PROTOCOL::C_UseItem fromPkt);
+	void HandleEquipItem(shared_ptr<Player> player, PROTOCOL::C_EquipItem fromPkt);
+	void HandleAddQuest(shared_ptr<Player> player, PROTOCOL::C_AddQuest fromPkt);
+	void HandleRemoveQuest(shared_ptr<Player> player, PROTOCOL::C_RemoveQuest fromPkt);
+	void HandleCompleteQuest(shared_ptr<Player> player, PROTOCOL::C_CompleteQuest fromPkt);
+	void HandleUpdateQuest(shared_ptr<Player> player, PROTOCOL::C_UpdateQuest fromPkt);
+
+	// DB
+	// DB - 아이템
+	void DBCallback_EquipItem(shared_ptr<Player> player, ItemDB itemDB);
+	void DBCallback_UseItem(shared_ptr<Player> player, ItemDB itemDB);
+	void DBCallback_RewardItem(shared_ptr<Player> player, ItemDB itemDB);
+	// DB - 퀘스트
+	void DBCallback_RemoveQuest(shared_ptr<Player> player, QuestDB questDB);
+	void DBCallback_AddQuest(shared_ptr<Player> player, QuestDB questDB);
+	void DBCallback_CompleteQuest(shared_ptr<Player> player, QuestDB questDB);
+	void DBCallback_UpdateQuest(shared_ptr<Player> player, QuestDB questDB);
+	
+
 	// 룸 브로드캐스트, 패킷 바로 보낼지 기다렸다 보낼지, 일단 이렇게
 	void Broadcast(float locX, float locY, shared_ptr<SendBuffer> sendBuffer);
 	void BroadcastWithoutMe(shared_ptr<Player> player, shared_ptr<SendBuffer> sendBuffer);
 
+	//
 	void ActorMove(shared_ptr<GameObject> gameObject, PROTOCOL::ObjectInfo info);
 	void ActorSkill(shared_ptr<GameObject> gameObject, PROTOCOL::C_Skill fromPkt);
-	void ActorUseItem(shared_ptr<GameObject> gameObject, PROTOCOL::C_UseItem fromPkt);
-	void PlayerAddItem(shared_ptr<Player> player, PROTOCOL::ItemInfo info);
 	void PlayerChat(shared_ptr<Player> player, PROTOCOL::C_Chat fromPkt);
 
 	float GetPlayerAround(shared_ptr<Monster> monster);
@@ -56,6 +76,6 @@ public:
 
 	map<int32, shared_ptr<Player>> _players;
 	map<int32, shared_ptr<Monster>> _monsters;
-
+	map<int32, shared_ptr<Npc>> _npcs;
 };
 

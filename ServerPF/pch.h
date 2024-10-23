@@ -4,12 +4,12 @@
 #ifdef _DEBUG
 
 #pragma comment(lib, "MyServerCore\\Debug\\MyServerCore.lib")
-
-#pragma comment(lib, "libprotobufd.lib")
+#pragma comment(lib, "Protobuf\\Debug\\libprotobufd.lib")
+#pragma comment(lib, "Hiredis\\Debug\\hiredisd.lib")
 #else
 #pragma comment(lib, "MyServerCore\\Release\\MyServerCore.lib")
-#pragma comment(lib, "libprotobuf.lib")
-//#pragma comment(lib, "Protobuf\\Release\\libprotobuf .lib")
+#pragma comment(lib, "Protobuf\\Release\\libprotobuf.lib")
+#pragma comment(lib, "Hiredis\\Release\\hiredis.lib")
 #endif
 
 

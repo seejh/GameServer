@@ -9,14 +9,21 @@
 #include"Room.h"
 #include"State.h"
 
-#include"DBTransaction.h"
+#include"GameDBManager.h"
 #include"DBConnectionPool.h"
 #include"GenProcedures.h"
-
+#include"DBManager.h"
+#include"QuestManager.h"
+#include"Quest.h"
 
 /*------------------------------------------------------------------------------
 	GameObject
 -------------------------------------------------------------------------------*/
+
+GameObject::GameObject()
+{
+	_reservedJobs.resize(OBJECT_JOB_SIZE);
+}
 
 GameObject::~GameObject()
 {
@@ -37,7 +44,7 @@ void GameObject::OnDamaged(shared_ptr<GameObject> attacker, int damage)
 	toPkt.set_object(_info.objectid());
 	toPkt.set_hp(hp);
 	
-	// 브로드캐스팅
+	// 지역 브로드캐스팅
 	shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
 	_ownerRoom->Broadcast(_info.pos().locationx(), _info.pos().locationy(), sendBuffer);
 
@@ -65,12 +72,28 @@ void GameObject::OnDead(shared_ptr<GameObject> attacker)
 	_ownerRoom->LeaveRoom(_info.objectid());
 }
 
+void GameObject::OnLeaveGame()
+{
+	// 예약 작업 취소 (제일 선행)
+	for (weak_ptr<Job>& reservedJob : _reservedJobs) {
+		shared_ptr<Job> job = reservedJob.lock();
+		if (job)
+			job->_cancel = true;
+	}
+}
+
+void GameObject::OnEnterGame()
+{
+}
+
 /*------------------------------------------------------------------------------
 	플레이어
 -------------------------------------------------------------------------------*/
 
 Player::Player()
-{}
+{
+	_questManager = make_shared<QuestManager>();
+}
 
 Player::~Player()
 {
@@ -93,195 +116,13 @@ void Player::OnDead(shared_ptr<GameObject> attacker)
 	}
 }
 
-void Player::UseItem(PROTOCOL::C_UseItem fromPkt)
-{
-	// 아이템 추출
-	shared_ptr<Item> item = _inven.Get(fromPkt.itemdbid());
-	if (item == nullptr)
-		return;
-	
-	// 소모품
-	if (item->_itemType == PROTOCOL::ItemType::ITEM_TYPE_CONSUMABLE) {
-		//
-		DBConnection* dbConn = GDBConnectionPool->Pop();
-
-		//
-		shared_ptr<Consumable> consumable = static_pointer_cast<Consumable>(item);
-		if (consumable == nullptr)
-			return;
-
-		// 스펙조회
-		ConsumableData* consumableData = reinterpret_cast<ConsumableData*>(DataManager::Instance()->_itemTable[item->_itemInfo.templateid()]);
-		if (consumableData != nullptr) {
-
-			// 플레이어 체력 변경
-			int32 maxhp = _info.stat().maxhp();
-			int32 recoveredHp = _info.stat().hp() + consumableData->_recovery;
-
-			_info.mutable_stat()->set_hp(((maxhp < recoveredHp) ? maxhp : recoveredHp));
-
-			// 아이템 카운트 - 1
-			consumable->_itemInfo.set_count(consumable->_itemInfo.count() - 1);
-
-			// 소모품 모두 사용 -> 삭제
-			if (consumable->_itemInfo.count() <= 0) {
-				// DB - 제거
-				SP::DeleteItem deleteItem(*dbConn);
-				deleteItem.In_ItemDbId(consumable->_itemInfo.itemdbid());
-
-				deleteItem.Execute();
-
-				// 서버 메모리 제거
-				_inven.Remove(consumable->_itemInfo.itemdbid());
-			}
-
-			// 소모품 여유분 남아 있음 -> 업데이트
-			else {
-				// DB - 변경
-				SP::UpdateItem updateItem(*dbConn);
-				updateItem.In_ItemDbId(consumable->_itemInfo.itemdbid());
-				updateItem.In_TemplateId(consumable->_itemInfo.templateid());
-				updateItem.In_Count(consumable->_itemInfo.count());
-				updateItem.In_Slot(consumable->_itemInfo.slot());
-				updateItem.In_Equipped(consumable->_itemInfo.equipped());
-				updateItem.In_PlayerDbId(_info.playerdbid());
-	
-				updateItem.Execute();
-			}
-
-			//
-			GDBConnectionPool->Push(dbConn);
-
-			// 아이템사용 패킷
-			{
-				PROTOCOL::S_UseItem useItemPkt;
-				useItemPkt.set_itemdbid(fromPkt.itemdbid());
-				useItemPkt.set_use(true);
-				
-				auto sendBuffer = ClientPacketHandler::MakeSendBuffer(useItemPkt);
-				_ownerSession->SendPacket(sendBuffer);
-			}
-
-			// HP변경 패킷 - 오브젝트넘버, 체력
-			{
-				PROTOCOL::S_ChangeHp changeHpPkt;
-				changeHpPkt.set_object(_info.objectid());
-				changeHpPkt.set_hp(_info.stat().hp());
-				
-				auto sendBuffer = ClientPacketHandler::MakeSendBuffer(changeHpPkt);
-				_ownerSession->SendPacket(sendBuffer);
-			}
-			
-			return;
-		}
-	}
-
-	// 장비류
-	else {
-		//
-		DBConnection* dbConn = GDBConnectionPool->Pop();
-
-		// 장착 요청인데 해당 부위에 이미 장비가 있으면 장착 해제 처리
-		if (fromPkt.use() == true) {
-			// 
-			shared_ptr<Item> unequipItem;
-
-			// 장착하려는 아이템(item)과 동일 포지션에 장착되어 있는 아이템이 있는가
-			unequipItem = _inven.FindEquipped(item);
-			if (unequipItem != nullptr) {
-				
-				// 서버 메모리
-				unequipItem->_itemInfo.set_equipped(false);
-
-				// DB 
-				SP::UpdateItem updateItem(*dbConn);
-				updateItem.In_ItemDbId(unequipItem->_itemInfo.itemdbid());
-				updateItem.In_TemplateId(unequipItem->_itemInfo.templateid());
-				updateItem.In_Count(unequipItem->_itemInfo.count());
-				updateItem.In_Slot(unequipItem->_itemInfo.slot());
-				updateItem.In_Equipped(unequipItem->_itemInfo.equipped());
-				updateItem.In_PlayerDbId(_info.playerdbid());
-
-				updateItem.Execute();
-				
-				// 클라측 (전송)
-				PROTOCOL::S_UseItem toPktUnUse;
-				toPktUnUse.set_itemdbid(unequipItem->_itemInfo.itemdbid());
-				toPktUnUse.set_use(false);
-
-				auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPktUnUse);
-				_ownerSession->SendPacket(sendBuffer);
-			}
-		}
-
-		// 요청한 장비 착용 or 해제 처리
-		// 서버 메모리
-		item->_itemInfo.set_equipped(fromPkt.use());
-
-		// DB
-		SP::UpdateItem updateItem(*dbConn);
-		updateItem.In_ItemDbId(item->_itemInfo.itemdbid());
-		updateItem.In_TemplateId(item->_itemInfo.templateid());
-		updateItem.In_Count(item->_itemInfo.count());
-		updateItem.In_Slot(item->_itemInfo.slot());
-		updateItem.In_Equipped(item->_itemInfo.equipped());
-		updateItem.In_PlayerDbId(_info.playerdbid());
-
-		updateItem.Execute();
-
-		//
-		GDBConnectionPool->Push(dbConn);
-
-		// 클라측 (전송)
-		PROTOCOL::S_UseItem toPkt;
-		toPkt.set_itemdbid(fromPkt.itemdbid());
-		toPkt.set_use(fromPkt.use());
-		
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-		_ownerSession->SendPacket(sendBuffer);
-	}
-
-	CalculateAddStat();
-}
-
-void Player::CalculateAddStat()
-{
-	// 장비와 스텟 변경으로 인한 전체 공, 방 업데이트
-	
-	//
-	_totalDamage = _info.stat().damage();
-	_totalDefence = 0;
-
-	_weaponDamage = 0;
-	_armorDefence = 0;
-
-	// 아이템 목록에서
-	for (auto p : _inven._items) {
-		// 아이템
-		shared_ptr<Item> item = p.second;
-
-		// 미착용 패스
-		if (item->_itemInfo.equipped() == false)
-			continue;
-
-		// 착용된 장비들 - 공,방 합산
-		if (item->_itemType == PROTOCOL::ItemType::ITEM_TYPE_WEAPON)
-			_weaponDamage += static_pointer_cast<Weapon>(item)->_damage;
-		else if (item->_itemType == PROTOCOL::ItemType::ITEM_TYPE_ARMOR)
-			_armorDefence += static_pointer_cast<Armor>(item)->_defence;
-	}
-
-	// 전체 공,방 스텟에 장비스텟 합산
-	_totalDamage += _weaponDamage;
-	_totalDefence += _armorDefence;
-}
-
 void Player::OnLeaveGame()
 {
-	// TODO : 플레이어 정보 DB에 저장
+	// 예약 작업(Job) 취소, 플레이어 정보 DB 저장
+	GameObject::OnLeaveGame();
 
 	// DB 커넥션
-	DBConnection* dbConn = GDBConnectionPool->Pop();
+	DBConnection* dbConn = DBManager::Instance()->_gameDbManager->Pop();
 
 	// 스텟
 	SP::UpdatePlayer updatePlayer(*dbConn);
@@ -298,9 +139,244 @@ void Player::OnLeaveGame()
 
 	// 아이템 : 아이템은 일단 실시간 반영되고 있어서 패스
 
+	// 퀘스트
+	for (auto p : _questManager->_quests) {
+		if (p.second->_questInfo.completed())
+			continue;
+
+		SP::UpdateQuest updateQuest(*dbConn);
+		updateQuest.In_QuestDbId(p.second->_questInfo.questdbid());
+		updateQuest.In_TemplateId(p.second->_questInfo.templateid());
+		updateQuest.In_PlayerDbId(p.second->_questInfo.playerdbid());
+		updateQuest.In_Completed(p.second->_questInfo.completed());
+		updateQuest.In_Progress(p.second->_questInfo.progress());
+		if (updateQuest.Execute()) {
+
+		}
+	}
 
 	// DB 커넥션 반납
-	GDBConnectionPool->Push(dbConn);
+	DBManager::Instance()->_gameDbManager->Push(dbConn);
+
+	// 패킷
+	PROTOCOL::S_Leave_Room toPkt;
+	toPkt.mutable_object()->set_objectid(_info.objectid());
+	toPkt.mutable_object()->set_objecttype(_info.objecttype());
+	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+	_ownerSession->SendPacket(sendBuffer);
+
+	// 플레이어 비전 비활성화
+	_vision._prevObjects.clear();
+	_vision._ownerPlayer.reset();
+	
+	// 룸 비움
+	_ownerRoom.reset();
+
+	// 플레이어 제거
+	// _ownerSession->_player.reset();
+}
+
+void Player::OnEnterGame()
+{
+	GameObject::OnEnterGame();
+
+	// 아이템 기반으로 스텟 계산
+	CalculateAddStat();
+
+	// 당사자에게만 S_EnterRoom
+	PROTOCOL::S_Enter_Room toPkt;
+	toPkt.set_success(true);
+	toPkt.mutable_object()->CopyFrom(_info);
+	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+	_ownerSession->SendPacket(sendBuffer);
+
+	// 비전 플레이어 활성화
+	_vision._ownerPlayer = static_pointer_cast<Player>(shared_from_this());
+	_vision.Update();
+}
+
+void Player::UseItem(int itemId)
+{
+	// 아이템 정보를 조회해서 해당 아이템의 효과 적용
+
+	// 아이템 정보 조회
+	ItemData* itemData = DataManager::Instance()->_itemTable[itemId];
+	if (itemData == nullptr) {
+		cout << "Player::UseItem() Error - Can't Find ItemId:" << itemId << "'s itemData" << endl;
+		return;
+	}
+		
+	// 소비류가 아니면 패스
+	if (itemData->_itemType != PROTOCOL::ItemType::ITEM_TYPE_CONSUMABLE) {
+		cout << "Player::UseItem() Error - ItemType No Consumable" << endl;
+		return;
+	}
+		
+	switch (reinterpret_cast<ConsumableData*>(itemData)->_consumableType) {
+	case PROTOCOL::ConsumableType::CONSUMABLE_TYPE_HP_POTION: 
+	{
+		// HP 포션류
+		// 효과 적용 - 회복된 체력 = 현체력 + 아이템 회복력
+		int32 afterHP = _info.stat().hp() + reinterpret_cast<ConsumableData*>(itemData)->_recovery;
+		_info.mutable_stat()->set_hp(afterHP);
+
+		// 패킷
+		PROTOCOL::S_ChangeHp toPkt;
+		toPkt.set_object(_info.objectid());
+		toPkt.set_hp(afterHP);
+
+		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+		_ownerSession->SendPacket(sendBuffer);
+	} 
+	break;
+
+	case PROTOCOL::ConsumableType::CONSUMABLE_TYPE_MP_POTION:
+		// MP 포션류
+		cout << "Player::UseItem(int) Error - MP POTION" << endl;
+		break;
+
+	default:
+		// 그 외
+		cout << "Player::UseItem(int) Error - Not HP, MP POTION" << endl;
+		break;
+	}
+}
+
+void Player::TakeReward(int itemId, int quantity)
+{
+	// 아이템 조회 -> 인벤확인, DB작업 결정 -> DB 작업 -> 아이템 생성(서버) -> 인벤 추가 -> 패킷
+
+	// 아이템 조회
+	ItemData* itemData = DataManager::Instance()->_itemTable[itemId];
+	if (itemData == nullptr)
+		return;
+
+	// 인벤확인 및 DB 작업 결정
+	ItemDB itemDB;
+	int32 slot;
+
+	// 소모품
+	if (itemData->_itemType == PROTOCOL::ItemType::ITEM_TYPE_CONSUMABLE) {
+
+		// 스택슬롯 확인 - 있으면 UPDATE, 없으면 빈슬롯확인 
+		slot = _inven.GetStackPos(itemId);
+		if (slot == -1) {
+			
+			// 빈슬롯 확인 - 있으면 INSERT, 없으면 NONE
+			slot = _inven.GetEmptySlot();
+			if (slot == -1) {
+				// NONE
+			}
+			else {
+				// INSERT
+				
+				// 슬롯락
+				if (_inven.SetSlotDBLock(slot, true) == false) {
+					cout << "Player::TakeReward() Error - CONSUMABLE INSERT, " << slot << "Slot Locked Already" << endl;
+					return;
+				}
+
+				// DB작업요청
+				itemDB.TemplateId = itemId;
+				itemDB.PlayerDbId = _info.playerdbid();
+				itemDB.Count = quantity;
+				itemDB.Slot = slot;
+				itemDB.Equipped = false;
+				itemDB.dbState = DB_STATE::INSERT_NEED;
+
+				DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::InsertItem, static_pointer_cast<Player>(shared_from_this()), itemDB, &Room::DBCallback_RewardItem);
+			}
+		}
+		else {
+			// UPDATE
+			
+			// 슬롯락
+			if (_inven.SetSlotDBLock(slot, true) == false) {
+				cout << "Player::TakeReward() Error - CONSUMABLE UPDATE, " << slot << "Slot Locked Already" << endl;
+				return;
+			}
+
+			// 아이템 조회
+			shared_ptr<Item> item = _inven.GetItemBySlot(slot);
+			if (item == nullptr) {
+				cout << "Player::TakeReward() Error - Find Item Nullptr" << endl;
+				return;
+			}
+				
+			// DB작업요청
+			itemDB.ItemDbId = item->_itemInfo.itemdbid();
+			itemDB.TemplateId = item->_itemInfo.templateid();
+			itemDB.PlayerDbId = item->_itemInfo.playerdbid();
+			itemDB.Count = item->_itemInfo.count() + quantity;
+			itemDB.Slot = item->_itemInfo.slot();
+			itemDB.Equipped = item->_itemInfo.equipped();
+			itemDB.dbState = DB_STATE::UPDATE_NEED;
+
+			DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::UpdateItem, static_pointer_cast<Player>(shared_from_this()), itemDB, &Room::DBCallback_RewardItem);
+		}
+	}
+
+	// 장비
+	else {
+		// 빈슬롯 확인 - 있으면 INSERT, 없으면 NONE
+		slot = _inven.GetEmptySlot();
+		if (slot == -1) {
+			// NONE
+		}
+		else {
+			// INSERT
+			
+			// 슬롯락
+			if (_inven.SetSlotDBLock(slot, true) == false) {
+				cout << "Player::TakeReward() Error - EQUIPMENT INSERT, " << slot << "Slot Locked Already" << endl;
+				return;
+			}
+
+			// DB작업요청
+			itemDB.TemplateId = itemId;
+			itemDB.PlayerDbId = _info.playerdbid();
+			itemDB.Count = quantity;
+			itemDB.Slot = slot;
+			itemDB.Equipped = false;
+			itemDB.dbState = DB_STATE::INSERT_NEED;
+
+			DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::InsertItem, static_pointer_cast<Player>(shared_from_this()), itemDB, &Room::DBCallback_RewardItem);
+		}
+	}
+}
+
+void Player::CalculateAddStat()
+{
+	// 장비와 스텟 변경으로 인한 전체 공, 방 업데이트
+	
+	//
+	_totalDamage = _info.stat().damage();
+	_totalDefence = 0;
+
+	_weaponDamage = 0;
+	_armorDefence = 0;
+	
+	// 아이템 목록에서
+	for (auto p : _inven._items) { // 새로 아이템 얻은 후로 장착 요청햇는데 p자체가 nullptr -> 어떻게 없을 수가 있냐
+		// 아이템
+		shared_ptr<Item> item = p.second;
+		if (item == nullptr) 
+			cout << "Player::CalculateAddStat() Error - Item Nullptr Slot : " << p.first << endl;
+
+		// 미착용 패스
+		if (item->_itemInfo.equipped() == false) 
+			continue;
+			
+		// 착용된 장비들 - 공,방 합산
+		if (item->_itemType == PROTOCOL::ItemType::ITEM_TYPE_WEAPON)
+			_weaponDamage += static_pointer_cast<Weapon>(item)->_damage;
+		else if (item->_itemType == PROTOCOL::ItemType::ITEM_TYPE_ARMOR)
+			_armorDefence += static_pointer_cast<Armor>(item)->_defence;
+	}
+
+	// 전체 공,방 스텟에 장비스텟 합산
+	_totalDamage += _weaponDamage;
+	_totalDefence += _armorDefence;
 }
 
 void Player::AddExp(int exp)
@@ -341,6 +417,24 @@ void Player::AddExp(int exp)
 	}
 }
 
+void Player::SaveToDB(bool init)
+{
+	// 테스트 : 일단 현재 30초 단위
+	uint64 SaveTick = 3 * 10'000;
+	
+	// SAVE
+	if (init == false) {
+		// 플레이어 정보(스텟, 위치)
+		
+		
+		// 인벤토리
+
+	}
+
+	// 재등록
+	_reservedJobs[PLAYERJOBS::PLAYER_JOB_SAVE] = _ownerRoom->DoTimer(SaveTick, [this]() { SaveToDB(false); });
+}
+
 
 /*--------------------------------------------------------------------
 	몬스터
@@ -362,7 +456,7 @@ void Monster::Update()
 		_currentState->Execute(static_pointer_cast<Monster>(shared_from_this()));
 	
 	// 몬스터 Update 재등록, 0.2초 주기
-	_reservedJob = _ownerRoom->DoTimer(200, [this]() { Update(); });
+	_reservedJobs[MONSTERJOBS::MONSTER_JOB_UPDATE] = _ownerRoom->DoTimer(200, [this]() { Update(); });
 }
 
 void Monster::OnDamaged(shared_ptr<GameObject> attacker, int damage)
@@ -372,20 +466,31 @@ void Monster::OnDamaged(shared_ptr<GameObject> attacker, int damage)
 
 void Monster::OnDead(shared_ptr<GameObject> attacker)
 {
-	shared_ptr<Room> room = _ownerRoom;
+	// 예약 작업 취소, 플레이어 보상, 재입장 예약
+	GameObject::OnLeaveGame();
 
+	shared_ptr<Room> room = _ownerRoom;
+	
 	GameObject::OnDead(attacker);
 
 	// 공격자 == 플레이어
 	if (attacker->_info.objecttype() == PROTOCOL::GameObjectType::PLAYER) {
-		// 경험치 보상
-		int exp = DataManager::Instance()->_monsterTable[_templateId].stat.totalexp();
-		static_pointer_cast<Player>(attacker)->AddExp(exp);
 
+		// 몬스터 데이터 조회
+		MonsterData* monsterData = DataManager::Instance()->_monsterTable[_info.typetemplateid()];
+		if (monsterData == nullptr)
+			return;
+
+		// 경험치 보상
+		static_pointer_cast<Player>(attacker)->AddExp(monsterData->stat.totalexp());
+		
 		// 아이템 보상
 		RewardData reward = GetRandomReward();
 		if (reward.itemId != 0) 
-			DBTransaction::Instance()->DoAsync(&DBTransaction::RewardPlayer, static_pointer_cast<Player>(attacker), reward, attacker->_ownerRoom);
+			static_pointer_cast<Player>(attacker)->TakeReward(reward.itemId, reward.count);
+			
+		// 플레이어 퀘스트 업데이트
+		static_pointer_cast<Player>(attacker)->_questManager->Update(QuestType::QUEST_TYPE_KILL, _info.typetemplateid(), 1);
 	}
 
 	// 재입장 예약
@@ -399,23 +504,38 @@ void Monster::OnDead(shared_ptr<GameObject> attacker)
 	room->DoTimer(10000, &Room::EnterRoom, shared_from_this());
 }
 
+void Monster::OnLeaveGame()
+{
+	//
+	GameObject::OnLeaveGame();
+
+	// 몬스터의 방 참조 제거
+	_ownerRoom.reset();
+}
+
+void Monster::OnEnterGame()
+{
+	GameObject::OnEnterGame();
+
+	Update();
+}
+
 void Monster::Init(int templateId)
 {
-	// 몬스터 정보 조회
-	if (DataManager::Instance()->_monsterTable.count(templateId) == 0) {
-		cout << "Monster-" << _info.objectid() << ", Init Error : No MonsterTable" << endl;
+	// 몬스터 데이터 조회
+	MonsterData* data = DataManager::Instance()->_monsterTable[templateId];
+	if (data == nullptr) {
+		cout << "Monster-" << _info.objectid() << " Init() Error : No MonsterTable" << endl;
 		return;
 	}
 
-	MonsterData data = DataManager::Instance()->_monsterTable[templateId];
-	
 	// 몬스터 정보 세팅
-	_templateId = data.id;
+	_info.set_typetemplateid(data->id);
 	_info.set_objecttype(PROTOCOL::GameObjectType::MONSTER);
-	_info.set_name(data.name);
-	_info.mutable_stat()->CopyFrom(data.stat);
+	_info.set_name(data->name);
+	_info.mutable_stat()->CopyFrom(data->stat);
 	_totalDamage = _info.stat().damage();
-
+	
 	// 몬스터 상태 세팅
 	_currentState = StateIdle::Instance();
 
@@ -455,7 +575,7 @@ void Monster::Skill(uint64 nowTime)
 		// 스킬 쿨 계산
 		_nextAttackTime = nowTime + _info.stat().attackcooltime();
 
-		// S_Skill 패킷 브로드캐스팅
+		// S_Skill 패킷 지역 브로드캐스팅
 		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
 		_ownerRoom->Broadcast(_info.pos().locationx(), _info.pos().locationy(), sendBuffer);
 
@@ -479,10 +599,14 @@ RewardData Monster::GetRandomReward()
 	int ran = rand() % 100;
 
 	// 몬스터 보상 목록
-	MonsterData monsterData = DataManager::Instance()->_monsterTable[_templateId];
-	for (RewardData reward : monsterData.rewardDatas) {
-		
-		// 드랍
+	MonsterData* monsterData = DataManager::Instance()->_monsterTable[_info.typetemplateid()];
+	if (monsterData == nullptr) {
+		cout << "Monster::GetRandomReward() Error : No MonsterData" << endl;
+		return RewardData();
+	}
+
+	// 보상목록에서 드랍 확인
+	for (RewardData reward : monsterData->rewardDatas) {
 		if (ran <= reward.itemDropRate) 
 			return reward;
 	}
@@ -493,7 +617,7 @@ RewardData Monster::GetRandomReward()
 
 FVector Monster::GetRandomPatrolPos()
 {
-	// 베이스 포스 기준으로 일정 반경 안 난수
+	// basePos 기준으로 일정 반경 랜덤위치
 	
 	FVector patrolPos;
 
@@ -592,3 +716,49 @@ void Projectile::OnDead(shared_ptr<GameObject> attacker)
 {
 	GameObject::OnDead(attacker);
 }
+
+void Projectile::OnLeaveGame()
+{
+	// GameObject::OnLeaveGame();
+}
+
+void Projectile::OnEnterGame()
+{
+	// GameObject::OnEnterGame();
+}
+
+/*
+	
+*/
+
+void Npc::OnDamaged(shared_ptr<GameObject> attacker, int damage)
+{
+}
+
+void Npc::OnDead(shared_ptr<GameObject> attacker)
+{
+}
+
+void Npc::OnLeaveGame()
+{
+	// 일단 기능없음
+	GameObject::OnLeaveGame();
+}
+
+void Npc::OnEnterGame()
+{
+	GameObject::OnEnterGame();
+}
+
+void Npc::Init(int templateId)
+{
+	auto it = DataManager::Instance()->_npcTable.find(templateId);
+	if (it != DataManager::Instance()->_npcTable.end()) {
+		NpcData* data = it->second;
+		
+		_info.set_typetemplateid(templateId);
+		_info.set_objecttype(PROTOCOL::GameObjectType::NPC);
+		_info.set_name(data->name);
+	}
+}
+

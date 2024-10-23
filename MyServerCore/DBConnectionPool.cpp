@@ -28,10 +28,7 @@ bool DBConnectionPool::Connect(int32 connectionCount, const WCHAR* connectionStr
 		DBConnection* connection = xnew<DBConnection>();
 		if (connection->Connect(_environment, connectionString) == false)
 			return false;
-
-		// 개인적 추가
-		DBSynchronizer dbSync(*connection);
-
+		
 		_connections.push_back(connection);
 	}
 

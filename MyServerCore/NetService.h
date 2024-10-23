@@ -2,15 +2,20 @@
 
 #include"IocpCore.h"
 #include"Session.h"
-#include"ListenSession.h"
+//#include"ListenSession.h"
+
+class ListenSession;
+enum class ServiceType : uint8 {
+	SERVER, CLIENT,
+};
 
 class NetService
 {
 public:
-	NetService(function<shared_ptr<Session>()> sessionFactory);
-	~NetService();
+	NetService(ServiceType type, function<shared_ptr<Session>()> sessionFactory, wstring ip, int port, int maxSessionCounts);
+	virtual ~NetService();
 
-	bool Init();
+	virtual bool Init();
 
 	shared_ptr<Session> CreateSession();
 	void AddSession(shared_ptr<Session> session);
@@ -23,9 +28,29 @@ public:
 
 	set<shared_ptr<Session>> _sessions;
 	int _connectedSessionCount = 0;
+	int _maxSessionCounts;
 
 	function<shared_ptr<Session>()> _sessionFactory;
 	
+	ServiceType _serviceType;
+	wstring _ip;
+	int _port;
 	mutex _mutex;
 };
 
+class ClientService : public NetService {
+public:
+	ClientService(function<shared_ptr<Session>()> sessionFactory, wstring ip, int port, int maxSessionCounts);
+	virtual ~ClientService() {}
+
+	virtual bool Init() override;
+
+};
+
+class ServerService : public NetService {
+public:
+	ServerService(function<shared_ptr<Session>()> sessionFactory, wstring ip, int port, int maxSessionCounts);
+	virtual ~ServerService() {}
+
+	virtual bool Init() override;
+};

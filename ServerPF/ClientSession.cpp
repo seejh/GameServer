@@ -15,28 +15,38 @@
 #include"Inventory.h"
 #include"RoomManager.h"
 #include"ObjectManager.h"
+#include"RedisManager.h"
+#include"JwtHandler.h"
+#include"DBManager.h"
+#include"GameDBManager.h"
+#include"Quest.h"
+#include"QuestManager.h"
 
 void ClientSession::OnConnected()
 {
 	SessionManager::Instance()->AddSession(static_pointer_cast<ClientSession>(shared_from_this()));
 	_playerState = PROTOCOL::PlayerServerState::SERVER_STATE_CONNECTED;
-
 }
 
 void ClientSession::OnDisconnected()
 {
-
-	cout << "Player-" << _player->_info.objectid() << ", Disconnect" << endl;
-	//shared_ptr<Room> room = _player->_ownerRoom;
-	
 	// 플레이어가 있으면
 	if (_player != nullptr && _player->_ownerRoom != nullptr) {
+		cout << "Player-" << _player->_info.objectid() << ", Disconnect" << endl;
+
 		_player->_ownerRoom->DoAsync(&Room::LeaveRoom, _player->_info.objectid());
 
 		// 오브젝트 매니저에서 플레이어 제거
 		ObjectManager::Instance()->Remove(_player->_info.objectid());
 
 		// 플레이어 참조 해제
+		_player.reset();
+	}
+	else if (_player != nullptr && _player->_ownerRoom == nullptr) {
+		cout << "Player-" << _player->_info.objectid() << ", Disconnect(Not In Room)" << endl;
+
+		ObjectManager::Instance()->Remove(_player->_info.objectid());
+
 		_player.reset();
 	}
 
@@ -52,14 +62,12 @@ void ClientSession::OnRecvPacket(char* buffer, int len)
 {
 	ClientPacketHandler::HandlePacket(static_pointer_cast<ClientSession>(shared_from_this()), buffer, len);
 
-	//vector<char> _buffer;
-
 }
 
 void ClientSession::SendPacket(shared_ptr<SendBuffer> sendBuffer)
 {
 	// 락 걸고
-	lock_guard<mutex> lock(_mutex2);
+	lock_guard<mutex> lock(_packetBufferLock);
 
 	// 배열에 푸시
 	_packetBuffer.push_back(sendBuffer);
@@ -67,7 +75,7 @@ void ClientSession::SendPacket(shared_ptr<SendBuffer> sendBuffer)
 
 void ClientSession::SendPacketFlush()
 {
-	lock_guard<mutex> lock(_mutex2);
+	lock_guard<mutex> lock(_packetBufferLock);
 
 	if (_packetBuffer.empty())
 		return;
@@ -83,128 +91,67 @@ void ClientSession::SendPacketFlush()
 */
 void ClientSession::HandleLogin(PROTOCOL::C_Login fromPkt)
 {
-	// 로그인 확인
-	// 계정 (STR -> WSTR)
-	string str = fromPkt.id();
-	int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
-	wstring id(sizeNeeded, 0);
-	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &id[0], sizeNeeded);
-
-	//
-	bool loginResult = false;
-
-	// DB 계정 조회
-	AccountDB accountDb;
-	DBConnection* dbConn = GDBConnectionPool->Pop();
-	SP::SelectAccountByAccountName selectAccount(*dbConn);
-	{
-		// In
-		selectAccount.In_AccountName(id.c_str(), id.size());
-		// Out
-		selectAccount.Out_AccountDbId(OUT accountDb.AccountDbId);
-		selectAccount.Out_AccountName(OUT accountDb.AccountName);
-		selectAccount.Out_AccountPw(OUT accountDb.AccountPw);
-
-		// Execute & Fetch
-		selectAccount.Execute();
-		while (selectAccount.Fetch()) {
-			if (accountDb.AccountPw == stoi(fromPkt.pw())) {
-				loginResult = true;
-				break;
-			}
-		}
-	}
-	
-	//
 	PROTOCOL::S_Login toPkt;
 
-	// 로그인 실패
-	if (!loginResult) {
-		cout << "ID:" << str << " Login Failed" << endl;
-		toPkt.set_success(false);
-	}
-	// 로그인 성공
-	else {
-		toPkt.set_success(true);
+	// 웹서버 사용
+	//JwtHandler::VerifyToken(fromPkt.tokenstring());
 
-		// 
-		_accountDbId = accountDb.AccountDbId;
-		cout << "ID:" << str << ", AccountDbId:" << _accountDbId << " Login Succeed" << endl;
-		
-		// DB에서 해당 계정의 플레이어 정보들
-		PlayerDB playerDb;
-		SP::SelectPlayerByAccountDbId selectPlayer(*dbConn);
-		{
-			// In
-			selectPlayer.In_AccountDbId(_accountDbId);
-			// Out
-			// 인덱스, 이름, 소유계정
-			selectPlayer.Out_PlayerDbId(playerDb.PlayerDbId);
-			selectPlayer.Out_PlayerName(playerDb.PlayerName);
-			selectPlayer.Out_AccountDbId(playerDb.AccountDbId);
+	// 개발중
+	auto dbConn = DBManager::Instance()->_gameDbManager->Pop();
+	SP::SelectPlayerByAccountDbId selectPlayer(*dbConn);
+
+	PlayerDB playerDB;
+	selectPlayer.In_AccountDbId(stoi(fromPkt.tokenstring()));
+	selectPlayer.Out_PlayerDbId(playerDB.PlayerDbId);
+	selectPlayer.Out_PlayerName(playerDB.PlayerName);
+	selectPlayer.Out_AccountDbId(playerDB.AccountDbId);
+	selectPlayer.Out_LocationX(playerDB.LocationX);
+	selectPlayer.Out_LocationY(playerDB.LocationY);
+	selectPlayer.Out_LocationZ(playerDB.LocationZ);
+	selectPlayer.Out_Level(playerDB.Level);
+	selectPlayer.Out_TotalExp(playerDB.Exp);
+	selectPlayer.Out_MaxHp(playerDB.MaxHp);
+	selectPlayer.Out_Hp(playerDB.Hp);
+	selectPlayer.Out_Damage(playerDB.Damage);
+	if (selectPlayer.Execute()) {
+		while (selectPlayer.Fetch()) {
+			PROTOCOL::ObjectInfo info;
+			info.set_objecttype(PROTOCOL::GameObjectType::PLAYER);
+			info.set_playerdbid(playerDB.PlayerDbId);
+
+			wstring wstr(playerDB.PlayerName);
+			int needSize = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+			string str(needSize, 0);
+			WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &str[0], needSize, NULL, NULL);
+			info.set_name(str);
 			
-			// 위치, 스텟
-			selectPlayer.Out_LocationX(playerDb.LocationX);
-			selectPlayer.Out_LocationY(playerDb.LocationY);
-			selectPlayer.Out_LocationZ(playerDb.LocationZ);
-			selectPlayer.Out_Level(playerDb.Level);
-			selectPlayer.Out_TotalExp(playerDb.Exp);
-			selectPlayer.Out_MaxHp(playerDb.MaxHp);
-			selectPlayer.Out_Hp(playerDb.Hp);
-			selectPlayer.Out_Damage(playerDb.Damage);
+			info.mutable_pos()->set_locationx(playerDB.LocationX);
+			info.mutable_pos()->set_locationy(playerDB.LocationY);
+			info.mutable_pos()->set_locationz(playerDB.LocationZ);
+			info.mutable_stat()->set_level(playerDB.Level);
+			info.mutable_stat()->set_totalexp(DataManager::Instance()->_statTable[playerDB.Level].totalExp);
+			info.mutable_stat()->set_exp(playerDB.Exp);
+			info.mutable_stat()->set_maxhp(playerDB.MaxHp);
+			info.mutable_stat()->set_hp(playerDB.Hp);
+			info.mutable_stat()->set_damage(playerDB.Damage);
 
-			// Execute & Fetch
-			selectPlayer.Execute();
-			while (selectPlayer.Fetch()) {
-
-				//
-				PROTOCOL::ObjectInfo info;
-				// 타입, 플레이어 인덱스
-				info.set_objecttype(PROTOCOL::GameObjectType::PLAYER);
-				info.set_playerdbid(playerDb.PlayerDbId);
-
-				// 캐릭터 이름 (WSTR -> STR)
-				wstring wstr(playerDb.PlayerName);
-				int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
-				string strTo(sizeNeeded, 0);
-				WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], sizeNeeded, NULL, NULL);
-				info.set_name(strTo);
-
-				// 위치, 스텟
-				info.mutable_pos()->set_locationx(playerDb.LocationX);
-				info.mutable_pos()->set_locationy(playerDb.LocationY);
-				info.mutable_pos()->set_locationz(playerDb.LocationZ);
-				info.mutable_stat()->set_level(playerDb.Level);
-				info.mutable_stat()->set_totalexp(DataManager::Instance()->_statTable[playerDb.Level].totalExp);
-				info.mutable_stat()->set_exp(playerDb.Exp);
-				info.mutable_stat()->set_maxhp(playerDb.MaxHp);
-				info.mutable_stat()->set_hp(playerDb.Hp);
-				info.mutable_stat()->set_damage(playerDb.Damage);
-
-				// 소유 캐릭터 목록에 추가 (서버)
-				_myCharacterList.push_back(info);
-				
-				// 패킷에 복사 (캐릭터 목록)
-				toPkt.add_objectinfos()->CopyFrom(info);	
-			}
+			//
+			_myCharacterList.push_back(info);
+			//
+			toPkt.add_objectinfos()->CopyFrom(info);
 		}
-
-		// 상태 변경 (Connected -> Lobby)
-		_playerState = PROTOCOL::PlayerServerState::SERVER_STATE_LOBBY;
 	}
 
-	// DB연결 반납
-	GDBConnectionPool->Push(dbConn);
-	
-	// 패킷 전송
-	shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-	SendPacket(sendBuffer);	
+	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+	SendPacket(sendBuffer);
+
+	DBManager::Instance()->_gameDbManager->Push(dbConn);
 }
 
 void ClientSession::HandleCreatePlayer(string name)
 {
-	// TODO : 로비에서만 생성 가능하게
 
+	// TODO : 로비에서만 생성 가능하게
 	// 패킷
 	PROTOCOL::S_CreatePlayer toPkt;
 
@@ -222,7 +169,8 @@ void ClientSession::HandleCreatePlayer(string name)
 	SP::SelectPlayerName selectPlayer(*dbConn);
 	selectPlayer.In_PlayerName(wstr.c_str(), wstr.size());
 	selectPlayer.Out_PlayerDbId(num);
-	selectPlayer.Execute();
+	if (selectPlayer.Execute() == false)
+		return;
 
 	// 중복
 	if (selectPlayer.Fetch() == true)
@@ -233,7 +181,7 @@ void ClientSession::HandleCreatePlayer(string name)
 		// 1레벨 스텟
 		StatData stat = DataManager::Instance()->_statTable[1];
 
-		// DB 플레이어 생성
+		// 
 		PlayerDB playerDB;
 		wcscpy_s(playerDB.PlayerName, wstr.c_str());
 		playerDB.AccountDbId = _accountDbId;
@@ -245,8 +193,10 @@ void ClientSession::HandleCreatePlayer(string name)
 		playerDB.LocationX = 0.f;
 		playerDB.LocationY = -1000.f;
 		playerDB.LocationZ = 118.14999389648438f;
-
-		SP::InsertPlayer insertPlayer(*dbConn);
+		
+		// DB 생성
+		int64 outIdentity = -1;
+		SP::InsertPlayerSelectIdentity insertPlayer(*dbConn);
 		insertPlayer.In_PlayerName(playerDB.PlayerName);
 		insertPlayer.In_AccountDbId(playerDB.AccountDbId);
 		insertPlayer.In_Level(playerDB.Level);
@@ -257,24 +207,17 @@ void ClientSession::HandleCreatePlayer(string name)
 		insertPlayer.In_LocationX(playerDB.LocationX);
 		insertPlayer.In_LocationY(playerDB.LocationY);
 		insertPlayer.In_LocationZ(playerDB.LocationZ);
+		insertPlayer.Out_Identity(outIdentity);
 		if (insertPlayer.Execute() == false) {
-			cout << "ClientSession::CreatePlayer() - InsertPlayer Error" << endl;
+			cout << "ClientSession::CreatePlayer() - InsertPlayer Execute Error" << endl;
 			return;
 		}
-		
-		// 방금 생성한 DB플레이어에서 id 추출
-		int64 playerDbId;
-		SP::SelectIdentity selectIdentity(*dbConn);
-		selectIdentity.Out_Identity(playerDbId);
-		if (selectIdentity.Execute() == false) {
-			cout << "ClientSession::CreatePlayer() - SelectIdentity Error" << endl;
+		if (insertPlayer.Fetch() == false) {
+			cout << "ClientSession::CreatePlayer() - InsertPlayer Fetch Error" << endl;
 			return;
 		}
-		if (selectIdentity.Fetch() == false) {
-			cout << "ClientSesison::CreatePlayer() - SelectIdentity Error" << endl;
-			return;
-		}
-		playerDB.PlayerDbId = playerDbId;
+		playerDB.PlayerDbId = outIdentity;
+
 
 		// 기본 아이템 지급
 		// 기본 아이템 - 검
@@ -330,92 +273,95 @@ void ClientSession::HandleCreatePlayer(string name)
 	GDBConnectionPool->Push(dbConn);
 }
 
-/*
-	클라가 보낸 C_EnterRoom 패킷에서 현재 보유 캐릭터(LobbyPlayerInfo)와 일치하는 캐릭터
-	를 찾고 해당 캐릭터가 소유하고 있는 아이템을 Item DB에서 조회
-	
-	아이템 목록을 만들어준 캐릭터 인벤에 넣고, 클라이언트에게 아이템 목록 보내줌
-*/
-void ClientSession::HandleEnterRoom(PROTOCOL::C_Enter_Room fromPkt)
-{
-	// 첫 접속
+
+void ClientSession::HandleEnterRoom(PROTOCOL::C_Enter_Room fromPkt) {
+	//
+	auto dbConn = DBManager::Instance()->_gameDbManager->Pop();
+
+	// 월드 재진입이 아닌 처음접속
 	if (_player == nullptr) {
-		// 아이템 목록 패킷
-		PROTOCOL::S_ItemList toPkt;
+		cout << "ClientSession::HandleEnterRoom()" << endl;
 
-		// DB 커넥션
-		DBConnection* dbConn = GDBConnectionPool->Pop();
+		PROTOCOL::S_ItemList itemListPkt;
+		PROTOCOL::S_QuestList questListPtk;
 
-		// 내 캐릭터 리스트에서 접속할 캐릭 이름 찾음
+		// 내 캐릭 목록 중에서 클라가 선택한 캐릭을 찾음 -> 해당 캐릭 방 접속
 		for (PROTOCOL::ObjectInfo& info : _myCharacterList) {
-			if (info.name().compare(fromPkt.object().name()) == 0) {
+			if (info.name().compare(fromPkt.object().name()) != 0)
+				continue;
+			
+			// 오브젝트풀에서 해당 객체(플레이어) 생성, 세션 연결
+			_player = static_pointer_cast<Player>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::PLAYER));
+			_player->_ownerSession = static_pointer_cast<ClientSession>(shared_from_this());
+			_player->_questManager->_ownerPlayer = _player; // 일단 여기 (생성자에서 넣으려니까 player가 null) 
 
-				// 오브젝트 생성
-				_player = static_pointer_cast<Player>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::PLAYER));
+			// 플레이어 정보 설정
+			info.set_objectid(_player->_info.objectid());
+			info.set_objecttype(_player->_info.objecttype());
+			_player->_info.CopyFrom(info);
+			_player->_playerDbId = _player->_info.playerdbid();
 
-				// id, 타입 잠시 보관
-				int32 objectId = _player->_info.objectid();
-				PROTOCOL::GameObjectType type = _player->_info.objecttype();
-
-				// 오브젝트에 데이터 복사, id,타입 다시 넣음
-				_player->_info.CopyFrom(info);
-				_player->_info.set_objectid(objectId);
-				_player->_info.set_objecttype(type);
-				_player->_playerDbId = _player->_info.playerdbid();
-
-				// 접속 플레이어 설정 (세션, 플레이어 참조)
-				_player->_ownerSession = static_pointer_cast<ClientSession>(shared_from_this()); 
-				
-				// DB 캐릭터 소유 아이템 조회
-				ItemDB itemDB;
-				SP::SelectItemByPlayerDbId selectItem(*dbConn);
-				// In
-				selectItem.In_PlayerDbId(_player->_info.playerdbid());
-
-				// Out
-				selectItem.Out_ItemDbId(itemDB.ItemDbId);
-				selectItem.Out_TemplateId(itemDB.TemplateId);
-				selectItem.Out_Count(itemDB.Count);
-				selectItem.Out_Slot(itemDB.Slot);
-				selectItem.Out_Equipped(itemDB.Equipped);
-				selectItem.Out_PlayerDbId(itemDB.PlayerDbId);
-
-				// Execute & Fetch
-				selectItem.Execute();
+			// DB아이템 조회 -> 아이템 생성(서버) -> 인벤토리에 추가(서버)
+			ItemDB itemDB;
+			SP::SelectItemByPlayerDbId selectItem(*dbConn);
+			selectItem.In_PlayerDbId(_player->_playerDbId);
+			selectItem.Out_ItemDbId(itemDB.ItemDbId);
+			selectItem.Out_TemplateId(itemDB.TemplateId);
+			selectItem.Out_Count(itemDB.Count);
+			selectItem.Out_Slot(itemDB.Slot);
+			selectItem.Out_Equipped(itemDB.Equipped);
+			selectItem.Out_PlayerDbId(itemDB.PlayerDbId);
+			if (selectItem.Execute()) {
 				while (selectItem.Fetch()) {
-					// 조회된 아이템(DB) 서버 메모리(플레이어 인벤토리)에서 생성
+
 					shared_ptr<Item> item = Item::MakeItem(itemDB);
-					if(item != nullptr)
+					if (item) {
 						_player->_inven.Add(item);
-
-					// 아이템 패킷에 추가
-					toPkt.add_items()->CopyFrom(item->_itemInfo);
+						itemListPkt.add_items()->CopyFrom(item->_itemInfo);
+					}
 				}
+			}
 
-				break;
+			// DB퀘스트 조회 -> 퀘스트 생성(서버) -> 퀘스트매니저에 추가(서버)
+			QuestDB questDB;
+			SP::SelectQuestByPlayerDbId selectQuest(*dbConn);
+			selectQuest.In_PlayerDbId(_player->_playerDbId);
+			selectQuest.Out_QuestDbId(questDB.QuestDbId);
+			selectQuest.Out_TemplateId(questDB.TemplateId);
+			selectQuest.Out_PlayerDbId(questDB.PlayerDbId);
+			selectQuest.Out_Completed(questDB.Completed);
+			selectQuest.Out_Progress(questDB.Progress);
+			if (selectQuest.Execute()) {
+				while (selectQuest.Fetch()) {
+
+					shared_ptr<Quest> quest = Quest::MakeQuest(questDB);
+					if (quest) {
+						_player->_questManager->Add(quest);
+						questListPtk.add_quests()->CopyFrom(quest->_questInfo);
+					}
+				}
 			}
 		}
 
-		// DB 커넥션 반납
-		GDBConnectionPool->Push(dbConn);
-
-		// 아이템 패킷 전송
-		shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-		SendPacket(sendBuffer);
+		{ // 아이템 패킷
+			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(itemListPkt);
+			SendPacket(sendBuffer);
+		}
+		{ // 퀘스트 패킷
+			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(questListPtk);
+			SendPacket(sendBuffer);
+		}
 	}
 
-	// 첫접속 x, 리스폰일 시,
+	// 월드 재진입
 	else {
-		// 체력, 리스폰 지점 조정
-		_player->_info.mutable_stat()->set_hp(_player->_info.stat().maxhp());
-		_player->_info.mutable_pos()->set_locationx(0.f);
-		_player->_info.mutable_pos()->set_locationy(-1000.f);
-		_player->_info.mutable_pos()->set_locationz(120.f);
-	}
-	
-	// 룸(월드) 입장
-	shared_ptr<Room> room = RoomManager::Instance()->Find(1);
-	if(room)
-		room->DoAsync(&Room::EnterRoom, static_pointer_cast<GameObject>(_player));
-}
+		cout << "ClientSession::HandleEnterRoom() ReEnterRoom" << endl;
 
+		// 그냥 hp 200으로 부활
+		_player->_info.mutable_stat()->set_hp(200);
+	}
+
+	RoomManager::Instance()->Find(1)->DoAsync(&Room::EnterRoom, static_pointer_cast<GameObject>(_player));
+
+	DBManager::Instance()->_gameDbManager->Push(dbConn);
+}

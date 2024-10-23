@@ -21,9 +21,11 @@ public:
 		return &instance;
 	}
 	
+	//
 	shared_ptr<GameObject> Add(PROTOCOL::GameObjectType objectType);
 	bool Remove(int objectId);
 
+	//
 	int GeneratedId(PROTOCOL::GameObjectType type);
 	PROTOCOL::GameObjectType GetObjectTypeById(int id);
 	shared_ptr<GameObject> Find(int objectId);

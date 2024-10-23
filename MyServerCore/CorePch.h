@@ -14,7 +14,6 @@
 
 #include<Windows.h>
 
-
 #include<thread>
 #include<mutex>
 #include<atomic>

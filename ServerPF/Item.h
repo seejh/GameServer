@@ -16,6 +16,10 @@
 	itemdbid, templateid, count, slot, equipped
 
 -----------------------------------------------------------------------*/
+enum ITEM_STATE {
+	ITEM_STATE_NONE, ITEM_STATE_UPDATE, ITEM_STATE_DELETE, ITEM_STATE_MAKENEW, ITEM_STATE_NOCHANGE,
+};
+
 class Item : public enable_shared_from_this<Item>
 {
 public:

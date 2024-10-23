@@ -5,15 +5,15 @@
 
 void Inventory::Add(shared_ptr<Item> item)
 {
-	_items[item->_itemInfo.itemdbid()] = item;
+	_items[item->_itemInfo.slot()] = item;
 }
 
-void Inventory::Remove(int32 itemDbId)
+void Inventory::Remove(int32 slot)
 {
-	_items.erase(itemDbId);
+	_items.erase(slot);
 }
 
-shared_ptr<Item> Inventory::Get(int itemDbId)
+shared_ptr<Item> Inventory::GetItemByItemDbId(int itemDbId)
 {
 	auto it = _items.find(itemDbId);
 	if (it != _items.end())
@@ -22,24 +22,30 @@ shared_ptr<Item> Inventory::Get(int itemDbId)
 	return nullptr;
 }
 
-shared_ptr<Item> Inventory::FindEquipped(shared_ptr<Item> item)
+shared_ptr<Item> Inventory::GetItemBySlot(int slot)
 {
-	// 인벤토리에서 아이템 추출
+	if (slot > MAX_SLOT_SIZE)
+		return nullptr;
+
+	return _items[slot];
+}
+
+shared_ptr<Item> Inventory::FindEquippedSamePos(shared_ptr<Item> item)
+{
+	// 현재 인벤토리에 있는 아이템들에서 조회
 	for (auto p : _items) {
-		// 아이템
-		shared_ptr<Item> nowItem = p.second;
+		// 
+		shared_ptr<Item>& nowItem = p.second;
 		
 		// 본인이면 패스
 		if (nowItem->_itemInfo.itemdbid() == item->_itemInfo.itemdbid())
 			continue;
 
-		// 같은 타입, 착용중인가
+		// 같은 타입, 착용중
 		if (nowItem->_itemType == item->_itemType && nowItem->_itemInfo.equipped() == true) {
 
-			// 방어구
+			// 방어구라면 방어구 중 동일 포지션(Ex.헬멧, 갑옷) 인지 확인
 			if (nowItem->_itemType == PROTOCOL::ItemType::ITEM_TYPE_ARMOR) {
-
-				// 방어구 내 동일 포지션
 				if (static_pointer_cast<Armor>(nowItem)->_armorType == static_pointer_cast<Armor>(item)->_armorType)
 					return nowItem;
 			}
@@ -50,73 +56,45 @@ shared_ptr<Item> Inventory::FindEquipped(shared_ptr<Item> item)
 		}
 	}
 
-	// 
+	// 동일 포지션에 착용중인 장비 없음
 	return nullptr;
 }
 
-//int Inventory::GetEmptySlot()
-//{
-//	for (int slot = 0; slot < 20; slot++) {
-//		bool use = false;
-//
-//		for (auto p : _items) {
-//			if (p.second->_itemInfo.slot() == slot) {
-//				use = true;
-//				break;
-//			}
-//		}
-//
-//		if (use == false)
-//			return slot;
-//	}
-//
-//	return -1;
-//}
-
-PROTOCOL::ItemInfo Inventory::GetEmptySlot(int templateId)
+int32 Inventory::GetEmptySlot()
 {
-	//
-	PROTOCOL::ItemInfo info;
-	info.set_itemdbid(-1);
+	for (int i = 0; i < MAX_SLOT_SIZE; i++) {
+		if (_items[i] == nullptr && _slotLocker[i] == false) 
+			return i;
+	}
 
-	// 아이템 정보 조회
-	auto it = DataManager::Instance()->_itemTable.find(templateId);
-	if (it != DataManager::Instance()->_itemTable.end()) {
-	
-		// 소모품
-		if (it->second->_itemType == PROTOCOL::ItemType::ITEM_TYPE_CONSUMABLE) {
-			for (auto p : _items) {
-				// 1. 업데이트(스택) - 같은 종의 소모품이 이미 인벤에 있음
-				if (p.second->_itemInfo.templateid() == templateId) {
+	return -1;
+}
 
-					// 
-					info.CopyFrom(p.second->_itemInfo);
-					return info;
-				}
-			}
-		}
-
-		// 장비류, 소모품이라도 새로 생성해야하는 상황
-		// 슬롯 번호
-		for (int slot = 0; slot < 30; slot++) {
-			bool use = false;
-
-			// 해당 슬롯번호에 아이템이 있는지
-			for (auto p : _items) {
-				if (p.second->_itemInfo.slot() == slot) {
-					use = true;
-					break;
-				}
-			}
-
-			// 2. 없으면 -> 새로 생성
-			if (use == false) {
-				info.set_slot(slot);
-				return info;
-			}
+int32 Inventory::GetStackPos(int32 templateId)
+{
+	// 포션인가
+	ItemData* itemData = DataManager::Instance()->_itemTable[templateId];
+	if (itemData && itemData->_itemType == PROTOCOL::ItemType::ITEM_TYPE_CONSUMABLE) {
+		// 현재 인벤을 점유중인가 -> 스택가능
+		for (auto p : _items) {
+			if (p.second != nullptr && p.second->_itemInfo.templateid() == templateId)
+				return p.second->_itemInfo.slot();
 		}
 	}
 
-	// 3. 인벤이 풀
-	return info;
+	// 스택 불가능
+	return -1;
 }
+
+bool Inventory::SetSlotDBLock(int32 slot, bool flag)
+{
+	// 잠겼는데 잠금하려고 하면
+	if (flag == true && _slotLocker[slot] == true)
+		return false;
+
+	_slotLocker[slot] = flag;
+
+	return true;
+}
+
+

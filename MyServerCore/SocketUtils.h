@@ -14,6 +14,7 @@ public:
 	static void Cleanup();
 	static void SetSockAddrIn(OUT SOCKADDR_IN& sockAddr, string ip, int port);
 	static bool Bind(SOCKET socket, SOCKADDR_IN& sockAddr);
+	static bool BindAnyAddress(SOCKET socket, uint16 port);
 	static bool Listen(SOCKET socket);
 	static bool HandleError(const char* cause);
 

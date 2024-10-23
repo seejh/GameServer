@@ -25,9 +25,8 @@ void ListenSession::Dispatch(IocpEvent* iocpEvent, int len)
     ProcessAccept(acceptEvent);
 }
 
-bool ListenSession::Init()
+bool ListenSession::Init(string ip, int port)
 {
-
     if (!SocketUtils::Init())
         return SocketUtils::HandleError("ListenSession Init::NetUtils::Init");
 
@@ -37,22 +36,20 @@ bool ListenSession::Init()
         return SocketUtils::HandleError("ListenSession::Init INVLAID listenSocket");
 
     // SocketOption REUSE
-    if (!SocketUtils::SetReuseAddr(_listenSocket, true))
+    if (SocketUtils::SetReuseAddr(_listenSocket, true) == false)
         return SocketUtils::HandleError("ListenSesison::Init SetReuseAddr()");
 
     // SocketOption TCPNODELAY
-    if (!SocketUtils::SetTcpNoDelay(_listenSocket, true))
+    if (SocketUtils::SetTcpNoDelay(_listenSocket, true) == false)
         return SocketUtils::HandleError("ListenSession::Init SetTcpNoDelay()");
 
     // ip, port
-    string ip = "127.0.0.1";
-    int port = 7777;
     SocketUtils::SetSockAddrIn(_serverAddr, ip, port);
     
     // BInd & Listen
-    if (!SocketUtils::Bind(_listenSocket, _serverAddr))
+    if (SocketUtils::Bind(_listenSocket, _serverAddr) == false)
         return SocketUtils::HandleError("ListenSession::Init Bind");
-    if (!SocketUtils::Listen(_listenSocket))
+    if (SocketUtils::Listen(_listenSocket) == false)
         return SocketUtils::HandleError("ListenSession::Init Listen");
 
     // AcceptEvent
@@ -65,10 +62,6 @@ bool ListenSession::Init()
         if (!RegisterAccept(&_acceptEvents[i]))
             return false;
     }
-
-
-    cout << "ListenSession IP:" << ip << " Port:" << port << " Init OK" << endl;
-
 
     return true;
 }

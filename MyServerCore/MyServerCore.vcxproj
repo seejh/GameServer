@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\Library\lib\MyServerCore\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)Library\Lib\MyServerCore\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\Library\lib\MyServerCore\$(Configuration)\</OutDir>
@@ -220,7 +220,19 @@
     <ClCompile Include="CorePch.cpp" />
     <ClCompile Include="XmlParser.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\openssl-vc141-static-x86_64.1.1.0\build\native\openssl-vc141-static-x86_64.targets" Condition="Exists('..\packages\openssl-vc141-static-x86_64.1.1.0\build\native\openssl-vc141-static-x86_64.targets')" />
+    <Import Project="..\packages\PicoJSON.1.3.0\build\native\picojson.targets" Condition="Exists('..\packages\PicoJSON.1.3.0\build\native\picojson.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\openssl-vc141-static-x86_64.1.1.0\build\native\openssl-vc141-static-x86_64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\openssl-vc141-static-x86_64.1.1.0\build\native\openssl-vc141-static-x86_64.targets'))" />
+    <Error Condition="!Exists('..\packages\PicoJSON.1.3.0\build\native\picojson.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PicoJSON.1.3.0\build\native\picojson.targets'))" />
+  </Target>
 </Project>

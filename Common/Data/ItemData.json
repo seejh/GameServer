@@ -64,7 +64,7 @@
       "id": 200,
       "name": "HP 물약",
       "description": "HP를 회복시킨다.",
-      "consumableType": "Potion",
+      "consumableType": "HpPotion",
       "recovery": 100,
       "iconPath": "/Game/Icons/Consumable_HPPotion"
     },
@@ -72,7 +72,7 @@
       "id": 201,
       "name": "MP 물약",
       "description": "MP를 회복시킨다.",
-      "consumableType": "Potion",
+      "consumableType": "MpPotion",
       "recovery": 100,
       "iconPath": "/Game/Icons/Consumable_MPPotion"
     }

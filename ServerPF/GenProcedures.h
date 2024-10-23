@@ -22,6 +22,19 @@ namespace SP
     	int32 _accountPw = {};
     };
 
+    class SelectAccountDbId : public DBBind<1,1>
+    {
+    public:
+    	SelectAccountDbId(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectAccountDbId(?)}") { }
+    	template<int32 N> void In_AccountName(WCHAR(&v)[N]) { BindParam(0, v); };
+    	template<int32 N> void In_AccountName(const WCHAR(&v)[N]) { BindParam(0, v); };
+    	void In_AccountName(WCHAR* v, int32 count) { BindParam(0, v, count); };
+    	void In_AccountName(const WCHAR* v, int32 count) { BindParam(0, v, count); };
+    	void Out_AccountDbId(OUT int32& v) { BindCol(0, v); };
+
+    private:
+    };
+
     class SelectAccountByAccountDbId : public DBBind<1,3>
     {
     public:
@@ -77,6 +90,46 @@ namespace SP
     	void In_LocationZ(float&& v) { _locationZ = std::move(v); BindParam(8, _locationZ); };
     	void In_AccountDbId(int32& v) { BindParam(9, v); };
     	void In_AccountDbId(int32&& v) { _accountDbId = std::move(v); BindParam(9, _accountDbId); };
+
+    private:
+    	int32 _level = {};
+    	int32 _totalExp = {};
+    	int32 _maxHp = {};
+    	int32 _hp = {};
+    	int32 _damage = {};
+    	float _locationX = {};
+    	float _locationY = {};
+    	float _locationZ = {};
+    	int32 _accountDbId = {};
+    };
+
+    class InsertPlayerSelectIdentity : public DBBind<10,1>
+    {
+    public:
+    	InsertPlayerSelectIdentity(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertPlayerSelectIdentity(?,?,?,?,?,?,?,?,?,?)}") { }
+    	template<int32 N> void In_PlayerName(WCHAR(&v)[N]) { BindParam(0, v); };
+    	template<int32 N> void In_PlayerName(const WCHAR(&v)[N]) { BindParam(0, v); };
+    	void In_PlayerName(WCHAR* v, int32 count) { BindParam(0, v, count); };
+    	void In_PlayerName(const WCHAR* v, int32 count) { BindParam(0, v, count); };
+    	void In_Level(int32& v) { BindParam(1, v); };
+    	void In_Level(int32&& v) { _level = std::move(v); BindParam(1, _level); };
+    	void In_TotalExp(int32& v) { BindParam(2, v); };
+    	void In_TotalExp(int32&& v) { _totalExp = std::move(v); BindParam(2, _totalExp); };
+    	void In_MaxHp(int32& v) { BindParam(3, v); };
+    	void In_MaxHp(int32&& v) { _maxHp = std::move(v); BindParam(3, _maxHp); };
+    	void In_Hp(int32& v) { BindParam(4, v); };
+    	void In_Hp(int32&& v) { _hp = std::move(v); BindParam(4, _hp); };
+    	void In_Damage(int32& v) { BindParam(5, v); };
+    	void In_Damage(int32&& v) { _damage = std::move(v); BindParam(5, _damage); };
+    	void In_LocationX(float& v) { BindParam(6, v); };
+    	void In_LocationX(float&& v) { _locationX = std::move(v); BindParam(6, _locationX); };
+    	void In_LocationY(float& v) { BindParam(7, v); };
+    	void In_LocationY(float&& v) { _locationY = std::move(v); BindParam(7, _locationY); };
+    	void In_LocationZ(float& v) { BindParam(8, v); };
+    	void In_LocationZ(float&& v) { _locationZ = std::move(v); BindParam(8, _locationZ); };
+    	void In_AccountDbId(int32& v) { BindParam(9, v); };
+    	void In_AccountDbId(int32&& v) { _accountDbId = std::move(v); BindParam(9, _accountDbId); };
+    	void Out_Identity(OUT int64& v) { BindCol(0, v); };
 
     private:
     	int32 _level = {};
@@ -214,6 +267,30 @@ namespace SP
     	int32 _playerDbId = {};
     };
 
+    class InsertItemAndSelectIdentity : public DBBind<5,1>
+    {
+    public:
+    	InsertItemAndSelectIdentity(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertItemAndSelectIdentity(?,?,?,?,?)}") { }
+    	void In_TemplateId(int32& v) { BindParam(0, v); };
+    	void In_TemplateId(int32&& v) { _templateId = std::move(v); BindParam(0, _templateId); };
+    	void In_Count(int32& v) { BindParam(1, v); };
+    	void In_Count(int32&& v) { _count = std::move(v); BindParam(1, _count); };
+    	void In_Slot(int32& v) { BindParam(2, v); };
+    	void In_Slot(int32&& v) { _slot = std::move(v); BindParam(2, _slot); };
+    	void In_Equipped(bool& v) { BindParam(3, v); };
+    	void In_Equipped(bool&& v) { _equipped = std::move(v); BindParam(3, _equipped); };
+    	void In_PlayerDbId(int32& v) { BindParam(4, v); };
+    	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(4, _playerDbId); };
+    	void Out_Identity(OUT int64& v) { BindCol(0, v); };
+
+    private:
+    	int32 _templateId = {};
+    	int32 _count = {};
+    	int32 _slot = {};
+    	bool _equipped = {};
+    	int32 _playerDbId = {};
+    };
+
     class UpdateItem : public DBBind<6,0>
     {
     public:
@@ -292,6 +369,97 @@ namespace SP
 
     private:
     	int32 _playerDbId = {};
+    };
+
+    class SelectQuestByPlayerDbId : public DBBind<1,5>
+    {
+    public:
+    	SelectQuestByPlayerDbId(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectQuestByPlayerDbId(?)}") { }
+    	void In_PlayerDbId(int32& v) { BindParam(0, v); };
+    	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(0, _playerDbId); };
+    	void Out_QuestDbId(OUT int32& v) { BindCol(0, v); };
+    	void Out_TemplateId(OUT int32& v) { BindCol(1, v); };
+    	void Out_PlayerDbId(OUT int32& v) { BindCol(2, v); };
+    	void Out_Progress(OUT int32& v) { BindCol(3, v); };
+    	void Out_Completed(OUT bool& v) { BindCol(4, v); };
+
+    private:
+    	int32 _playerDbId = {};
+    };
+
+    class InsertQuest : public DBBind<4,0>
+    {
+    public:
+    	InsertQuest(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertQuest(?,?,?,?)}") { }
+    	void In_TemplateId(int32& v) { BindParam(0, v); };
+    	void In_TemplateId(int32&& v) { _templateId = std::move(v); BindParam(0, _templateId); };
+    	void In_PlayerDbId(int32& v) { BindParam(1, v); };
+    	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(1, _playerDbId); };
+    	void In_Progress(int32& v) { BindParam(2, v); };
+    	void In_Progress(int32&& v) { _progress = std::move(v); BindParam(2, _progress); };
+    	void In_Completed(bool& v) { BindParam(3, v); };
+    	void In_Completed(bool&& v) { _completed = std::move(v); BindParam(3, _completed); };
+
+    private:
+    	int32 _templateId = {};
+    	int32 _playerDbId = {};
+    	int32 _progress = {};
+    	bool _completed = {};
+    };
+
+    class InsertQuestAndSelectIdentity : public DBBind<4,1>
+    {
+    public:
+    	InsertQuestAndSelectIdentity(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertQuestAndSelectIdentity(?,?,?,?)}") { }
+    	void In_TemplateId(int32& v) { BindParam(0, v); };
+    	void In_TemplateId(int32&& v) { _templateId = std::move(v); BindParam(0, _templateId); };
+    	void In_PlayerDbId(int32& v) { BindParam(1, v); };
+    	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(1, _playerDbId); };
+    	void In_Progress(int32& v) { BindParam(2, v); };
+    	void In_Progress(int32&& v) { _progress = std::move(v); BindParam(2, _progress); };
+    	void In_Completed(bool& v) { BindParam(3, v); };
+    	void In_Completed(bool&& v) { _completed = std::move(v); BindParam(3, _completed); };
+    	void Out_Identity(OUT int64& v) { BindCol(0, v); };
+
+    private:
+    	int32 _templateId = {};
+    	int32 _playerDbId = {};
+    	int32 _progress = {};
+    	bool _completed = {};
+    };
+
+    class UpdateQuest : public DBBind<5,0>
+    {
+    public:
+    	UpdateQuest(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spUpdateQuest(?,?,?,?,?)}") { }
+    	void In_QuestDbId(int32& v) { BindParam(0, v); };
+    	void In_QuestDbId(int32&& v) { _questDbId = std::move(v); BindParam(0, _questDbId); };
+    	void In_TemplateId(int32& v) { BindParam(1, v); };
+    	void In_TemplateId(int32&& v) { _templateId = std::move(v); BindParam(1, _templateId); };
+    	void In_PlayerDbId(int32& v) { BindParam(2, v); };
+    	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(2, _playerDbId); };
+    	void In_Progress(int32& v) { BindParam(3, v); };
+    	void In_Progress(int32&& v) { _progress = std::move(v); BindParam(3, _progress); };
+    	void In_Completed(bool& v) { BindParam(4, v); };
+    	void In_Completed(bool&& v) { _completed = std::move(v); BindParam(4, _completed); };
+
+    private:
+    	int32 _questDbId = {};
+    	int32 _templateId = {};
+    	int32 _playerDbId = {};
+    	int32 _progress = {};
+    	bool _completed = {};
+    };
+
+    class DeleteQuest : public DBBind<1,0>
+    {
+    public:
+    	DeleteQuest(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spDeleteQuest(?)}") { }
+    	void In_QuestDbId(int32& v) { BindParam(0, v); };
+    	void In_QuestDbId(int32&& v) { _questDbId = std::move(v); BindParam(0, _questDbId); };
+
+    private:
+    	int32 _questDbId = {};
     };
 
 

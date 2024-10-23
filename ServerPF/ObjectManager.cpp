@@ -11,41 +11,45 @@ shared_ptr<GameObject> ObjectManager::Add(PROTOCOL::GameObjectType objectType)
 {
 	// 락 걸고
 	lock_guard<mutex> lock(_m);
-	
 	shared_ptr<GameObject> object;
 	
 	// ID 생성 발급
 	int id = GeneratedId(objectType);
 
+	// 각 종류별로 오브젝트 생성 후 오브젝트 매니저에 추가
 	switch (objectType) {
-	// 플레이어
-	case PROTOCOL::GameObjectType::PLAYER: {
-		// 생성
+	case PROTOCOL::GameObjectType::PLAYER: 
+	{
 		shared_ptr<Player> player = make_shared<Player>();
 
-		// 플레이어 설정
-		// player->_vision._ownerPlayer = player;
-
-		// 오브젝트 매니저에 추가
 		object = static_pointer_cast<GameObject>(player);
 		_objects[id] = object;
-	}
-		break;
-	// 몬스터
-	case PROTOCOL::GameObjectType::MONSTER: {
-		// 생성
+	} break;
+
+
+	case PROTOCOL::GameObjectType::MONSTER: 
+	{
 		shared_ptr<Monster> monster = make_shared<Monster>();
-
-		// 몬스터 설정
-
+		
 		// 오브젝트 매니저에 추가, 따로 보관 관리는 하지 않는다.
 		// 자체적으로 콜백이 계속 호출되는데, 몬스터가 사망할 경우...
 		object = static_pointer_cast<GameObject>(monster);
 		_objects[id] = object;
-	}
-		break;
+	} break;
 
-	// 그 외
+	case PROTOCOL::GameObjectType::NPC:
+	{
+		shared_ptr<Npc> npc = make_shared<Npc>();
+
+		object = static_pointer_cast<GameObject>(npc);
+		_objects[id] = object;
+	}
+
+	case PROTOCOL::GameObjectType::Object:
+	{
+
+	}
+
 	default:
 		break;
 	}
@@ -84,8 +88,8 @@ PROTOCOL::GameObjectType ObjectManager::GetObjectTypeById(int id)
 		return PROTOCOL::GameObjectType::PLAYER;
 	case PROTOCOL::GameObjectType::MONSTER:
 		return PROTOCOL::GameObjectType::MONSTER;
-	case PROTOCOL::GameObjectType::PROJECTILE:
-		return PROTOCOL::GameObjectType::PROJECTILE;
+	case PROTOCOL::GameObjectType::NPC:
+		return PROTOCOL::GameObjectType::NPC;
 	default:
 		return PROTOCOL::GameObjectType::NONE;
 	}
@@ -103,11 +107,20 @@ shared_ptr<GameObject> ObjectManager::Find(int objectId)
 		if (it != _objects.end())
 			return it->second;
 	}
+
 	// 몬스터
 	else if (type == PROTOCOL::GameObjectType::MONSTER) {
 		auto it = _objects.find(objectId);
 		if (it != _objects.end())
 			return it->second;
 	}
+
+	// NPC
+	else if (type == PROTOCOL::GameObjectType::NPC) {
+		auto it = _objects.find(objectId);
+		if (it != _objects.end())
+			return it->second;
+	}
+
 	return nullptr;
 }

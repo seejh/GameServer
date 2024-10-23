@@ -49,6 +49,17 @@ bool SocketUtils::Bind(SOCKET socket, SOCKADDR_IN& sockAddr) {
 	return SOCKET_ERROR != ::bind(socket, (const sockaddr*)&sockAddr, sizeof(sockAddr));
 }
 
+bool SocketUtils::BindAnyAddress(SOCKET socket, uint16 port)
+{
+	SOCKADDR_IN myAddress;
+
+	myAddress.sin_family = AF_INET;
+	myAddress.sin_addr.s_addr = ::htonl(INADDR_ANY);
+	myAddress.sin_port = ::htons(port);
+
+	return SOCKET_ERROR != ::bind(socket, reinterpret_cast<const SOCKADDR*>(&myAddress), sizeof(myAddress));
+}
+
 bool SocketUtils::Listen(SOCKET socket) {
 	return SOCKET_ERROR != ::listen(socket, SOMAXCONN);
 }

@@ -2,7 +2,7 @@
 
 
 enum MONSTER_STATE : uint8 {
-	NONE, IDLE, CHASE, ATTACK, RETURN, DEAD,
+	IDLE, CHASE, ATTACK, RETURN, DEAD,
 };
 
 class Monster;

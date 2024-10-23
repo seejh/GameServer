@@ -2,8 +2,6 @@
 
 #include"Session.h"
 
-
-
 class Player;
 class ClientSession : public PacketSession {
 
@@ -22,14 +20,13 @@ public:
 	void HandleCreatePlayer(string name);
 	void HandleEnterRoom(PROTOCOL::C_Enter_Room fromPkt);
 public:
-	mutex _mutex2;
+	mutex _packetBufferLock;
 	vector<shared_ptr<SendBuffer>, StlAllocator<shared_ptr<SendBuffer>>> _packetBuffer;
 
-	vector<PROTOCOL::ObjectInfo> _myCharacterList;
 	
 	shared_ptr<Player> _player;
 	int _accountDbId;
+	vector<PROTOCOL::ObjectInfo> _myCharacterList;
 	PROTOCOL::PlayerServerState _playerState = PROTOCOL::PlayerServerState::SERVER_STATE_NONE;
-
 };
 

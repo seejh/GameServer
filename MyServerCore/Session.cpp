@@ -3,7 +3,7 @@
 
 #include"IocpEvent.h"
 #include"NetService.h"
-
+#include"ListenSession.h"
 
 /*--------------------------------------------------
 	Session
@@ -27,6 +27,9 @@ HANDLE Session::GetHandle()
 void Session::Dispatch(IocpEvent* iocpEvent, int len)
 {
 	switch (iocpEvent->_type) {
+	case EventType::CONNECT:
+		ProcessConnect();
+		break;
 	case EventType::SEND:
 		ProcessSend(len);
 		break;
@@ -41,13 +44,66 @@ void Session::Dispatch(IocpEvent* iocpEvent, int len)
 	}
 }
 
+bool Session::Connect()
+{
+	return RegisterConnect();
+}
+
+bool Session::RegisterConnect()
+{
+	if (_isConnected)
+		return false;
+
+	if (_ownerNetService->_serviceType != ServiceType::CLIENT)
+		return false;
+
+	if (SocketUtils::SetReuseAddr(_socket, true) == false)
+		return false;
+
+	// 이걸 누락하면 ConnectEx()에서 에러 발생
+	if (SocketUtils::BindAnyAddress(_socket, 0) == false)
+		return false;
+
+	_connectEvent.OverlappedReset();
+	_connectEvent._ownerIocpObject = shared_from_this();
+
+	DWORD numOfBytes = 0;
+	SOCKADDR_IN sockAddr = _ownerNetService->_listenSession->_serverAddr;
+
+	if (false == SocketUtils::_connectEx(_socket, reinterpret_cast<SOCKADDR*>(&sockAddr),
+		sizeof(sockAddr), nullptr, 0, &numOfBytes, &_connectEvent)) {
+
+		int errorCode = ::WSAGetLastError();
+		if (errorCode != WSA_IO_PENDING) {
+
+			cout << "Session::RegisterConnect() Error" << endl;
+
+			_connectEvent._ownerIocpObject = nullptr;
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void Session::ProcessConnect()
+{
+	_connectEvent._ownerIocpObject = nullptr;
+
+	_isConnected.store(true);
+
+	_ownerNetService->AddSession(static_pointer_cast<Session>(shared_from_this()));
+
+	OnConnected();
+
+	RegisterRecv();
+}
+
 void Session::RegisterRecv()
 {
 	if (!_isConnected.load()) {
 		return;
 	}
-
-	
 
 	_recvEvent._ownerIocpObject = shared_from_this();
 

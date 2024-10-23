@@ -89,3 +89,39 @@ public:
 	float returnDistance;
 	float attackCoolTime;
 };
+
+/*--------------------------------------------------------
+	NPC 정보
+--------------------------------------------------------*/
+enum class NpcType {
+	MERCHANT, NORMAL, 
+};
+
+class NpcData {
+public:
+	int id;
+	string name;
+	NpcType type;
+	vector<int> quests;
+};
+/*--------------------------------------------------------
+	Quest 정보
+--------------------------------------------------------*/
+enum class QuestType {
+	QUEST_TYPE_INTERACT, 
+	QUEST_TYPE_KILL, 
+	QUEST_TYPE_COLLECT,
+};
+
+class QuestData {
+public:
+	int id;
+	string name;
+	QuestType type;
+	int objectiveId;
+	int quantity;
+	int questGiver;
+	int rewardExp;
+	int rewardMoney;
+	map<int, int> rewardItems;
+};

@@ -1,7 +1,40 @@
 #pragma once
 
-class PlayerDB;
-class ItemDB;
+#include<sqltypes.h>
+
+
+enum class DB_STATE {
+	NONE,
+	UPDATE_NEED, UPDATE_SUCCESS, UPDATE_FAILED,
+	DELETE_NEED, DELETE_SUCCESS, DELETE_FAILED,
+	SELECT_NEED, SELECT_SUCCESS, SELECT_FAILED,
+	INSERT_NEED, INSERT_SUCCESS, INSERT_FAILED,
+};
+
+/*=======================================================================
+	SharedDB
+=======================================================================*/
+class ServerInfoDB {
+public:
+	int ServerDbId;
+	WCHAR Name[50];
+	WCHAR IpAddress[50];
+	int Port;
+	int BusyScore;
+};
+
+class TokenDB {
+public:
+	int TokenDbId;
+	int AccountDbId;
+	int Token;
+	TIMESTAMP_STRUCT Expired;
+};
+
+
+/*=======================================================================
+	GameDB
+=======================================================================*/
 
 /*------------------------------------------------------
 	TABLE Account
@@ -46,6 +79,10 @@ public:
 /*------------------------------------------------------
 	TABLE Item
 -------------------------------------------------------*/
+enum class ItemDBTask {
+	EQUIP, USE,
+};
+
 class ItemDB {
 public:
 	int ItemDbId;
@@ -57,51 +94,24 @@ public:
 	// ForeignKey "Owner"
 	int PlayerDbId;
 	shared_ptr<PlayerDB> playerDb;
+
+	//
+	ItemDBTask taskType;
+	DB_STATE dbState;
 };
 
-
-
-/*
-class AccountDB {
+/*------------------------------------------------------
+	TABLE Item
+-------------------------------------------------------*/
+class QuestDB {
 public:
-public:
-	// PK �⺻Ű
-	int AccountDbId;
-	int AccountPw;
-	WCHAR AccountName[50];
-
-	// 1:m
-	vector<PlayerDB> _players;
-};
-
-struct PlayerDB {
-	int PlayerDbId;
-	WCHAR PlayerName[50];
-
-	// m:1
-	int AccountDbId;
-	AccountDB Account;
-
-	// 1:m
-	vector<shared_ptr<ItemDB>> _items;
-
-	// stat
-	int Level;
-	int TotalExp;
-	int MaxHp;
-	int Hp;
-	int Damage;
-};
-
-struct ItemDB {
-	int ItemDbId;
+	int QuestDbId;
 	int TemplateId;
-	int Count;
-	int Slot;
-	bool Equipped;
-
-	// ForeignKey "Owner"
+	int Progress;
+	bool Completed;
 	int PlayerDbId;
-	shared_ptr<PlayerDB> playerDb;
+
+
+	DB_STATE dbState;
 };
-*/
+

@@ -1,0 +1,62 @@
+{
+  "Quests": [
+    {
+      "Id": 1,
+      "Name": "First Quest",
+      "Description": "FirstQuest Description",
+      "Type": "Interact",
+      "ObjectiveId": 2,
+      "Quantity": 1,
+      "QuestGiver": 1,
+      "QuestEnder": 2,
+      "DialogueId": 1,
+      "RewardExp": 100,
+      "RewardMoney": 0,
+      "RewardItems": [
+        {
+          "ItemId": 1,
+          "ItemQuantity": 1
+        }
+      ]
+    },
+    {
+      "Id": 2,
+      "Name": "Second Quest",
+      "Description": "SecondQuest Description",
+      "Type": "Kill",
+      "ObjectiveId": 0,
+      "Quantity": 10,
+      "QuestGiver": 2,
+      "QuestEnder": 2,
+      "DialogueId": 1,
+      "RewardExp": 100,
+      "RewardMoney": 0,
+      "RewardItems": [
+        {
+          "ItemId": 2,
+          "ItemQuantity": 1
+        }
+      ]
+    },
+    {
+      "Id": 3,
+      "Name": "Third Quest",
+      "Description": "ThirdQuest Description",
+      "Type": "Kill",
+      "ObjectiveId": 0,
+      "Quantity": 5,
+      "QuestGiver": 1,
+      "QuestEnder": 1,
+      "DialogueId": 2,
+      "RewardExp": 100,
+      "RewardMoney": 0,
+      "RewardItems": [
+        {
+          "ItemId": 1,
+          "ItemQuantity": 1
+        }
+      ]
+    }
+
+  ]
+}

@@ -4,6 +4,7 @@ class GameObject;
 class Player;
 class Monster;
 class Projectile;
+class Npc;
 class Zone
 {
 public:
@@ -29,5 +30,6 @@ public:
 
 	set<shared_ptr<Player>> _players;
 	set<shared_ptr<Monster>> _monsters;
+	set<shared_ptr<Npc>> _npcs;
 	set<shared_ptr<Projectile>> _projectiles;
 };

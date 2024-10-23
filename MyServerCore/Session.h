@@ -30,21 +30,23 @@ public:
 	virtual HANDLE GetHandle();
 	virtual void Dispatch(IocpEvent* iocpEvent, int len);
 
-	//void ProcessConnect();
+	// Connect
+	bool Connect();
+	bool RegisterConnect();
+	void ProcessConnect();
 
+	// Recv
 	void RegisterRecv();
 	void ProcessRecv(int recvLen);
 
-
+	// Send
 	void Send(vector<shared_ptr<SendBuffer>, StlAllocator<shared_ptr<SendBuffer>>>&& sendBufferArray);
-
 	void Send(shared_ptr<SendBuffer> sendBuffer);
 	void RegisterSend();
 	void ProcessSend(int sendLen);
 
-
+	// Disconnect
 	void Disconnect(const char* cause);
-
 	bool RegisterDisconnect();
 	void ProcessDisconnect();
 
@@ -54,8 +56,8 @@ public:
 
 	SendEvent _sendEvent;
 	RecvEvent _recvEvent;
+	ConnectEvent _connectEvent;
 	DisconnectEvent _disconnectEvent;
-	//ConnectEvent _connectEvent;
 	
 	RecvBuffer _recvBuffer;
 

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SharedDB>
+	<!--================================================================================
+		ServerInfo
+	================================================================================-->
+	<Table name="ServerInfo">
+		<Column name="ServerDbId" type="int" notnull="true" identity="1,1"/>
+		<Column name="Name" type="nvarchar(50)" notnull="false"/>
+		<Column name="IpAddress" type="nvarchar(50)" notnull="false"/>
+		<Column name="Port" type="int" notnull="false"/>
+		<Column name="BusyScore" type="int" notnull="false"/>
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="ServerDbId"/>
+		</Index>
+	</Table>
+
+	<!--================================================================================
+		ServerInfo Procedures
+	================================================================================-->
+	<!-- INSERT -->
+	<Procedure name="spInsertServerInfo">
+		<Param name="@Name" type="nvarchar(50)"/>
+		<Param name="@IpAddress" type="nvarchar(50)"/>
+		<Param name="@Port" type="int"/>
+		<Param name="@BusyScore" type="int"/>
+		<Body>
+			<![CDATA[
+			INSERT INTO [dbo].[ServerInfo]([Name], [IpAddress], [Port], [BusyScore]) VALUES(@Name, @IpAddress, @Port, @BusyScore);
+			]]>
+		</Body>
+	</Procedure>
+	
+	<!-- UPDATE -->
+	<Procedure name="spUpdateServerInfo">
+		<Param name="@ServerDbId" type="int"/>
+		<Param name="@Name" type="nvarchar(50)"/>
+		<Param name="@IpAddress" type="nvarchar(50)"/>
+		<Param name="@Port" type="int"/>
+		<Param name="@BusyScore" type="int"/>
+		<Body>
+			<![CDATA[
+			UPDATE [dbo].[ServerInfo] SET Name = (@Name), IpAddress = (@IpAddress), Port = (@Port), BusyScore = (@BusyScore) WHERE ServerDbId = (@ServerDbId);
+			]]>
+		</Body>
+	</Procedure>
+	
+	<!-- SELECT -->
+	<Procedure name="spSelectServerInfo">
+		<Param name="@ServerDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SELECT ServerDbId, Name, IpAddress, Port, BusyScore FROM [dbo].[ServerInfo] WHERE ServerDbId = (@ServerDbId);
+			]]>
+		</Body>
+	</Procedure>
+	
+	<!--================================================================================
+		Token
+	================================================================================-->
+	<Table name="Token">
+		<Column name="TokenDbId" type="int" notnull="true" identity="1,1"/>
+		<Column name="AccountDbId" type="int" notnull="false"/>
+		<Column name="Token" type="int" notnull="false"/>
+		<Column name="Expired" type="datetime" notnull="false"/>
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="TokenDbId"/>
+		</Index>
+	</Table>
+
+	<!--================================================================================
+		Token Procedures
+	================================================================================-->
+	<!-- INSERT -->
+	<Procedure name="spInsertToken">
+		<Param name="@AccountDbId" type="int"/>
+		<Param name="@Token" type="int"/>
+		<Param name="@Expired" type="datetime"/>
+		<Body>
+			<![CDATA[
+			INSERT INTO [dbo].[Token]([AccountDbId], [Token], [Expired]) VALUES(@AccountDbId, @Token, @Expired);
+			]]>
+		</Body>
+	</Procedure>
+	
+	<!-- SELECT -->
+	<Procedure name="spSelectToken">
+		<Param name="@TokenDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SELECT TokenDbId, AccountDbId, Token, Expired FROM [dbo].[Token] WHERE TokenDbId = (@TokenDbId);
+			]]>
+		</Body>
+	</Procedure>
+</SharedDB>

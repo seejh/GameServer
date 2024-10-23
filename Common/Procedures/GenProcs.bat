@@ -6,11 +6,15 @@
 
 pushd %~dp0
 
+:: 
 GenProcs.exe --path=GameDB.xml --output=GenProcedures.h
+GenProcs.exe --path=SharedDB.xml --output=GenSharedDBProcedures.h
 
 IF ERRORLEVEL 1 PAUSE
 
+:: 생성된 파일 목적지로 이동
 XCOPY /Y GenProcedures.h "../../ServerPF"
+XCOPY /Y GenSharedDBProcedures.h "../../ServerPF"
 
 DEL /Q /F *.h
 

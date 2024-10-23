@@ -22,6 +22,19 @@
       	int32 _accountPw = {};
       };
   
+      class SelectAccountDbId : public DBBind<1,1>
+      {
+      public:
+      	SelectAccountDbId(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectAccountDbId(?)}") { }
+      	template<int32 N> void In_AccountName(WCHAR(&v)[N]) { BindParam(0, v); };
+      	template<int32 N> void In_AccountName(const WCHAR(&v)[N]) { BindParam(0, v); };
+      	void In_AccountName(WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void In_AccountName(const WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void Out_AccountDbId(OUT int32& v) { BindCol(0, v); };
+  
+      private:
+      };
+  
       class SelectAccountByAccountDbId : public DBBind<1,3>
       {
       public:
@@ -77,6 +90,46 @@
       	void In_LocationZ(float&& v) { _locationZ = std::move(v); BindParam(8, _locationZ); };
       	void In_AccountDbId(int32& v) { BindParam(9, v); };
       	void In_AccountDbId(int32&& v) { _accountDbId = std::move(v); BindParam(9, _accountDbId); };
+  
+      private:
+      	int32 _level = {};
+      	int32 _totalExp = {};
+      	int32 _maxHp = {};
+      	int32 _hp = {};
+      	int32 _damage = {};
+      	float _locationX = {};
+      	float _locationY = {};
+      	float _locationZ = {};
+      	int32 _accountDbId = {};
+      };
+  
+      class InsertPlayerSelectIdentity : public DBBind<10,1>
+      {
+      public:
+      	InsertPlayerSelectIdentity(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertPlayerSelectIdentity(?,?,?,?,?,?,?,?,?,?)}") { }
+      	template<int32 N> void In_PlayerName(WCHAR(&v)[N]) { BindParam(0, v); };
+      	template<int32 N> void In_PlayerName(const WCHAR(&v)[N]) { BindParam(0, v); };
+      	void In_PlayerName(WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void In_PlayerName(const WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void In_Level(int32& v) { BindParam(1, v); };
+      	void In_Level(int32&& v) { _level = std::move(v); BindParam(1, _level); };
+      	void In_TotalExp(int32& v) { BindParam(2, v); };
+      	void In_TotalExp(int32&& v) { _totalExp = std::move(v); BindParam(2, _totalExp); };
+      	void In_MaxHp(int32& v) { BindParam(3, v); };
+      	void In_MaxHp(int32&& v) { _maxHp = std::move(v); BindParam(3, _maxHp); };
+      	void In_Hp(int32& v) { BindParam(4, v); };
+      	void In_Hp(int32&& v) { _hp = std::move(v); BindParam(4, _hp); };
+      	void In_Damage(int32& v) { BindParam(5, v); };
+      	void In_Damage(int32&& v) { _damage = std::move(v); BindParam(5, _damage); };
+      	void In_LocationX(float& v) { BindParam(6, v); };
+      	void In_LocationX(float&& v) { _locationX = std::move(v); BindParam(6, _locationX); };
+      	void In_LocationY(float& v) { BindParam(7, v); };
+      	void In_LocationY(float&& v) { _locationY = std::move(v); BindParam(7, _locationY); };
+      	void In_LocationZ(float& v) { BindParam(8, v); };
+      	void In_LocationZ(float&& v) { _locationZ = std::move(v); BindParam(8, _locationZ); };
+      	void In_AccountDbId(int32& v) { BindParam(9, v); };
+      	void In_AccountDbId(int32&& v) { _accountDbId = std::move(v); BindParam(9, _accountDbId); };
+      	void Out_Identity(OUT int64& v) { BindCol(0, v); };
   
       private:
       	int32 _level = {};
@@ -214,6 +267,30 @@
       	int32 _playerDbId = {};
       };
   
+      class InsertItemAndSelectIdentity : public DBBind<5,1>
+      {
+      public:
+      	InsertItemAndSelectIdentity(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertItemAndSelectIdentity(?,?,?,?,?)}") { }
+      	void In_TemplateId(int32& v) { BindParam(0, v); };
+      	void In_TemplateId(int32&& v) { _templateId = std::move(v); BindParam(0, _templateId); };
+      	void In_Count(int32& v) { BindParam(1, v); };
+      	void In_Count(int32&& v) { _count = std::move(v); BindParam(1, _count); };
+      	void In_Slot(int32& v) { BindParam(2, v); };
+      	void In_Slot(int32&& v) { _slot = std::move(v); BindParam(2, _slot); };
+      	void In_Equipped(bool& v) { BindParam(3, v); };
+      	void In_Equipped(bool&& v) { _equipped = std::move(v); BindParam(3, _equipped); };
+      	void In_PlayerDbId(int32& v) { BindParam(4, v); };
+      	void In_PlayerDbId(int32&& v) { _playerDbId = std::move(v); BindParam(4, _playerDbId); };
+      	void Out_Identity(OUT int64& v) { BindCol(0, v); };
+  
+      private:
+      	int32 _templateId = {};
+      	int32 _count = {};
+      	int32 _slot = {};
+      	bool _equipped = {};
+      	int32 _playerDbId = {};
+      };
+  
       class UpdateItem : public DBBind<6,0>
       {
       public:
@@ -297,28 +374,214 @@
   
        
   };
+  
+  #pragma once
+  #include "Types.h"
+  #include <windows.h>
+  #include "DBBind.h"
+  
+  namespace SP
+  {
+  	
+      class InsertServerInfo : public DBBind<4,0>
+      {
+      public:
+      	InsertServerInfo(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertServerInfo(?,?,?,?)}") { }
+      	template<int32 N> void In_Name(WCHAR(&v)[N]) { BindParam(0, v); };
+      	template<int32 N> void In_Name(const WCHAR(&v)[N]) { BindParam(0, v); };
+      	void In_Name(WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	void In_Name(const WCHAR* v, int32 count) { BindParam(0, v, count); };
+      	template<int32 N> void In_IpAddress(WCHAR(&v)[N]) { BindParam(1, v); };
+      	template<int32 N> void In_IpAddress(const WCHAR(&v)[N]) { BindParam(1, v); };
+      	void In_IpAddress(WCHAR* v, int32 count) { BindParam(1, v, count); };
+      	void In_IpAddress(const WCHAR* v, int32 count) { BindParam(1, v, count); };
+      	void In_Port(int32& v) { BindParam(2, v); };
+      	void In_Port(int32&& v) { _port = std::move(v); BindParam(2, _port); };
+      	void In_BusyScore(int32& v) { BindParam(3, v); };
+      	void In_BusyScore(int32&& v) { _busyScore = std::move(v); BindParam(3, _busyScore); };
+  
+      private:
+      	int32 _port = {};
+      	int32 _busyScore = {};
+      };
+  
+      class UpdateServerInfo : public DBBind<5,0>
+      {
+      public:
+      	UpdateServerInfo(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spUpdateServerInfo(?,?,?,?,?)}") { }
+      	void In_ServerDbId(int32& v) { BindParam(0, v); };
+      	void In_ServerDbId(int32&& v) { _serverDbId = std::move(v); BindParam(0, _serverDbId); };
+      	template<int32 N> void In_Name(WCHAR(&v)[N]) { BindParam(1, v); };
+      	template<int32 N> void In_Name(const WCHAR(&v)[N]) { BindParam(1, v); };
+      	void In_Name(WCHAR* v, int32 count) { BindParam(1, v, count); };
+      	void In_Name(const WCHAR* v, int32 count) { BindParam(1, v, count); };
+      	template<int32 N> void In_IpAddress(WCHAR(&v)[N]) { BindParam(2, v); };
+      	template<int32 N> void In_IpAddress(const WCHAR(&v)[N]) { BindParam(2, v); };
+      	void In_IpAddress(WCHAR* v, int32 count) { BindParam(2, v, count); };
+      	void In_IpAddress(const WCHAR* v, int32 count) { BindParam(2, v, count); };
+      	void In_Port(int32& v) { BindParam(3, v); };
+      	void In_Port(int32&& v) { _port = std::move(v); BindParam(3, _port); };
+      	void In_BusyScore(int32& v) { BindParam(4, v); };
+      	void In_BusyScore(int32&& v) { _busyScore = std::move(v); BindParam(4, _busyScore); };
+  
+      private:
+      	int32 _serverDbId = {};
+      	int32 _port = {};
+      	int32 _busyScore = {};
+      };
+  
+      class SelectServerInfo : public DBBind<1,5>
+      {
+      public:
+      	SelectServerInfo(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectServerInfo(?)}") { }
+      	void In_ServerDbId(int32& v) { BindParam(0, v); };
+      	void In_ServerDbId(int32&& v) { _serverDbId = std::move(v); BindParam(0, _serverDbId); };
+      	void Out_ServerDbId(OUT int32& v) { BindCol(0, v); };
+      	template<int32 N> void Out_Name(OUT WCHAR(&v)[N]) { BindCol(1, v); };
+      	template<int32 N> void Out_IpAddress(OUT WCHAR(&v)[N]) { BindCol(2, v); };
+      	void Out_Port(OUT int32& v) { BindCol(3, v); };
+      	void Out_BusyScore(OUT int32& v) { BindCol(4, v); };
+  
+      private:
+      	int32 _serverDbId = {};
+      };
+  
+      class InsertToken : public DBBind<3,0>
+      {
+      public:
+      	InsertToken(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spInsertToken(?,?,?)}") { }
+      	void In_AccountDbId(int32& v) { BindParam(0, v); };
+      	void In_AccountDbId(int32&& v) { _accountDbId = std::move(v); BindParam(0, _accountDbId); };
+      	void In_Token(int32& v) { BindParam(1, v); };
+      	void In_Token(int32&& v) { _token = std::move(v); BindParam(1, _token); };
+      	void In_Expired(TIMESTAMP_STRUCT& v) { BindParam(2, v); };
+      	void In_Expired(TIMESTAMP_STRUCT&& v) { _expired = std::move(v); BindParam(2, _expired); };
+  
+      private:
+      	int32 _accountDbId = {};
+      	int32 _token = {};
+      	TIMESTAMP_STRUCT _expired = {};
+      };
+  
+      class SelectToken : public DBBind<1,4>
+      {
+      public:
+      	SelectToken(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spSelectToken(?)}") { }
+      	void In_TokenDbId(int32& v) { BindParam(0, v); };
+      	void In_TokenDbId(int32&& v) { _tokenDbId = std::move(v); BindParam(0, _tokenDbId); };
+      	void Out_TokenDbId(OUT int32& v) { BindCol(0, v); };
+      	void Out_AccountDbId(OUT int32& v) { BindCol(1, v); };
+      	void Out_Token(OUT int32& v) { BindCol(2, v); };
+      	void Out_Expired(OUT TIMESTAMP_STRUCT& v) { BindCol(3, v); };
+  
+      private:
+      	int32 _tokenDbId = {};
+      };
+  
+  
+       
+  };
   C:GenProcedures.h
+  1개 파일이 복사되었습니다.
+  C:GenSharedDBProcedures.h
   1개 파일이 복사되었습니다.
   계속하려면 아무 키나 누르십시오 . . . 
   ClientPacketHandler.cpp
   ClientSession.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(102,53): warning C4267: '인수': 'size_t'에서 'int32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(223,54): warning C4267: '인수': 'size_t'에서 'int32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(277,25): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  DBTransaction.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\DBTransaction.cpp(66,21): warning C4244: '인수': 'int64'에서 'int32_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(67,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(67,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(237,54): warning C4267: '인수': 'size_t'에서 'int32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(286,25): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  DBManager.cpp
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(67,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(67,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\DBManager.cpp(104,25): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\DBManager.cpp(326,1): warning C4267: '인수': 'size_t'에서 'int32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  GameDBManager.cpp
   GameObject.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.cpp(455,29): warning C4244: '=': 'float'에서 'uint64'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.cpp(508,29): warning C4244: '=': 'float'에서 'uint64'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   Main.cpp
-ClientSession.obj : error LNK2019: "public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class google::protobuf::Arena *)" (?Set@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@1234@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAVArena@34@@Z)"public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set<struct google::protobuf::internal::ArenaStringPtr::EmptyDefault>(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,char const *,class google::protobuf::Arena *)" (??$Set@UEmptyDefault@ArenaStringPtr@internal@protobuf@google@@@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@0123@PEBDPEAVArena@23@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
-GameObject.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class google::protobuf::Arena *)" (?Set@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@1234@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAVArena@34@@Z)
-Protocol3.pb.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class google::protobuf::Arena *)" (?Set@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@1234@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAVArena@34@@Z)
-Room.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: void __cdecl google::protobuf::internal::ArenaStringPtr::Set(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class google::protobuf::Arena *)" (?Set@ArenaStringPtr@internal@protobuf@google@@QEAAXUEmptyDefault@1234@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAVArena@34@@Z)
-Protocol3.pb.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: virtual void __cdecl google::protobuf::Message::CopyFrom(class google::protobuf::Message const &)" (?CopyFrom@Message@protobuf@google@@UEAAXAEBV123@@Z)
-Protocol3.pb.obj : error LNK2001: 확인할 수 없는 외부 기호 "protected: static void __cdecl google::protobuf::Message::CopyWithSizeCheck(class google::protobuf::Message *,class google::protobuf::Message const &)" (?CopyWithSizeCheck@Message@protobuf@google@@KAXPEAV123@AEBV123@@Z)
-Protocol3.pb.obj : error LNK2001: 확인할 수 없는 외부 기호 "class google::protobuf::internal::ExplicitlyConstructed<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > > google::protobuf::internal::fixed_address_empty_string" (?fixed_address_empty_string@internal@protobuf@google@@3V?$ExplicitlyConstructed@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@123@A)
-Protocol3.pb.obj : error LNK2019: "public: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > * __cdecl google::protobuf::internal::ArenaStringPtr::Mutable(struct google::protobuf::internal::ArenaStringPtr::EmptyDefault,class google::protobuf::Arena *)" (?Mutable@ArenaStringPtr@internal@protobuf@google@@QEAAPEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@UEmptyDefault@1234@PEAVArena@34@@Z)"private: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > * __cdecl PROTOCOL::C_Login::_internal_mutable_id(void)" (?_internal_mutable_id@C_Login@PROTOCOL@@AEAAPEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ) 함수에서 참조되는 확인할 수 없는 외부 기호
-Protocol3.pb.obj : error LNK2019: "private: void __cdecl google::protobuf::internal::ArenaStringPtr::DestroyNoArenaSlowPath(void)" (?DestroyNoArenaSlowPath@ArenaStringPtr@internal@protobuf@google@@AEAAXXZ)"public: void __cdecl google::protobuf::internal::ArenaStringPtr::DestroyNoArena(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const *)" (?DestroyNoArena@ArenaStringPtr@internal@protobuf@google@@QEAAXPEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
-Room.obj : error LNK2019: "public: int const * __cdecl google::protobuf::RepeatedField<int>::begin(void)const " (?begin@?$RepeatedField@H@protobuf@google@@QEBAPEBHXZ)"public: void __cdecl Room::ActorSkill(class std::shared_ptr<class GameObject>,class PROTOCOL::C_Skill)" (?ActorSkill@Room@@QEAAXV?$shared_ptr@VGameObject@@@std@@VC_Skill@PROTOCOL@@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
-Room.obj : error LNK2019: "public: int const * __cdecl google::protobuf::RepeatedField<int>::end(void)const " (?end@?$RepeatedField@H@protobuf@google@@QEBAPEBHXZ)"public: void __cdecl Room::ActorSkill(class std::shared_ptr<class GameObject>,class PROTOCOL::C_Skill)" (?ActorSkill@Room@@QEAAXV?$shared_ptr@VGameObject@@@std@@VC_Skill@PROTOCOL@@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
-C:\Users\see\source\repos\ServerPF\x64\Debug\ServerPF.exe : fatal error LNK1120: 8개의 확인할 수 없는 외부 참조입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(67,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(67,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+  RedisManager.cpp
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(67,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(67,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
+C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
+  RoomManager.cpp
+  SharedDBManager.cpp
+  Zone.cpp
+  코드를 생성하고 있습니다...
+  Protocol3.pb.cc
+libprotobufd.lib(arenastring.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(arenastring.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(message_lite.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(message_lite.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(repeated_ptr_field.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(repeated_ptr_field.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(repeated_field.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(repeated_field.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(message.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(message.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(generated_message_util.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(generated_message_util.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(stringpiece.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(stringpiece.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(common.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(common.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(coded_stream.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(coded_stream.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(arena.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(arena.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(wire_format_lite.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(wire_format_lite.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(parse_context.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(parse_context.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(unknown_field_set.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(unknown_field_set.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(generated_message_reflection.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(generated_message_reflection.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(wire_format.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(wire_format.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(strutil.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(strutil.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(zero_copy_stream.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(zero_copy_stream.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(zero_copy_stream_impl_lite.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(zero_copy_stream_impl_lite.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(zero_copy_stream_impl.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(zero_copy_stream_impl.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(implicit_weak_message.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(implicit_weak_message.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(descriptor.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(descriptor.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(reflection_ops.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(reflection_ops.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(map_field.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(map_field.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(extension_set.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(extension_set.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(status.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(status.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(int128.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(int128.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(structurally_valid.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(structurally_valid.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(stringprintf.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(stringprintf.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(extension_set_heavy.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(extension_set_heavy.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(io_win32.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(io_win32.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(text_format.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(text_format.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(descriptor.pb.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(descriptor.pb.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(tokenizer.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(tokenizer.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(descriptor_database.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(descriptor_database.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(dynamic_message.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(dynamic_message.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(substitute.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(substitute.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(strtod.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(strtod.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(any_lite.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(any_lite.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(map.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(map.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+libprotobufd.lib(any.obj) : warning LNK4099: '' PDB를 'libprotobufd.lib(any.obj)' 또는 ''에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+JwtHandler.obj : error LNK2019: EVP_sha512"public: __cdecl jwt::algorithm::hs512::hs512(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (??0hs512@algorithm@jwt@@QEAA@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
+C:\Users\see\source\repos\ServerPF\x64\Debug\ServerPF.exe : fatal error LNK1120: 1개의 확인할 수 없는 외부 참조입니다.

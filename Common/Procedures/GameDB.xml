@@ -28,6 +28,17 @@
 			]]>
 		</Body>
 	</Procedure>
+	
+	<!-- SELECT AccountDbId -->
+	<Procedure name="spSelectAccountDbId">
+		<Param name="@AccountName" type="nvarchar(50)"/>
+		<Body>
+			<![CDATA[
+			SELECT AccountDbId FROM [dbo].[Account] WHERE AccountName = (@AccountName);
+			]]>
+		</Body>
+	</Procedure>
+	
 	<!--SELECT ALL WHERE AccountDbId-->
 	<Procedure name="spSelectAccountByAccountDbId">
 		<Param name="@AccountDbId" type="int"/>
@@ -89,6 +100,28 @@
 			]]>
 		</Body>
 	</Procedure>
+
+	<!-- INSERT AND SELECT IDENTITY -->
+	<Procedure name="spInsertPlayerSelectIdentity">
+		<Param name="@PlayerName" type="nvarchar(50)"/>
+		<Param name="@Level" type="int" />
+		<Param name="@TotalExp" type="int" />
+		<Param name="@MaxHp" type="int" />
+		<Param name="@Hp" type="int"/>
+		<Param name="@Damage" type="int"/>
+		<Param name="@LocationX" type="float"/>
+		<Param name="@LocationY" type="float"/>
+		<Param name="@LocationZ" type="float"/>
+		<Param name="@AccountDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SET NOCOUNT ON;
+			INSERT INTO [dbo].[Player]([PlayerName], [Level], [TotalExp], [MaxHp], [Hp], [Damage], [LocationX], [LocationY], [LocationZ], [AccountDbId]) VALUES(@PlayerName, @Level, @TotalExp, @MaxHp, @Hp, @Damage, @LocationX, @LocationY, @LocationZ, @AccountDbId);
+			SELECT @@IDENTITY;
+			]]>
+		</Body>
+	</Procedure>
+	
 	<!--UPDATE-->
 	<Procedure name="spUpdatePlayer">
 		<Param name="@PlayerDbId" type="int"/>
@@ -177,6 +210,21 @@
 		</Body>
 	</Procedure>
 	
+	<!-- INSERT AND SELECT IDENTITY -->
+	<Procedure name="spInsertItemAndSelectIdentity">
+		<Param name="@TemplateId" type="int"/>
+		<Param name="@Count" type="int"/>
+		<Param name="@Slot" type="int" />
+		<Param name="@Equipped" type="tinyint" />
+		<Param name="@PlayerDbId" type="int"/>
+		<Body>
+			<![CDATA[
+			SET NOCOUNT ON;
+			INSERT INTO [dbo].[Item]([TemplateId], [Count], [Slot], [Equipped], [PlayerDbId]) VALUES(@TemplateId, @Count, @Slot, @Equipped, @PlayerDbId);
+			SELECT @@IDENTITY;
+			]]>
+		</Body>
+	</Procedure>
 	
 	<!-- UPDATE -->
 	<Procedure name="spUpdateItem">
@@ -229,4 +277,86 @@
 			]]>
 		</Body>
 	</Procedure>
+
+	<!--============================================================================
+		Quest
+	============================================================================-->
+	<Table name="Quest">
+		<Column name="QuestDbId" type="int" notnull="true" identity="1,1" />
+		<Column name="TemplateId" type="int" notnull="true" />
+		<Column name="PlayerDbId" type="int" notnull="true" />
+		<Column name="Progress" type="int" notnull="false" />
+		<Column name="Completed" type="tinyint" notnull="false" />
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="QuestDbId" />
+		</Index>
+	</Table>
+
+	<!--============================================================================
+		TABLE Quest Procedures 
+	============================================================================-->
+	
+	<!--SELECT ALL WHERE PlayerDbId-->
+	<Procedure name="spSelectQuestByPlayerDbId">
+		<Param name="@PlayerDbId" type="int" />
+		<Body>
+			<![CDATA[
+			SELECT QuestDbId, TemplateId, PlayerDbId, Progress, Completed FROM [dbo].[Quest] WHERE PlayerDbId = (@PlayerDbId);
+			]]>
+		</Body>
+	</Procedure>
+	
+	<!--INSERT-->
+	<Procedure name="spInsertQuest">
+		<Param name="@TemplateId" type="int" />
+		<Param name="@PlayerDbId" type="int" />
+		<Param name="@Progress" type="int" />
+		<Param name="@Completed" type="tinyint" />
+		<Body>
+			<![CDATA[
+			INSERT INTO [dbo].[Quest]([TemplateId], [PlayerDbId], [Progress], [Completed]) VALUES(@TemplateId, @PlayerDbId, @Progress, @Completed);
+			]]>
+		</Body>
+	</Procedure>
+	
+	<!--INSERT AND SELECT IDENTITY-->
+	<Procedure name="spInsertQuestAndSelectIdentity">
+		<Param name="@TemplateId" type="int" />
+		<Param name="@PlayerDbId" type="int" />
+		<Param name="@Progress" type="int" />
+		<Param name="@Completed" type="tinyint" />
+		<Body>
+			<![CDATA[
+			SET NOCOUNT ON;
+			INSERT INTO [dbo].[Quest]([TemplateId], [PlayerDbId], [Progress], [Completed]) VALUES(@TemplateId, @PlayerDbId, @Progress, @Completed);
+			SELECT @@IDENTITY;
+			]]>
+		</Body>
+	</Procedure>
+	
+	<!--UPDATE-->
+	<Procedure name="spUpdateQuest">
+		<Param name="@QuestDbId" type="int" />
+		<Param name="@TemplateId" type="int" />
+		<Param name="@PlayerDbId" type="int" />
+		<Param name="@Progress" type="int" />
+		<Param name="@Completed" type="tinyint" />
+		<Body>
+			<![CDATA[
+			UPDATE [dbo].[Quest] SET TemplateId = (@TemplateId), PlayerDbId = (@PlayerDbId), Progress = (@Progress), Completed = (@Completed) WHERE QuestDbId = (@QuestDbId);
+			]]>
+		</Body>
+	</Procedure>
+	
+	<!--DELETE-->
+	<Procedure name="spDeleteQuest">
+		<Param name="@QuestDbId" type="int" />
+		<Body>
+			<![CDATA[
+			DELETE FROM [dbo].[Quest] WHERE QuestDbId = (@QuestDbId);
+			]]>
+		</Body>
+	</Procedure>
+	
 </GameDB>

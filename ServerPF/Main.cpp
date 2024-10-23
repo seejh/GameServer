@@ -17,18 +17,20 @@
 #include"CSVReader.h"
 
 #include<bitset>
-#include<map>
 
 #include"GenProcedures.h"
+#include"GenSharedDBProcedures.h"
 #include"DBSynchronizer.h"
 #include"DBDataModel.h"
-#include"DBTransaction.h"
-#include"RoomManager.h"
-#include"SessionManager.h"
 
-/*
-    
-*/
+#include"DBManager.h"
+#include"RoomManager.h"
+#include"GameDBManager.h"
+#include"SharedDBManager.h"
+#include"ConfigManager.h"
+
+
+#include<hiredis-master/hiredis.h>
 
 #pragma region Task
 
@@ -63,13 +65,40 @@ void NetworkFlushTask() {
 
 #pragma endregion
 
-
 // DB에 사전 설정할 정보를 업데이트할 필요가 있을 때
 void DBDataSetOnce() {
     DBConnection* dbConn = GDBConnectionPool->Pop();
 
     // 계정DB
     /*
+    // Token
+    {
+        DBConnection* dbConn = GDBConnectionPool->Pop();
+        auto query = L"\
+        DROP TABLE IF EXISTS [dbo].[Token];             \
+        CREATE TABLE [dbo].[Token] (                    \
+        [TokenDbId] INT NOT NULL PRIMARY KEY IDENTITY,  \
+        [AccountDbId] INT NULL,                         \
+        [Token] INT NULL,                               \
+        [Expired] DATETIME NULL);";
+        dbConn->Execute(query);
+        GDBConnectionPool->Push(dbConn);
+    }
+
+    // ServerInfo
+    {
+        DBConnection* dbConn = GDBConnectionPool->Pop();
+        auto query = L"\
+        DROP TABLE IF EXISTS [dbo].[ServerInfo];             \
+        CREATE TABLE [dbo].[ServerInfo] (                   \
+        [ServerDbId] INT NOT NULL PRIMARY KEY IDENTITY,     \
+        [Name] NVARCHAR(50) NULL,                           \
+        [IpAddress] NVARCHAR(50) NULL,                      \
+        [Port] INT NULL,                                    \
+        [BusyScore] INT NULL);";
+        dbConn->Execute(query);
+        GDBConnectionPool->Push(dbConn);
+    }
     {
         wstring wstr(L"see");
 
@@ -194,42 +223,47 @@ void DBDataSetOnce() {
 
     GDBConnectionPool->Push(dbConn);
 }
+void DBSync() {
+    // GameDB Sync
+    DBConnection* gameDbConn = DBManager::Instance()->_gameDbManager->_dbConn;
+    DBSynchronizer gameDBSync(*gameDbConn);
+    ASSERT_CRASH(gameDBSync.Synchronize(L"..\\Common\\Procedures\\GameDB.xml"));
+    
+    // SharedDB Sync
+    DBConnection* sharedDBConn = DBManager::Instance()->_sharedDbManager->_dbConn;
+    DBSynchronizer sharedDBSync(*sharedDBConn);
+    ASSERT_CRASH(sharedDBSync.Synchronize(L"..\\Common\\Procedures\\SharedDB.xml"));
+}
 
 int main() {
     // 엔진 전역 객체, 데이터매니저
     CoreGlobal::Instance()->Init();
     DataManager::Instance()->Init();
-
-    // DB 커넥션(thread count + 1), DB트랜잭션
-    ASSERT_CRASH(GDBConnectionPool->Connect(4, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=MyDB;Trusted_Connection=Yes;"));
-    DBTransaction::Instance()->Init();
+    ConfigManager::Instance()->Init();
+    DBManager::Instance()->Init();
 
     // 확률 시드
     srand(GetTickCount());
 
-     
-    DBConnection* dbConn = GDBConnectionPool->Pop();
-    DBSynchronizer dbSync(*dbConn);
-    
-    // Parsing Xml
-    if (dbSync.Synchronize(L"..\\Common\\Procedures\\GameDB.xml") == false) {
-        cout << "XML Parsing Error" << endl;
-        return 0;
-    }
-    else cout << "XML Parsing OK" << endl;
-    
-    // DB 사전 데이터 설정
-    // DBDataSetOnce();
+    // 
+    ASSERT_CRASH(DBManager::Instance()->_gameDbManager->Connect(4, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=MyDB;Trusted_Connection=Yes;"));
+    ASSERT_CRASH(DBManager::Instance()->_sharedDbManager->Connect(4, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=SharedDB;Trusted_Connection=Yes;"));
 
-    GDBConnectionPool->Push(dbConn);
+    // DB싱크
+    // DBSync();
+    // DBDataSetOnce();
 
     // 룸매니저 게임룸 생성
     RoomManager::Instance()->Add(1);
 
     // 패킷 핸들러, 네트워크 시동
     ClientPacketHandler::Init();
-    NetService* service = new NetService(make_shared<ClientSession>);
-    service->Init();
+    ServerService* service = new ServerService(make_shared<ClientSession>,
+        ConfigManager::Instance()->_config.IpAddress,
+        ConfigManager::Instance()->_config.Port,
+        1);
+    if (service->Init() == false)
+        return 0;
 
     // IOCP, JOB 스레드 - 2개
     // 네트워크 FLUSH 스레드 1개
@@ -248,7 +282,7 @@ int main() {
             NetworkFlushTask();
         }
     );
-
+    
     GThreadManager->Join();
 }
 

@@ -23,21 +23,25 @@ void VisionCube::Gather(set<shared_ptr<GameObject>>& newObjects)
 	// 존들에서, 오브젝트 별로 따로 추출
 	for (Zone* z : zones) {
 		// 플레이어
-		for (shared_ptr<Player> p : z->_players) {
+		for (shared_ptr<Player> player : z->_players) {
 			// 추출한 것이 자기 자신이면 패스
-			if (p->_info.objectid() == _ownerPlayer->_info.objectid())
+			if (player->_info.objectid() == _ownerPlayer->_info.objectid())
 				continue;
 
 			// 새 시야각에 추가
-			newObjects.insert(p);
+			newObjects.insert(player);
 		}
 		// 몬스터
-		for (shared_ptr<Monster> m : z->_monsters) {
+		for (shared_ptr<Monster> monster : z->_monsters) {
 			// 새 시야각에 추가
-			newObjects.insert(m);
+			newObjects.insert(monster);
 		}
 
-		// 투사체, 패스
+		// NPC
+		for (shared_ptr<Npc> npc : z->_npcs) {
+			newObjects.insert(npc);
+		}
+		
 		// NONE
 	}
 }
@@ -88,7 +92,11 @@ void VisionCube::Update()
 	// 비전 큐브 오브젝트 업데이트
 	_prevObjects.swap(newObjects);
 
+	// 원본
 	// 0.1초당 이 객체(자기 자신)를 업데이트 하게 콜백 예약, TODO : 수치조정
-	_ownerPlayer->_reservedJob = _ownerPlayer->_ownerRoom->DoTimer(1000, [this]() { Update(); });
+	//_ownerPlayer->_reservedJob = _ownerPlayer->_ownerRoom->DoTimer(1000, [this]() { Update(); });
+	
+	// 수정
+	_ownerPlayer->_reservedJobs[PLAYERJOBS::PLAYER_JOB_VISION] = _ownerPlayer->_ownerRoom->DoTimer(1000, [this]() {Update(); });
 }
 

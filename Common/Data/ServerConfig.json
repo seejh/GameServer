@@ -1,0 +1,6 @@
+{
+  "ServerDbId" : 1,
+  "Name": "GameServer1",
+  "IpAddress": "127.0.0.1",
+  "Port": 7777
+}
