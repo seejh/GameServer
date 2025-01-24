@@ -125,7 +125,6 @@ void Session::RegisterRecv()
 
 void Session::ProcessRecv(int recvLen)
 {
-
 	// RecvEvent 리셋
 	_recvEvent.OverlappedReset();
 	_recvEvent._ownerIocpObject.reset();
@@ -319,10 +318,11 @@ PacketSession::~PacketSession()
 
 int PacketSession::OnRecv(char* buffer, int len)
 {
+	// len = Now Buffer TotalSize;
+	
 	int processLen = 0;
 	
 	while (true) {
-		
 		int nowData = len - processLen;
 
 		// 헤더 사이즈 보다 적다면
@@ -331,12 +331,12 @@ int PacketSession::OnRecv(char* buffer, int len)
 
 		// 헤더에서 명시한 사이즈(패킷 바디 + 헤더) 보다 적다면
 		PacketHeader* header = reinterpret_cast<PacketHeader*>(&buffer[processLen]);
-		if (nowData < header->_size + sizeof(PacketHeader))
+		if (nowData < header->_size)
 			break;
 
 		// 
 		OnRecvPacket(&buffer[processLen], header->_size);
-		processLen += header->_size + sizeof(PacketHeader);
+		processLen += header->_size;
 	}
 	
 	return processLen;

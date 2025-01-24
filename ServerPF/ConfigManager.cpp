@@ -11,6 +11,8 @@ bool ConfigManager::Init()
 		return false;
 	}
 
+	cout << "[ConfigManager] Init OK" << endl;
+
 	return true;
 }
 

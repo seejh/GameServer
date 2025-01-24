@@ -31,7 +31,9 @@ bool Handle_C_AddQuest(shared_ptr<ClientSession> session, PROTOCOL::C_AddQuest f
 bool Handle_C_RemoveQuest(shared_ptr<ClientSession> session, PROTOCOL::C_RemoveQuest fromPkt);
 bool Handle_C_CompleteQuest(shared_ptr<ClientSession> session, PROTOCOL::C_CompleteQuest fromPkt);
 bool Handle_C_UpdateQuest(shared_ptr<ClientSession> session, PROTOCOL::C_UpdateQuest fromPkt);
+bool Handle_C_BotLogin(shared_ptr<ClientSession> session, PROTOCOL::C_BotLogin fromPkt);
 bool Handle_C_Test(shared_ptr<ClientSession> session, PROTOCOL::C_Test fromPkt);
+
 
 class ClientPacketHandler
 {
@@ -86,6 +88,9 @@ public:
 		GPacketHandler[PROTOCOL::MsgId::C_UPDATE_QUEST] = [](shared_ptr<ClientSession> session, char* buffer, int len) {
 			return HandlePacket<PROTOCOL::C_UpdateQuest>(Handle_C_UpdateQuest, session, buffer, len);
 		};
+		GPacketHandler[PROTOCOL::MsgId::C_BOT_LOGIN] = [](shared_ptr<ClientSession> session, char* buffer, int len) {
+			return HandlePacket<PROTOCOL::C_BotLogin>(Handle_C_BotLogin, session, buffer, len);
+		};
 		GPacketHandler[PROTOCOL::MsgId::C_TEST] = [](shared_ptr<ClientSession> session, char* buffer, int len) {
 			return HandlePacket<PROTOCOL::C_Test>(Handle_C_Test, session, buffer, len);
 		};
@@ -93,6 +98,7 @@ public:
 
 	static bool HandlePacket(shared_ptr<ClientSession> session, char* buffer, int len) {
 		PacketHeader* header = reinterpret_cast<PacketHeader*>(buffer);
+		
 		return GPacketHandler[header->_id](session, buffer, len);
 	}
 
@@ -180,23 +186,28 @@ private:
 	template<typename PktType, typename Func>
 	static bool HandlePacket(Func func, shared_ptr<ClientSession> session, char* buffer, int len) {
 		PktType pkt;
-		pkt.ParseFromArray(buffer + sizeof(PacketHeader), len);
+		if (pkt.ParseFromArray(buffer + sizeof(PacketHeader), len - sizeof(PacketHeader)) == false)
+			return false;
 
 		return func(session, pkt);
 	}
 
 	template<typename PKT>
 	static shared_ptr<SendBuffer> MakeSendBuffer(PKT& pkt, int pktId) {
-		int packetSize = static_cast<int>(pkt.ByteSizeLong());
-		int totalSize = packetSize + sizeof(PacketHeader);
+		int dataSize = static_cast<int>(pkt.ByteSizeLong());
+		int totalSize = dataSize + sizeof(PacketHeader);
 
+		// 샌드버퍼
 		shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(totalSize);
+
+		// 패킷헤더
 		PacketHeader* header = reinterpret_cast<PacketHeader*>(sendBuffer->Buffer());
 		new(header)PacketHeader();
 		header->_id = pktId;
-		header->_size = packetSize;
+		header->_size = totalSize;
 
-		if (!pkt.SerializeToArray(sendBuffer->Buffer() + sizeof(PacketHeader), header->_size)) {
+		// 직렬화
+		if (!pkt.SerializeToArray(sendBuffer->Buffer() + sizeof(PacketHeader), dataSize)) {
 			cout << "packetHandler makePacket error" << endl;
 			return nullptr;
 		}

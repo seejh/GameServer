@@ -40,9 +40,6 @@
     <ClCompile Include="ClientPacketHandler.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="CSVReader.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectManager.cpp">
       <Filter>Object</Filter>
     </ClCompile>
@@ -129,9 +126,6 @@
     <ClInclude Include="ClientPacketHandler.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="CSVReader.h">
-      <Filter>Main</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectManager.h">
       <Filter>Object</Filter>
     </ClInclude>
@@ -210,7 +204,6 @@
     <None Include="..\Common\Procedures\GenProcs.bat">
       <Filter>DB</Filter>
     </None>
-    <None Include="packages.config" />
     <None Include="..\Common\Data\ItemData.json">
       <Filter>Data</Filter>
     </None>

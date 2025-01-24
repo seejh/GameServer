@@ -47,56 +47,28 @@ bool QuestManager::Remove(int questId)
 	return true;
 }
 
-void QuestManager::Update(QuestType type, int objectiveId, int quantity)
-{
-	// 일단 메모리에서만 업데이트
-	for (auto p : _quests) {
-		if (p.second->_questInfo.completed() == true) 
-			continue;
-			
-		if (p.second->_questData->type != type)
-			continue;
+//bool QuestManager::Update(QuestDB questDB)
+//{
+//	auto it = _quests.find(questDB.TemplateId);
+//	if (it == _quests.end()) {
+//		cout << "QuestManager::Update(QuestDB) Error - Can't Find QuestId:" << questDB.TemplateId << endl;
+//		return false;
+//	}
+//
+//	it->second->_questInfo.set_questdbid(questDB.QuestDbId);
+//	it->second->_questInfo.set_templateid(questDB.TemplateId);
+//	it->second->_questInfo.set_playerdbid(questDB.PlayerDbId);
+//	it->second->_questInfo.set_progress(questDB.Progress);
+//	it->second->_questInfo.set_completed(questDB.Completed);
+//	
+//	// 패킷
+//	shared_ptr<Player> player = _ownerPlayer.lock();
+//	
+//	PROTOCOL::S_UpdateQuest toPkt;
+//	toPkt.mutable_questinfo()->CopyFrom(it->second->_questInfo);
+//	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+//	player->_ownerSession->SendPacket(sendBuffer);
+//
+//	return true;
+//}
 
-		if (p.second->_questData->objectiveId != objectiveId)
-			continue;
-			
-		if (p.second->_questInfo.progress() >= p.second->_questData->quantity)
-			continue;
-			
-		// 업데이트
-		p.second->_questInfo.set_progress(p.second->_questInfo.progress() + quantity);
-
-		// 패킷
-		PROTOCOL::S_UpdateQuest toPkt;
-		toPkt.mutable_questinfo()->CopyFrom(p.second->_questInfo);
-		
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-		shared_ptr<Player> player = _ownerPlayer.lock();
-		if (player == nullptr)
-			return;
-
-		player->_ownerSession->SendPacket(sendBuffer);
-	}
-}
-
-bool QuestManager::Update(QuestDB questDB)
-{
-	auto it = _quests.find(questDB.TemplateId);
-	if (it == _quests.end()) {
-		cout << "QuestManager::Update(QuestDB) Error - Can't Find QuestId:" << questDB.TemplateId << endl;
-		return false;
-	}
-
-	it->second->_questInfo.set_questdbid(questDB.QuestDbId);
-	it->second->_questInfo.set_templateid(questDB.TemplateId);
-	it->second->_questInfo.set_playerdbid(questDB.PlayerDbId);
-	it->second->_questInfo.set_progress(questDB.Progress);
-	it->second->_questInfo.set_completed(questDB.Completed);
-	
-	return true;
-}
-
-void QuestManager::Complete(int questId)
-{
-	
-}

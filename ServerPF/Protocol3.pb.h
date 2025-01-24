@@ -47,7 +47,7 @@ struct TableStruct_Protocol3_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[49]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[50]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -61,6 +61,9 @@ extern C_AddItemDefaultTypeInternal _C_AddItem_default_instance_;
 class C_AddQuest;
 struct C_AddQuestDefaultTypeInternal;
 extern C_AddQuestDefaultTypeInternal _C_AddQuest_default_instance_;
+class C_BotLogin;
+struct C_BotLoginDefaultTypeInternal;
+extern C_BotLoginDefaultTypeInternal _C_BotLogin_default_instance_;
 class C_Chat;
 struct C_ChatDefaultTypeInternal;
 extern C_ChatDefaultTypeInternal _C_Chat_default_instance_;
@@ -206,6 +209,7 @@ extern StatDefaultTypeInternal _Stat_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::PROTOCOL::C_AddItem* Arena::CreateMaybeMessage<::PROTOCOL::C_AddItem>(Arena*);
 template<> ::PROTOCOL::C_AddQuest* Arena::CreateMaybeMessage<::PROTOCOL::C_AddQuest>(Arena*);
+template<> ::PROTOCOL::C_BotLogin* Arena::CreateMaybeMessage<::PROTOCOL::C_BotLogin>(Arena*);
 template<> ::PROTOCOL::C_Chat* Arena::CreateMaybeMessage<::PROTOCOL::C_Chat>(Arena*);
 template<> ::PROTOCOL::C_CompleteQuest* Arena::CreateMaybeMessage<::PROTOCOL::C_CompleteQuest>(Arena*);
 template<> ::PROTOCOL::C_CreatePlayer* Arena::CreateMaybeMessage<::PROTOCOL::C_CreatePlayer>(Arena*);
@@ -302,12 +306,14 @@ enum MsgId : int {
   S_UPDATE_QUEST = 42,
   C_TEST = 43,
   S_TEST = 44,
+  C_BOT_LOGIN = 45,
+  S_BOT_LOGIN = 46,
   MsgId_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   MsgId_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool MsgId_IsValid(int value);
 constexpr MsgId MsgId_MIN = C_LOGIN;
-constexpr MsgId MsgId_MAX = S_TEST;
+constexpr MsgId MsgId_MAX = S_BOT_LOGIN;
 constexpr int MsgId_ARRAYSIZE = MsgId_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MsgId_descriptor();
@@ -2462,6 +2468,7 @@ class C_Enter_Room final :
   enum : int {
     kObjectFieldNumber = 2,
     kRoomNumFieldNumber = 1,
+    kIsrespawnFieldNumber = 3,
   };
   // .PROTOCOL.ObjectInfo object = 2;
   bool has_object() const;
@@ -2490,6 +2497,15 @@ class C_Enter_Room final :
   void _internal_set_roomnum(uint64_t value);
   public:
 
+  // bool isrespawn = 3;
+  void clear_isrespawn();
+  bool isrespawn() const;
+  void set_isrespawn(bool value);
+  private:
+  bool _internal_isrespawn() const;
+  void _internal_set_isrespawn(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:PROTOCOL.C_Enter_Room)
  private:
   class _Internal;
@@ -2499,6 +2515,7 @@ class C_Enter_Room final :
   typedef void DestructorSkippable_;
   ::PROTOCOL::ObjectInfo* object_;
   uint64_t roomnum_;
+  bool isrespawn_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_Protocol3_2eproto;
 };
@@ -8718,6 +8735,152 @@ class S_Test final :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_Protocol3_2eproto;
 };
+// -------------------------------------------------------------------
+
+class C_BotLogin final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:PROTOCOL.C_BotLogin) */ {
+ public:
+  inline C_BotLogin() : C_BotLogin(nullptr) {}
+  ~C_BotLogin() override;
+  explicit constexpr C_BotLogin(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  C_BotLogin(const C_BotLogin& from);
+  C_BotLogin(C_BotLogin&& from) noexcept
+    : C_BotLogin() {
+    *this = ::std::move(from);
+  }
+
+  inline C_BotLogin& operator=(const C_BotLogin& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline C_BotLogin& operator=(C_BotLogin&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const C_BotLogin& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const C_BotLogin* internal_default_instance() {
+    return reinterpret_cast<const C_BotLogin*>(
+               &_C_BotLogin_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    49;
+
+  friend void swap(C_BotLogin& a, C_BotLogin& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(C_BotLogin* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(C_BotLogin* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  C_BotLogin* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<C_BotLogin>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const C_BotLogin& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const C_BotLogin& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(C_BotLogin* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "PROTOCOL.C_BotLogin";
+  }
+  protected:
+  explicit C_BotLogin(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTestFieldNumber = 1,
+  };
+  // bool test = 1;
+  void clear_test();
+  bool test() const;
+  void set_test(bool value);
+  private:
+  bool _internal_test() const;
+  void _internal_set_test(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:PROTOCOL.C_BotLogin)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  bool test_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_Protocol3_2eproto;
+};
 // ===================================================================
 
 
@@ -10258,6 +10421,26 @@ inline void C_Enter_Room::set_allocated_object(::PROTOCOL::ObjectInfo* object) {
   }
   object_ = object;
   // @@protoc_insertion_point(field_set_allocated:PROTOCOL.C_Enter_Room.object)
+}
+
+// bool isrespawn = 3;
+inline void C_Enter_Room::clear_isrespawn() {
+  isrespawn_ = false;
+}
+inline bool C_Enter_Room::_internal_isrespawn() const {
+  return isrespawn_;
+}
+inline bool C_Enter_Room::isrespawn() const {
+  // @@protoc_insertion_point(field_get:PROTOCOL.C_Enter_Room.isrespawn)
+  return _internal_isrespawn();
+}
+inline void C_Enter_Room::_internal_set_isrespawn(bool value) {
+  
+  isrespawn_ = value;
+}
+inline void C_Enter_Room::set_isrespawn(bool value) {
+  _internal_set_isrespawn(value);
+  // @@protoc_insertion_point(field_set:PROTOCOL.C_Enter_Room.isrespawn)
 }
 
 // -------------------------------------------------------------------
@@ -13047,9 +13230,35 @@ inline void S_Test::set_testbool(bool value) {
   // @@protoc_insertion_point(field_set:PROTOCOL.S_Test.testbool)
 }
 
+// -------------------------------------------------------------------
+
+// C_BotLogin
+
+// bool test = 1;
+inline void C_BotLogin::clear_test() {
+  test_ = false;
+}
+inline bool C_BotLogin::_internal_test() const {
+  return test_;
+}
+inline bool C_BotLogin::test() const {
+  // @@protoc_insertion_point(field_get:PROTOCOL.C_BotLogin.test)
+  return _internal_test();
+}
+inline void C_BotLogin::_internal_set_test(bool value) {
+  
+  test_ = value;
+}
+inline void C_BotLogin::set_test(bool value) {
+  _internal_set_test(value);
+  // @@protoc_insertion_point(field_set:PROTOCOL.C_BotLogin.test)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

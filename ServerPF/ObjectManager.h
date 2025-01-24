@@ -6,10 +6,7 @@
 
 /*
 	ObjectManager
-	게임 오브젝트의 생성과 소멸을 담당
-	다만, 생성된 오브젝트의 관리(보관)는 플레이어 타입만 관리를 함
-
-	지켜볼 필요가 있음
+	
 */
 class GameObject;
 class Player;
@@ -23,7 +20,7 @@ public:
 	
 	//
 	shared_ptr<GameObject> Add(PROTOCOL::GameObjectType objectType);
-	bool Remove(int objectId);
+	void Remove(int objectId);
 
 	//
 	int GeneratedId(PROTOCOL::GameObjectType type);

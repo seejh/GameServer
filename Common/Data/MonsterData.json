@@ -8,34 +8,20 @@
 				"totalexp": 250,
 				"maxhp": 500,
 				"hp": 500,
-				"damage": 40,
+				"damage": 100,
 				"defence" : 20,
-				"speed": 350,
+				"speed": 500,
 				"attackdistance": 250,
-				"noticedistance": 800,
-				"returndistance": 2000,
+				"noticedistance": 700,
+				"returndistance": 1500,
 				"attackcooltime": 2000
 			},
 			"rewards": [
-				{
-					"percent": 40,
-					"itemid": 2,
-					"count": 1
-				},
-				{
-					"percent": 50,
-					"itemid": 100,
-					"count": 1
-				},
-				{
-					"percent": 60,
-					"itemid": 101,
-					"count": 1
-				},
+				
 				{
 					"percent": 90,
 					"itemid": 200,
-					"count": 5
+					"count": 3
 				}
 			]
 		},
@@ -49,10 +35,10 @@
 				"hp": 1500,
 				"damage": 100,
 				"defence": 50,
-				"speed": 350,
+				"speed": 500,
 				"attackdistance": 250,
-				"noticedistance": 800,
-				"returndistance": 2000,
+				"noticedistance": 700,
+				"returndistance": 1500,
 				"attackcooltime": 1000
 			},
 			"rewards": [

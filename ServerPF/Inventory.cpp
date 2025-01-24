@@ -89,8 +89,15 @@ int32 Inventory::GetStackPos(int32 templateId)
 bool Inventory::SetSlotDBLock(int32 slot, bool flag)
 {
 	// 잠겼는데 잠금하려고 하면
-	if (flag == true && _slotLocker[slot] == true)
+	if (flag == true && _slotLocker[slot] == true) {
+		// cout << "[INVENTORY] Slot:" << slot << "Try Locking, But Already Locked" << endl;
 		return false;
+	}
+
+	/*if (flag == true)
+		cout << "[INVENTORY] Slot: " << slot << " Lock OK" << endl;
+	else
+		cout << "[INVENTORY] Slot: " << slot << "Lock Release OK" << endl;*/
 
 	_slotLocker[slot] = flag;
 

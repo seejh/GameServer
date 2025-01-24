@@ -28,7 +28,7 @@ bool NetService::Init()
 	if (_listenSession->Init(strIp, _port) == false)
 		return false;
 
-	cout << strIp << ":" << _port << " Listen Init OK. now Listening..." << endl;
+	cout << strIp << ":" << _port << " Listen Init OK. Now Listening..." << endl;
 
 	return true;
 }
@@ -85,6 +85,8 @@ bool ClientService::Init()
 		}
 	}
 
+	cout << "[ClientService] Connected to" << strIp << ":" << _port << " OK" << endl;
+
 	return true;
 }
 /*------------------------------------------------------------------------------------------
@@ -109,7 +111,7 @@ bool ServerService::Init()
 	if (_listenSession->Init(strIp, _port) == false)
 		return false;
 
-	cout << strIp << ":" << _port << " Listen Init OK. now Listening..." << endl;
+	cout << "[ServerService] " << strIp << ":" << _port << " Listen Init OK. now Listening..." << endl;
 
 	return true;
 }

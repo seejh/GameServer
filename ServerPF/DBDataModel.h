@@ -36,18 +36,9 @@ public:
 	GameDB
 =======================================================================*/
 
-/*------------------------------------------------------
-	TABLE Account
--------------------------------------------------------*/
-class AccountDB {
+class DB {
 public:
-	// PK 기본키
-	int AccountDbId;
-	int AccountPw;
-	WCHAR AccountName[50];
-	
-	// 1:m
-	//vector<PlayerDB> _players;
+	DB_STATE dbState;
 };
 
 /*------------------------------------------------------
@@ -115,3 +106,16 @@ public:
 	DB_STATE dbState;
 };
 
+/*------------------------------------------------------
+	TABLE Account
+-------------------------------------------------------*/
+class AccountDB : public DB {
+public:
+	// PK 기본키
+	int AccountDbId;
+	int AccountPw;
+	WCHAR AccountName[50];
+
+	// 1:m
+	vector<PlayerDB> playerDBs;
+};

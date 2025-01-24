@@ -23,6 +23,12 @@ public:
 	// statement에 바인드된 인자 해제
 	void Unbind();
 
+	// TEST
+	// 트랜잭션 시작 - 오토 커밋 비활성화
+	void SetAutoCommit(bool onOff);
+	bool Commit();
+	bool Rollback();
+
 public:
 
 	// 원래 아래 두개로 했는데 받아올 때 마다 타입등을 적어주는게 힘들어서

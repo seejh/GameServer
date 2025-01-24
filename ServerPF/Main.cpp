@@ -14,7 +14,6 @@
 #include"GlobalQueue.h"
 #include"CoreGlobal.h"
 #include"ThreadManager.h"
-#include"CSVReader.h"
 
 #include<bitset>
 
@@ -28,7 +27,7 @@
 #include"GameDBManager.h"
 #include"SharedDBManager.h"
 #include"ConfigManager.h"
-
+#include"RedisManager.h"
 
 #include<hiredis-master/hiredis.h>
 
@@ -65,164 +64,6 @@ void NetworkFlushTask() {
 
 #pragma endregion
 
-// DB에 사전 설정할 정보를 업데이트할 필요가 있을 때
-void DBDataSetOnce() {
-    DBConnection* dbConn = GDBConnectionPool->Pop();
-
-    // 계정DB
-    /*
-    // Token
-    {
-        DBConnection* dbConn = GDBConnectionPool->Pop();
-        auto query = L"\
-        DROP TABLE IF EXISTS [dbo].[Token];             \
-        CREATE TABLE [dbo].[Token] (                    \
-        [TokenDbId] INT NOT NULL PRIMARY KEY IDENTITY,  \
-        [AccountDbId] INT NULL,                         \
-        [Token] INT NULL,                               \
-        [Expired] DATETIME NULL);";
-        dbConn->Execute(query);
-        GDBConnectionPool->Push(dbConn);
-    }
-
-    // ServerInfo
-    {
-        DBConnection* dbConn = GDBConnectionPool->Pop();
-        auto query = L"\
-        DROP TABLE IF EXISTS [dbo].[ServerInfo];             \
-        CREATE TABLE [dbo].[ServerInfo] (                   \
-        [ServerDbId] INT NOT NULL PRIMARY KEY IDENTITY,     \
-        [Name] NVARCHAR(50) NULL,                           \
-        [IpAddress] NVARCHAR(50) NULL,                      \
-        [Port] INT NULL,                                    \
-        [BusyScore] INT NULL);";
-        dbConn->Execute(query);
-        GDBConnectionPool->Push(dbConn);
-    }
-    {
-        wstring wstr(L"see");
-
-        // DBConnection UnBind
-        SP::InsertAccount insertAccount(*dbConn);
-        insertAccount.In_AccountName(wstr.c_str(), wstr.size());
-        insertAccount.In_AccountPw(111);
-        
-        insertAccount.Execute();
-    }
-
-    {
-        wstring wstr(L"lee");
-
-        // DBConnection UnBind
-        SP::InsertAccount insertAccount(*dbConn);
-        insertAccount.In_AccountName(wstr.c_str(), wstr.size());
-        insertAccount.In_AccountPw(222);
-
-        insertAccount.Execute();
-    }
-
-    {
-        wstring wstr(L"kim");
-
-        // DBConnectino UnBind
-        SP::InsertAccount insertAccount(*dbConn);
-        insertAccount.In_AccountName(wstr.c_str(), wstr.size());
-        insertAccount.In_AccountPw(333);
-
-        insertAccount.Execute();
-    }
-    */
-
-    // 플레이어DB
-    /*
-    {
-        wstring wstr(L"see1");
-
-        // DBConnecction UnBind
-        SP::InsertPlayer insertPlayer(*dbConn);
-        insertPlayer.In_AccountDbId(1);
-        insertPlayer.In_PlayerName(wstr.c_str(), wstr.size());
-        insertPlayer.In_Level(1);
-        insertPlayer.In_TotalExp(0);
-        insertPlayer.In_MaxHp(200);
-        insertPlayer.In_Hp(200);
-        insertPlayer.In_Damage(20);
-        insertPlayer.In_LocationX(0);
-        insertPlayer.In_LocationY(0);
-        insertPlayer.In_LocationZ(120.0f);
-        insertPlayer.Execute();
-    }
-
-    {
-        wstring wstr(L"lee1");
-
-        // DBConnection UnBind
-        SP::InsertPlayer insertPlayer(*dbConn);
-        insertPlayer.In_AccountDbId(2);
-        insertPlayer.In_PlayerName(wstr.c_str(), wstr.size());
-        insertPlayer.In_Level(1);
-        insertPlayer.In_TotalExp(0);
-        insertPlayer.In_MaxHp(200);
-        insertPlayer.In_Hp(200);
-        insertPlayer.In_Damage(20);
-        insertPlayer.In_LocationX(0);
-        insertPlayer.In_LocationY(0);
-        insertPlayer.In_LocationZ(120.0f);
-        insertPlayer.Execute();
-    }
-
-    {
-        wstring wstr(L"kim1");
-
-        // DBConnection UBind
-        SP::InsertPlayer insertPlayer(*dbConn);
-        insertPlayer.In_AccountDbId(3);
-        insertPlayer.In_PlayerName(wstr.c_str(), wstr.size());
-        insertPlayer.In_Level(1);
-        insertPlayer.In_TotalExp(0);
-        insertPlayer.In_MaxHp(200);
-        insertPlayer.In_Hp(200);
-        insertPlayer.In_Damage(20);
-        insertPlayer.In_LocationX(0);
-        insertPlayer.In_LocationY(0);
-        insertPlayer.In_LocationZ(120.0f);
-        insertPlayer.Execute();
-    }
-    */
-
-    // 아이템DB
-    /*
-    {
-        SP::InsertItem insertItem(*dbConn);
-        insertItem.In_TemplateId(1);
-        insertItem.In_Count(1);
-        insertItem.In_Slot(1);
-        insertItem.In_Equipped(false);
-        insertItem.In_PlayerDbId(1);
-        insertItem.Execute();
-    }
-    {
-        SP::InsertItem insertItem(*dbConn);
-        insertItem.In_TemplateId(2);
-        insertItem.In_Count(1);
-        insertItem.In_Slot(1);
-        insertItem.In_Equipped(false);
-        insertItem.In_PlayerDbId(2);
-        insertItem.Execute();
-    }
-    {
-        SP::InsertItem insertItem(*dbConn);
-        insertItem.In_TemplateId(1);
-        insertItem.In_Count(1);
-        insertItem.In_Slot(1);
-        insertItem.In_Equipped(false);
-        insertItem.In_PlayerDbId(3);
-        insertItem.Execute();
-    }
-    */
-
-    GDBConnectionPool->Push(dbConn);
-}
 void DBSync() {
     // GameDB Sync
     DBConnection* gameDbConn = DBManager::Instance()->_gameDbManager->_dbConn;
@@ -236,25 +77,27 @@ void DBSync() {
 }
 
 int main() {
+    uint32 threadCounts = thread::hardware_concurrency();
+
     // 엔진 전역 객체, 데이터매니저
     CoreGlobal::Instance()->Init();
-    DataManager::Instance()->Init();
-    ConfigManager::Instance()->Init();
-    DBManager::Instance()->Init();
+    ASSERT_CRASH(DataManager::Instance()->Init());
+    ASSERT_CRASH(ConfigManager::Instance()->Init());
+    ASSERT_CRASH(DBManager::Instance()->Init(
+        threadCounts, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=MyDB;Trusted_Connection=Yes;",
+        threadCounts, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=SharedDB;Trusted_Connection=Yes;",
+        threadCounts, "127.0.0.1", 6379));
 
     // 확률 시드
     srand(GetTickCount());
-
-    // 
-    ASSERT_CRASH(DBManager::Instance()->_gameDbManager->Connect(4, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=MyDB;Trusted_Connection=Yes;"));
-    ASSERT_CRASH(DBManager::Instance()->_sharedDbManager->Connect(4, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=SharedDB;Trusted_Connection=Yes;"));
-
+    
     // DB싱크
     // DBSync();
-    // DBDataSetOnce();
 
-    // 룸매니저 게임룸 생성
-    RoomManager::Instance()->Add(1);
+    // 룸매니저 게임룸 생성, 
+    SessionManager::Instance()->Init();
+    RoomManager::Instance()->Init();
+    DBManager::Instance()->_sharedDbManager->DoAsync(&SharedDBManager::UpdateServerInfo);
 
     // 패킷 핸들러, 네트워크 시동
     ClientPacketHandler::Init();
@@ -265,25 +108,12 @@ int main() {
     if (service->Init() == false)
         return 0;
 
-    // IOCP, JOB 스레드 - 2개
-    // 네트워크 FLUSH 스레드 1개
-    GThreadManager->Launch(
-        [&service]() {
-            IocpAndJobTask(service);
-        }
-    );
-    GThreadManager->Launch(
-        [&service]() {
-            IocpAndJobTask(service);
-        }
-    );
-    GThreadManager->Launch(
-        [&]() {
-            NetworkFlushTask();
-        }
-    );
-    
+    // 
+    for (int i = 0; i < threadCounts; i++) {
+        GThreadManager->Launch(
+            [&service]() {IocpAndJobTask(service); }
+        );
+    }
+
     GThreadManager->Join();
 }
-
-

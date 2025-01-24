@@ -41,7 +41,7 @@ using namespace std;
 #include"SocketUtils.h"
 #include"Memory.h"
 #include"ObjectPool.h"
-//#include"JobQueue.h" // 잡큐가 먼저 있으면 에러남 나중에 이런 것도 체크해야댐 니
+//#include"JobQueue.h" // 잡큐가 먼저 있으면 에러남 나중에 이런 것도 체크해야댐
 #include"LockQueue.h"
 #include"JobQueue.h"
 #include"ConsoleLog.h"

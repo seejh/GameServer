@@ -40,12 +40,12 @@ void Room::Init(int minX, int maxX, int minY, int maxY)
 			int baseX = minX + (_width * x);
 			int baseY = minY + (_width * y);
 			
-			// cout << "[" << y << "," << x << "] = [" << baseX << "," << baseY << "]" << endl;
 			_zones[y][x] = new Zone(baseX, baseY, _width);
 		}
 	}
 	
 #pragma region SpawnMonsterAndNPC
+
 	// 나중에 수정
 	{// 몬스터
 		// 0번 몬스터 생성
@@ -54,13 +54,26 @@ void Room::Init(int minX, int maxX, int minY, int maxY)
 
 		// 베이스 위치, 위치
 		monster->_basePos._x = 2000;
-		monster->_basePos._y = -3000;
+		monster->_basePos._y = 0;
 		monster->_basePos._z = 145.f;
 		monster->_info.mutable_pos()->set_locationx(monster->_basePos._x);
 		monster->_info.mutable_pos()->set_locationy(monster->_basePos._y);
 		monster->_info.mutable_pos()->set_locationz(monster->_basePos._z);
 
 		// 몬스터 게임룸 진입
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
+
+		monster->_basePos._x = 2000;
+		monster->_basePos._y = -3000;
+		monster->_basePos._z = 145.f;
+		monster->_info.mutable_pos()->set_locationx(monster->_basePos._x);
+		monster->_info.mutable_pos()->set_locationy(monster->_basePos._y);
+		monster->_info.mutable_pos()->set_locationz(monster->_basePos._z);
+
 		EnterRoom(monster);
 	}
 	{// 몬스터
@@ -78,7 +91,33 @@ void Room::Init(int minX, int maxX, int minY, int maxY)
 	}
 	{// 몬스터
 		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-		monster->Init(1);
+		monster->Init(0);
+
+		monster->_basePos._x = 4000;
+		monster->_basePos._y = -3000;
+		monster->_basePos._z = 145.f;
+		monster->_info.mutable_pos()->set_locationx(monster->_basePos._x);
+		monster->_info.mutable_pos()->set_locationy(monster->_basePos._y);
+		monster->_info.mutable_pos()->set_locationz(monster->_basePos._z);
+		
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
+
+		monster->_basePos._x = 6000;
+		monster->_basePos._y = 0;
+		monster->_basePos._z = 145.f;
+		monster->_info.mutable_pos()->set_locationx(monster->_basePos._x);
+		monster->_info.mutable_pos()->set_locationy(monster->_basePos._y);
+		monster->_info.mutable_pos()->set_locationz(monster->_basePos._z);
+
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
 
 		monster->_basePos._x = 6000;
 		monster->_basePos._y = -3000;
@@ -102,6 +141,47 @@ void Room::Init(int minX, int maxX, int minY, int maxY)
 
 		EnterRoom(monster);
 	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(1);
+
+		monster->_basePos._x = 8000;
+		monster->_basePos._y = -3000;
+		monster->_basePos._z = 145.f;
+		monster->_info.mutable_pos()->set_locationx(monster->_basePos._x);
+		monster->_info.mutable_pos()->set_locationy(monster->_basePos._y);
+		monster->_info.mutable_pos()->set_locationz(monster->_basePos._z);
+
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
+
+		monster->_basePos._x = 0;
+		monster->_basePos._y = -5000;
+		monster->_basePos._z = 145.f;
+		monster->_info.mutable_pos()->set_locationx(monster->_basePos._x);
+		monster->_info.mutable_pos()->set_locationy(monster->_basePos._y);
+		monster->_info.mutable_pos()->set_locationz(monster->_basePos._z);
+
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
+
+		monster->_basePos._x = 2000;
+		monster->_basePos._y = -5000;
+		monster->_basePos._z = 145.f;
+		monster->_info.mutable_pos()->set_locationx(monster->_basePos._x);
+		monster->_info.mutable_pos()->set_locationy(monster->_basePos._y);
+		monster->_info.mutable_pos()->set_locationz(monster->_basePos._z);
+
+		EnterRoom(monster);
+	}
+
+
 	{ // NPC
 		shared_ptr<Npc> npc = static_pointer_cast<Npc>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::NPC));
 		npc->Init(1);
@@ -132,6 +212,12 @@ void Room::Init(int minX, int maxX, int minY, int maxY)
 	}
 #pragma endregion
 }
+
+//void Room::Update()
+//{
+//	// TODO : 제거할 필요 있어보임
+//	Execute();
+//}
 
 Zone* Room::GetZone(float targetX, float targetY)
 {
@@ -169,12 +255,6 @@ float Room::DistanceToTarget(float dx, float dy)
 	return sqrt(DistanceToTargetSimple(dx, dy));
 }
 
-void Room::Update()
-{
-	// TODO : 제거할 필요 있어보임
-	Execute();
-}
-
 void Room::EnterRoom(shared_ptr<GameObject> object)
 {
 	PROTOCOL::GameObjectType type = ObjectManager::Instance()->GetObjectTypeById(object->_info.objectid());
@@ -183,31 +263,37 @@ void Room::EnterRoom(shared_ptr<GameObject> object)
 	// 플레이어
 	if (type == PROTOCOL::GameObjectType::PLAYER) {
 		// 
-		if (_players.count(object->_info.objectid()) == 0) { 
-			cout << "PLAYER-" << object->_info.objectid() << " EnterRoom" << endl;
-
+		if (_players.count(object->_info.objectid()) == 0) {
+			// 플레이어로 형변환
 			shared_ptr<Player> player = static_pointer_cast<Player>(object);
 
+			// cout << "[Room] SESSION-" << player->_ownerSession->_sessionId << ", PLAYER-" << object->_info.objectid() << " EnterRoom" << endl;
+			
 			// 룸과 플레이어에서 서로 참조 추가
 			_players[player->_info.objectid()] = player;
 			player->_ownerRoom = static_pointer_cast<Room>(shared_from_this());
-			
+
 			// 플레이어 맵(존) 추가
 			Zone* zone = GetZone(player->_info.pos().locationx(), player->_info.pos().locationy());
 			zone->_players.insert(player);
-			
+
 			// 
 			player->OnEnterGame();
 
 			return;
+		}
+		else {
+			shared_ptr<Player> player = static_pointer_cast<Player>(object);
+			// cout << "Room::EnterRoom() SESSION-" << player->_ownerSession->_sessionId << ", _players.count(ObjectId-" << object->_info.objectid() << ") No Remove Error" << endl;
 		}
 	}
 	// 몬스터
 	else if (type == PROTOCOL::GameObjectType::MONSTER) {
 		 
 		if (_monsters.count(object->_info.objectid()) == 0) {
-			cout << "MONSTER-" << object->_info.objectid() << " EnterRoom" << endl;
+			cout << "[Room] MONSTER-" << object->_info.objectid() << " EnterRoom" << endl;
 
+			// 몬스터로 형변환
 			shared_ptr<Monster> monster = static_pointer_cast<Monster>(object);
 
 			// 룸과 몬스터에서 서로 참조 추가
@@ -228,8 +314,9 @@ void Room::EnterRoom(shared_ptr<GameObject> object)
 
 	else if (type == PROTOCOL::GameObjectType::NPC) {
 		if (_npcs.count(object->_info.objectid()) == 0) {
-			cout << "NPC-" << object->_info.objectid() << " EnterRoom" << endl;
+			cout << "[Room] NPC-" << object->_info.objectid() << " EnterRoom" << endl;
 
+			// NPC로 형변환
 			shared_ptr<Npc> npc = static_pointer_cast<Npc>(object);
 
 			// 룸과 npc에서 서로 참조 추가
@@ -261,29 +348,39 @@ void Room::LeaveRoom(int objectId)
 
 	// 플레이어
 	if (type == PROTOCOL::GameObjectType::PLAYER) {
-		cout << "PLAYER-" << objectId << " LeaveRoom" << endl;
+		// cout << "[Room] PLAYER-" << objectId << " LeaveRoom" << endl;
 
 		auto it = _players.find(objectId);
 		if (it != _players.end()) {
 			// 
 			shared_ptr<Player> player = it->second;
 			
+			cout << "[Room] PLAYER-" << objectId << " LeaveRoom" << endl;
+
 			// 맵(존)에서 플레이어 제거
 			Zone* zone = GetZone(player->_info.pos().locationx(), player->_info.pos().locationy());
 			zone->Remove(player);
 
 			// 룸에서 플레이어 제거
-			_players.erase(objectId);
+			if (_players.erase(objectId) == 0) {
+				// cout << "Room::LeaveRoom() Erase Player From _players Couldn't Error" << endl;
+			}
 
 			// 플레이어 스탯 저장(DB)
 			player->OnLeaveGame();
+
+			// 오브젝트 매니저에서 플레이어 제거
+			ObjectManager::Instance()->Remove(player->_info.objectid());
+
+			// 세션에서 플레이어 제거 - 문제 유발할 수 잇음 계속 확인 필요
+			player->_ownerSession->_player.reset();
 
 			return;
 		}
 	}
 	// 몬스터
 	else if (type == PROTOCOL::GameObjectType::MONSTER) {
-		cout << "MONSTER-" << objectId << " LeaveRoom" << endl;
+		cout << "[Room] MONSTER-" << objectId << " LeaveRoom" << endl;
 
 		auto it = _monsters.find(objectId);
 		if (it != _monsters.end()) {
@@ -302,7 +399,7 @@ void Room::LeaveRoom(int objectId)
 	}
 	// NPC
 	else if (type == PROTOCOL::GameObjectType::NPC) {
-		cout << "NPC-" << objectId << " LeaveRoom" << endl;
+		cout << "[Room] NPC-" << objectId << " LeaveRoom" << endl;
 
 		auto it = _npcs.find(objectId);
 		if (it != _npcs.end()) {
@@ -330,9 +427,6 @@ void Room::LeaveRoom(int objectId)
 	패킷 핸들
 ---------------------------------------------------------------------------*/
 
-void Room::HandleAddItem(shared_ptr<Player> player, PROTOCOL::C_AddItem fromPkt)
-{
-}
 
 void Room::HandleUseItem(shared_ptr<Player> player, PROTOCOL::C_UseItem fromPkt)
 {
@@ -363,17 +457,14 @@ void Room::HandleUseItem(shared_ptr<Player> player, PROTOCOL::C_UseItem fromPkt)
 	// 소비 후 유지가 안되면 => 1개남았는데 사용 -> 삭제
 	// 소비 후 유지가 되면 => 100개 남았는데 사용 -> 99개 -> 유지
 	
-	// 삭제 (DELETE)
-	if (item->_itemInfo.count() <= 1) {
+	// 삭제 (DELETE) or 유지 (UPDATE)
+	if (item->_itemInfo.count() <= 1)
 		itemDB.dbState = DB_STATE::DELETE_NEED;
-		DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::DeleteItem, player, itemDB, &Room::DBCallback_UseItem);
-	}
-
-	// 유지 (UPDATE)
-	else {
+	else 
 		itemDB.dbState = DB_STATE::UPDATE_NEED;
-		DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::UpdateItem, player, itemDB, &Room::DBCallback_UseItem);
-	}
+
+	// DB 요청
+	DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::Transact_UseItem, player, itemDB);
 }
 
 void Room::HandleEquipItem(shared_ptr<Player> player, PROTOCOL::C_EquipItem fromPkt)
@@ -387,52 +478,56 @@ void Room::HandleEquipItem(shared_ptr<Player> player, PROTOCOL::C_EquipItem from
 	if (item->_itemType == PROTOCOL::ItemType::ITEM_TYPE_CONSUMABLE)
 		return;
 
-	// 장착요청이 왔는데 선장착이 있으면 해제
+	// 해제할 장비(요청이 장착 요청 && 해당 부위에 이미 장착된 장비가 있으면)
 	if (fromPkt.equip() == true) {
 		shared_ptr<Item> equippedItem = player->_inven.FindEquippedSamePos(item);
 		if (equippedItem != nullptr) {
 			// 슬롯 락
 			if (player->_inven.SetSlotDBLock(equippedItem->_itemInfo.slot(), true) == false) {
-				cout << "Room::HandleEquipItem() Error - UnEquip - " << equippedItem->_itemInfo.slot() << "Slot Locked Already" << endl;
+				cout << "Room::HandleEquipItem() Error - Equipment to UnEquip, Slot:" << equippedItem->_itemInfo.slot() << ", SlotLocked Already" << endl;
 				return;
 			}
 
-			// DB 요청 준비
-			ItemDB itemDB;
-			itemDB.ItemDbId = equippedItem->_itemInfo.itemdbid();
-			itemDB.TemplateId = equippedItem->_itemInfo.templateid();
-			itemDB.PlayerDbId = equippedItem->_itemInfo.playerdbid();
-			itemDB.Count = equippedItem->_itemInfo.count();
-			itemDB.Slot = equippedItem->_itemInfo.slot();
-			itemDB.Equipped = false;
-			itemDB.dbState = DB_STATE::UPDATE_NEED;
+			// 서버 메모리 장비 해제
+			equippedItem->_itemInfo.set_equipped(false);
 
-			// DB 요청
-			DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::UpdateItem, player, itemDB, 
-				&Room::DBCallback_EquipItem);
+			// DB 노티
+			DBManager::Instance()->_gameDbManager->TransactNoti_EquipItem(player, equippedItem);
+
+			// 패킷
+			PROTOCOL::S_EquipItem toPkt;
+			toPkt.set_equip(equippedItem->_itemInfo.equipped());
+			toPkt.set_slot(equippedItem->_itemInfo.slot());
+			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+			player->_ownerSession->SendPacket(sendBuffer);
+
+			// 슬롯 락 해제
+			player->_inven.SetSlotDBLock(equippedItem->_itemInfo.slot(), false);
 		}
 	}
 
-	// 원래 요청들어온 아이템 장착 또는 해제
+	// 요청 받은 장착 또는 장착 해제
 	// 슬롯 락
 	if (player->_inven.SetSlotDBLock(item->_itemInfo.slot(), true) == false) {
-		cout << "Room::HandleEquipItem() Error - Equip - " << item->_itemInfo.slot() << "Slot Locked Already" << endl;
+		cout << "Room::HandleEquipItem() Error - Equipment to Equip, Slot:" << item->_itemInfo.slot() << ", SlotLocked Already" << endl;
 		return;
 	}
 
-	// DB 요청 준비
-	ItemDB itemDB;
-	itemDB.ItemDbId = item->_itemInfo.itemdbid();
-	itemDB.TemplateId = item->_itemInfo.templateid();
-	itemDB.PlayerDbId = item->_itemInfo.playerdbid();
-	itemDB.Count = item->_itemInfo.count();
-	itemDB.Slot = item->_itemInfo.slot();
-	itemDB.Equipped = fromPkt.equip();
-	itemDB.dbState = DB_STATE::UPDATE_NEED;
+	// 서버 메모리 장비 해제
+	item->_itemInfo.set_equipped(fromPkt.equip());
 
-	// DB 요청
-	DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::UpdateItem, player, itemDB,
-		&Room::DBCallback_EquipItem);
+	// DB 노티
+	DBManager::Instance()->_gameDbManager->TransactNoti_EquipItem(player, item);
+
+	// 패킷
+	PROTOCOL::S_EquipItem toPkt;
+	toPkt.set_equip(item->_itemInfo.equipped());
+	toPkt.set_slot(item->_itemInfo.slot());
+	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+	player->_ownerSession->SendPacket(sendBuffer);
+
+	// 슬롯 락 해제
+	player->_inven.SetSlotDBLock(item->_itemInfo.slot(), false);
 }
 
 void Room::HandleAddQuest(shared_ptr<Player> player, PROTOCOL::C_AddQuest fromPkt)
@@ -455,7 +550,7 @@ void Room::HandleAddQuest(shared_ptr<Player> player, PROTOCOL::C_AddQuest fromPk
 	questDB.dbState = DB_STATE::INSERT_NEED;
 
 	// DB 요청
-	DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::InsertQuest, player, questDB, &Room::DBCallback_AddQuest);
+	DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::Transact_AddQuest, player, questDB);
 }
 
 void Room::HandleRemoveQuest(shared_ptr<Player> player, PROTOCOL::C_RemoveQuest fromPkt)
@@ -477,45 +572,45 @@ void Room::HandleRemoveQuest(shared_ptr<Player> player, PROTOCOL::C_RemoveQuest 
 	questDB.dbState = DB_STATE::DELETE_NEED;
 
 	// DB 요청
-	DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::DeleteQuest, player, questDB, &Room::DBCallback_RemoveQuest);
+	DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::Transact_RemoveQuest, player, questDB);
 }
 
 void Room::HandleCompleteQuest(shared_ptr<Player> player, PROTOCOL::C_CompleteQuest fromPkt)
 {
-	// 퀘스트 조회 -> 퀘스트 완료가능 확인 -> DB 작업 요청
-
 	// 퀘스트 조회
-
 	auto it = player->_questManager->_quests.find(fromPkt.questdbid());
-	if (it == player->_questManager->_quests.end()) {
-		cout << "Room::HandleCompleteQuest() Error - Can't Find QuestId : " << fromPkt.questdbid() << endl;
+	if (it == player->_questManager->_quests.end())
 		return;
+
+	// 퀘스트 완료 가능 확인
+	if (it->second->_questInfo.progress() < it->second->_questData->quantity)
+		return;
+
+	// 퀘스트 보상 아이템 목록 정보
+	vector<ItemDB> itemDBs;
+	for (auto p : it->second->_questData->rewardItems) {
+		ItemDB itemDB = player->CanAddItemDB(p.first, p.second);
+		if (itemDB.Slot == -1) {
+			// 슬롯 락 해제
+			for (ItemDB itemdb : itemDBs)
+				player->_inven.SetSlotDBLock(itemdb.Slot, false);
+
+			return;
+		}
+
+		itemDBs.push_back(itemDB);
 	}
 
-	//shared_ptr<Quest> quest = player->_questManager->_quests[fromPkt.questdbid()]; // QuestDbId라 표기하지만 QuestTemplateId
-	//if (quest == nullptr) {
-	//	cout << "Room::HandleCompleteQuest() Error - Can't Find QuestId : " << fromPkt.questdbid() << endl;
-	//	return;
-	//}
-
-	// 퀘스트 완료가능 확인 (진행도를 다 채웠는가)
-	if (it->second->_questInfo.progress() < it->second->_questData->quantity) {
-		cout << "Room::HandleCompleteQuest() Error - progress:" << 
-			it->second->_questInfo.progress() << " < quantity:" << it->second->_questData->quantity << endl;
-		return;
-	}
-
-	// DB 요청 준비
+	// 퀘스트 정보
 	QuestDB questDB;
 	questDB.QuestDbId = it->second->_questInfo.questdbid();
 	questDB.TemplateId = it->second->_questInfo.templateid();
-	questDB.PlayerDbId = it->second->_questInfo.playerdbid();
-	questDB.Progress = it->second->_questData->quantity;
+	questDB.Progress = it->second->_questInfo.progress();
 	questDB.Completed = true;
-	questDB.dbState = DB_STATE::UPDATE_NEED;
+	questDB.PlayerDbId = it->second->_questInfo.playerdbid();
 
-	// DB 요청
-	DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::UpdateQuest, player, questDB, &Room::DBCallback_CompleteQuest);
+	//  DB 요청
+	DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::Transact_CompleteQuest, player, questDB, itemDBs);
 }
 
 void Room::HandleUpdateQuest(shared_ptr<Player> player, PROTOCOL::C_UpdateQuest fromPkt)
@@ -534,7 +629,7 @@ void Room::HandleUpdateQuest(shared_ptr<Player> player, PROTOCOL::C_UpdateQuest 
 	// 거리 확인 및 검증 - 일단 패스
 
 	// 업데이트
-	player->_questManager->Update(QuestType::QUEST_TYPE_INTERACT, object->_info.typetemplateid(), fromPkt.questinfo().progress());
+	player->UpdateQuest(QuestType::QUEST_TYPE_INTERACT, object->_info.typetemplateid(), fromPkt.questinfo().progress());
 }
 
 
@@ -542,33 +637,6 @@ void Room::HandleUpdateQuest(shared_ptr<Player> player, PROTOCOL::C_UpdateQuest 
 /*-----------------------------------------------------------------------------
 	DB
 ---------------------------------------------------------------------------*/
-void Room::DBCallback_EquipItem(shared_ptr<Player> player, ItemDB itemDB)
-{
-	// 업데이트 성공 (DB) -> 업데이트 -> 패킷 -> 슬롯 락 해제
-	// 업데이트 실패 (DB) -> 슬롯락 해제
-
-	if (itemDB.dbState == DB_STATE::UPDATE_SUCCESS) {
-		shared_ptr<Item> item = player->_inven.GetItemBySlot(itemDB.Slot);
-		if (item != nullptr) {
-			// 인벤(서버메모리)에서 장착
-			item->_itemInfo.set_equipped(itemDB.Equipped);
-
-			// 플레이어 추가스탯 재계산
-			player->CalculateAddStat();
-
-			// 패킷
-			PROTOCOL::S_EquipItem toPkt;
-			toPkt.set_slot(itemDB.Slot);
-			toPkt.set_equip(itemDB.Equipped);
-
-			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-			player->_ownerSession->SendPacket(sendBuffer);
-		}
-	}
-
-	// 슬롯 락 해제
-	player->_inven.SetSlotDBLock(itemDB.Slot, false);
-}
 
 void Room::DBCallback_UseItem(shared_ptr<Player> player, ItemDB itemDB)
 {
@@ -624,152 +692,50 @@ void Room::DBCallback_UseItem(shared_ptr<Player> player, ItemDB itemDB)
 	player->_inven.SetSlotDBLock(itemDB.Slot, false);
 }
 
-void Room::DBCallback_RewardItem(shared_ptr<Player> player, ItemDB itemDB)
+void Room::DBCallback_AddItem(shared_ptr<Player> player, ItemDB itemDB)
 {
-	// 생성, 업데이트 성공 (DB) -> 아이템 생성, 업데이트 (서버) -> 인벤 추가 -> 슬롯락 해제 -> 패킷
-	// 생성, 업데이트, 그 외 실패 (DB) -> 슬롯락 해제
-
-	// 실패
-	if (itemDB.dbState != DB_STATE::INSERT_SUCCESS && itemDB.dbState != DB_STATE::UPDATE_SUCCESS) {
-		cout << "Room::RewardItemDBCallback() Error - Result Not INSERT_SUCCESS or Result Not UPDATE_SUCCESS" << endl;
-		player->_inven.SetSlotDBLock(itemDB.Slot, false);
-		return;
-	}
-
-	// 성공		
-	shared_ptr<Item> item;
-	
-	// INSERT
-	if (itemDB.dbState == DB_STATE::INSERT_SUCCESS) {
-		// 아이템 생성
-		item = Item::MakeItem(itemDB);
-		if (item == nullptr)
-			return;
-
-		// 인벤에 새로 추가
-		player->_inven.Add(item);
-
-		// 패킷
-		PROTOCOL::S_AddItem toPkt;
-		toPkt.add_items()->CopyFrom(item->_itemInfo);
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-		player->_ownerSession->SendPacket(sendBuffer);
-	}
-	
-	// UPDATE
-	else if (itemDB.dbState == DB_STATE::UPDATE_SUCCESS) {
-		// 기존 슬롯 아이템 조회
-		item = player->_inven.GetItemBySlot(itemDB.Slot);
-		if (item == nullptr) {
-			cout << "Room::RewardItemDBCallback() Error - UPDATE_SUCCESS but No Item FInd in Inventory" << endl;
-			return;
-		}
-
-		// 아이템 업데이트 (인벤토리에 있는)
-		item->_itemInfo.set_itemdbid(itemDB.ItemDbId);
-		item->_itemInfo.set_templateid(itemDB.TemplateId);
-		item->_itemInfo.set_playerdbid(itemDB.PlayerDbId);
-		item->_itemInfo.set_count(itemDB.Count);
-		item->_itemInfo.set_slot(itemDB.Slot);
-		item->_itemInfo.set_equipped(itemDB.Equipped);
-
-		// 패킷
-		PROTOCOL::S_UpdateItem toPkt;
-		toPkt.add_items()->CopyFrom(item->_itemInfo);
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-		player->_ownerSession->SendPacket(sendBuffer);
-	}
-	else {
-		cout << "Room::RewardItemDBCallback() Error - return else" << endl;
-		return;
-	}
-
-	// 슬롯락 해제
-	player->_inven.SetSlotDBLock(item->_itemInfo.slot(), false);
+	player->AddItem(itemDB);
 }
 
 // DB - 퀘스트
 void Room::DBCallback_RemoveQuest(shared_ptr<Player> player, QuestDB questDB)
 {
 	if (questDB.dbState == DB_STATE::DELETE_SUCCESS) {
-		if (player->_questManager->Remove(questDB.TemplateId) == true) {
-			// 패킷
-			PROTOCOL::S_RemoveQuest toPkt;
-			toPkt.set_questid(questDB.TemplateId);
-			toPkt.set_result(true);
-			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-			player->_ownerSession->SendPacket(sendBuffer);
-		}
+		player->RemoveQuest(questDB);
 	}
 }
 
 void Room::DBCallback_AddQuest(shared_ptr<Player> player, QuestDB questDB)
 {
 	if (questDB.dbState == DB_STATE::INSERT_SUCCESS) {
-		// 퀘스트 생성, 추가
-		shared_ptr<Quest> quest = Quest::MakeQuest(questDB);
-		if (player->_questManager->Add(quest) == true) {
-			
-			// 패킷
-			PROTOCOL::S_AddQuest toPkt;
-			toPkt.mutable_quest()->set_questdbid(questDB.QuestDbId);
-			toPkt.mutable_quest()->set_templateid(questDB.TemplateId);
-			toPkt.mutable_quest()->set_playerdbid(questDB.PlayerDbId);
-			toPkt.mutable_quest()->set_progress(questDB.Progress);
-			toPkt.mutable_quest()->set_completed(questDB.Completed);
-			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-			player->_ownerSession->SendPacket(sendBuffer);
-		}
+		player->AddQuest(questDB);
 	}
 }
 
-void Room::DBCallback_CompleteQuest(shared_ptr<Player> player, QuestDB questDB)
+void Room::DBCallback_CompleteQuest(shared_ptr<Player> player, QuestDB questDB, vector<ItemDB> itemDBs)
 {
-	// 퀘스트 완료 수정해야한다.
-	// 여기를 트랜잭션 걸어야 하는데 일단 급하니까
-
-
-	if (questDB.dbState == DB_STATE::UPDATE_SUCCESS) {
+	// 성공
+	if (questDB.Completed == true) {
 
 		// 퀘스트 업데이트
-		if (player->_questManager->Update(questDB) == true) {
+		player->CompleteQuest(questDB);
 
-			// 패킷
-			PROTOCOL::S_CompleteQuest toPkt;
-			toPkt.set_questid(questDB.TemplateId);
-			toPkt.set_result(true);
-			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-			player->_ownerSession->SendPacket(sendBuffer);
+		// 아이템 지급
+		for (ItemDB& itemDB : itemDBs) 
+			player->AddItem(itemDB);
 
-			// Exp
-			player->AddExp(DataManager::Instance()->_questTable[questDB.TemplateId]->rewardExp);
-
-			// 아이템 보상
-			for (auto p : DataManager::Instance()->_questTable[questDB.TemplateId]->rewardItems) 
-				player->TakeReward(p.first, p.second);
-		}
+		// Exp 업데이트
+		player->AddExp(DataManager::Instance()->_questTable[questDB.TemplateId]->rewardExp);
 	}
-}
 
-void Room::DBCallback_UpdateQuest(shared_ptr<Player> player, QuestDB questDB)
-{
-	// 이거 ㄴㄴ
-	if (questDB.dbState == DB_STATE::UPDATE_SUCCESS) {
+	// 실패
+	else {
 
-		// 퀘스트 업데이트
-		if (player->_questManager->Update(questDB) == true) {
-
-			// 패킷
-			PROTOCOL::S_UpdateQuest toPkt;
-			toPkt.mutable_questinfo()->set_questdbid(questDB.QuestDbId);
-			toPkt.mutable_questinfo()->set_templateid(questDB.TemplateId);
-			toPkt.mutable_questinfo()->set_playerdbid(questDB.PlayerDbId);
-			toPkt.mutable_questinfo()->set_progress(questDB.Progress);
-			toPkt.mutable_questinfo()->set_completed(questDB.Completed);
-			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-			player->_ownerSession->SendPacket(sendBuffer);
-		}
 	}
+
+	// 슬롯 락 해제
+	for (ItemDB& itemdb : itemDBs)
+		player->_inven.SetSlotDBLock(itemdb.Slot, false);
 }
 
 void Room::Broadcast(float locX, float locY, shared_ptr<SendBuffer> sendBuffer)
@@ -815,7 +781,7 @@ void Room::ActorMove(shared_ptr<GameObject> gameObject, PROTOCOL::ObjectInfo inf
 	float afterX = info.pos().locationx();
 	float afterY = info.pos().locationy();
 	Zone* afterZone = GetZone(afterX, afterY);
-
+	
 	// 존이 변경되면 위치 옮김
 	if (nowZone->_zoneId != afterZone->_zoneId) {
 		afterZone->Add(gameObject);
@@ -887,9 +853,9 @@ void Room::ActorSkill(shared_ptr<GameObject> gameObject, PROTOCOL::C_Skill fromP
 				float dx = gameObject->_info.pos().locationx() - victim->_info.pos().locationx();
 				float dy = gameObject->_info.pos().locationy() - victim->_info.pos().locationy();
 
-				// TEST - 사거리 안에 드는지, 일단 사거리 30 임의 지정
+				// TEST - 사거리 안에 드는지
 				float squaredDT = DistanceToTargetSimple(dx, dy);
-				if (squaredDT <= pow(100, 2)) {
+				if (squaredDT <= pow(180, 2)) {
 					
 					// 총공격력 + 스킬 대미지
 					// 플레이어 = 아이템 대미지 + 스텟 대미지 + 스킬 대미지

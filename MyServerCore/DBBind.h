@@ -29,13 +29,13 @@ class DBBind
 public:
 
 	// DBBind, DBBind를 상속 받는 SP가 생성될 때 마다 DBConnection UnBind()
-
 	DBBind(DBConnection& dbConnection, const WCHAR* query) : _dbConnection(dbConnection), _query(query) {
 		::memset(_paramIndex, 0, sizeof(_paramIndex));
 		::memset(_columnIndex, 0, sizeof(_columnIndex));
 
 		_paramFlag = 0;
 		_columnFlag = 0;
+
 		dbConnection.Unbind();
 	}
 

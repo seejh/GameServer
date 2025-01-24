@@ -74,8 +74,8 @@ public:
 	PacketSession
 ---------------------------------------------------*/
 struct PacketHeader {
-	short _id;
-	short _size;
+	uint16 _size;
+	uint16 _id;
 };
 
 class PacketSession : public Session {

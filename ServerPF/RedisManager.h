@@ -2,29 +2,56 @@
 
 #include<hiredis-master/hiredis.h>
 
-class RedisManager : public JobQueue {
-public:
-	// 싱글톤
-	static shared_ptr<RedisManager> Instance() {
-		static shared_ptr<RedisManager> instance;
-		if (instance == nullptr)
-			instance = make_shared<RedisManager>();
 
-		return instance;
+/*
+	Redis 싱글 스레드 동작(이벤트 루프 사용, 비동기 입출력)
+*/
+
+/*-------------------------------------------------------------------------------
+	RedisConnection
+-------------------------------------------------------------------------------*/
+class RedisConnection {
+	struct timeval timeout = { 1,50'0000 }; // 1.5 sec
+public:
+	bool Connect(const char* ip, int32 port);
+
+	bool SetKey(const char* key, const char* value);
+	bool GetKey(const char* key, OUT string& outValue);
+	bool Increase(const char* key, OUT int32& afterValue);
+	bool Decrease(const char* key, OUT int32& afterValue);
+	redisContext* ToContext() {
+		return _conn;
 	}
+public:
+	redisContext* _conn = nullptr;
+	redisReply* _reply = nullptr;
+};
 
-	// 커넥트 외에 전부다 async로 사용해야 함.
-	// 커넥트
-	bool Connect(const char* ip, int port);
+/*-------------------------------------------------------------------------------
+	RedisConnectionPool
+-------------------------------------------------------------------------------*/
+class RedisConnectionPool {
+public:
+	bool Connect(const char* ip, int32 port, int32 connectionCounts = 1);
 	
-	// Get & Set
-	bool StringGet(const char* key, string& value);
-	void StringSet(const char* key, const char* value);
+	RedisConnection* Pop();
+	void Push(RedisConnection* conn);
+public:
+	mutex _mutex;
+	queue<RedisConnection*> _connectionPool;
+};
 
-	// 
+/*-------------------------------------------------------------------------------
+	RedisManager
+-------------------------------------------------------------------------------*/
+class RedisDBManager {
+public:
 
+	bool Connect(const char* ip, int32 port, int32 connectionCounts);
+	
+	RedisConnection* Pop();
+	void Push(RedisConnection* conn);
 
 public:
-	redisContext* _context;
-	redisReply* _reply;
+	RedisConnectionPool* _pool;
 };

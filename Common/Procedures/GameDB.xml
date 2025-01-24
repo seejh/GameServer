@@ -194,7 +194,7 @@
 		</Body>
 	</Procedure>
 	<!--============================================================================
-		TABLE Item Procedures 
+		Item Procedures 
 	============================================================================-->
 	<!-- INSERT -->
 	<Procedure name="spInsertItem">
@@ -294,7 +294,7 @@
 	</Table>
 
 	<!--============================================================================
-		TABLE Quest Procedures 
+		Quest Procedures 
 	============================================================================-->
 	
 	<!--SELECT ALL WHERE PlayerDbId-->
@@ -358,5 +358,40 @@
 			]]>
 		</Body>
 	</Procedure>
+
 	
+	<!--============================================================================
+		ServerInfo
+	============================================================================-->
+	<Table name="ServerInfos">
+		<Column name="ServerDbId" type="int" notnull="true" identity="1,1" />
+		<Column name="Name" type="nvarchar(50)" notnull="false" />
+		<Column name="IpAddress" type="nvarchar(50)" notnull="false" />
+		<Column name="Port" type="int" notnull="false" />
+		<Column name="BusyScore" type="int" notnull="false" />
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="ServerDbId" />
+		</Index>
+	</Table>
+	
+	<!--============================================================================
+		ServerInfo Procedure
+	============================================================================-->
+	
+	<!--UPDATE-->
+	<Procedure name="spUpdateServerInfos">
+		<Param name="@ServerDbId" type="int" />
+		<Param name="@Name" type="nvarchar(50)" />
+		<Param name="@IpAddress" type="nvarchar(50)" />
+		<Param name="@Port" type="int" />
+		<Param name="@BusyScore" type="int" />
+		<Body>
+			<![CDATA[
+			UPDATE [dbo].[ServerInfos] SET Name = @Name, IpAddress = @IpAddress, Port = @Port, BusyScore = @BusyScore WHERE ServerDbId = @ServerDbId;
+			]]>
+		</Body>
+	</Procedure>
+
 </GameDB>
+

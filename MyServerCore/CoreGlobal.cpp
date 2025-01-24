@@ -29,7 +29,7 @@ CoreGlobal::CoreGlobal(){}
 
 void CoreGlobal::Init()
 {
-	cout << "CoreGlobal Init" << endl;
+	cout << "[CoreGlobal] Init" << endl;
 
 	GMemory					= new Memory();
 	GThreadManager			= new ThreadManager();

@@ -3,18 +3,21 @@
 
 #include"Room.h"
 
-void RoomManager::Update()
+
+
+bool RoomManager::Init()
 {
-	for (auto r : _rooms) {
-		r.second->Update();
-	}
+	if (Add(1) == nullptr)
+		return false;
+
+	return true;
 }
 
 // 해당 룸에 어떤 맵을 불러올 것인지 인자로 받음
 shared_ptr<Room> RoomManager::Add(int mapId)
 {
 	shared_ptr<Room> room = make_shared<Room>();
-	room->Init(-500, 9500, -3500, 500); // minX, maxX, minY, maxY
+	room->Init(-500, 9500, -6500, 500); // minX, maxX, minY, maxY
 
 	_rooms[_roomId] = room;
 	_roomId++;
@@ -38,3 +41,9 @@ shared_ptr<Room> RoomManager::Find(int roomId)
 
 	return nullptr;
 }
+
+//void RoomManager::Update()
+//{
+//	for (auto r : _rooms) 
+//		r.second->Update();
+//}

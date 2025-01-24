@@ -1,44 +1,172 @@
 #include "pch.h"
 #include "RedisManager.h"
 
-bool RedisManager::Connect(const char* ip, int port)
-{
-	struct timeval timeout = { 1, 500'000 }; // 1.5 seconds
-	_context = redisConnectWithTimeout(ip, port, timeout);
-	if (_context == nullptr) {
-		cout << "Redis Connection Error : nullptr" << endl;
-		return false;
-	}
 
-	if (_context->err) {
-		cout << "Redis Connection Error : " << _context->errstr << endl;
-		redisFree(_context);
+/*-------------------------------------------------------------------------------
+	RedisConnection
+-------------------------------------------------------------------------------*/
+bool RedisConnection::Connect(const char* ip, int32 port)
+{
+	_conn = redisConnectWithTimeout(ip, port, timeout);
+	if (_conn == nullptr || _conn->err) {
+		// cout << "" << endl;
+
+		redisFree(_conn);
+
 		return false;
 	}
 
 	return true;
 }
 
-bool RedisManager::StringGet(const char* key, string& getValue)
+bool RedisConnection::SetKey(const char* key, const char* value)
 {
-	_reply = reinterpret_cast<redisReply*>(redisCommand(_context, "GET ", key));
-	if (_reply->type != REDIS_REPLY_STRING) {
-		cout << "Redis Get Error : Can't Find Key" << endl;
-		return false;
-	}
+	bool result = false;
 
-	getValue = _reply->str;
+	_reply = reinterpret_cast<redisReply*>(redisCommand(_conn, "SET %s %s", key, value));
+	if (_reply != nullptr && _reply->type == REDIS_REPLY_STATUS)
+		result = true;
 
 	freeReplyObject(_reply);
+
+	return result;
+}
+
+bool RedisConnection::GetKey(const char* key, OUT string& outValue)
+{
+	bool result = false;
+
+	_reply = reinterpret_cast<redisReply*>(redisCommand(_conn, "GET %s", key));
+	if (_reply != nullptr && _reply->type == REDIS_REPLY_STRING) {
+		outValue = _reply->str;
+		result = true;
+	}
+
+	freeReplyObject(_reply);
+
+	return result;
+}
+
+bool RedisConnection::Increase(const char* key, OUT int32& afterValue)
+{
+	bool result = false;
+
+	_reply = reinterpret_cast<redisReply*>(redisCommand(_conn, "INCR %s", key));
+	if (_reply != nullptr && _reply->type == REDIS_REPLY_INTEGER) {
+		afterValue = _reply->integer;
+		result = true;
+	}
+
+	freeReplyObject(_reply);
+
+	return result;
+}
+
+bool RedisConnection::Decrease(const char* key, OUT int32& afterValue)
+{
+	bool result = false;
+
+	_reply = reinterpret_cast<redisReply*>(redisCommand(_conn, "DECR %s", key));
+	if (_reply != nullptr && _reply->type == REDIS_REPLY_INTEGER) {
+		afterValue = _reply->integer;
+		result = true;
+	}
+
+	freeReplyObject(_reply);
+
+	return result;
+}
+
+/*-------------------------------------------------------------------------------
+	RedisConnectionPool
+-------------------------------------------------------------------------------*/
+bool RedisConnectionPool::Connect(const char* ip, int32 port, int32 connectionCounts)
+{
+	lock_guard<mutex> lock(_mutex);
+
+	RedisConnection* redisConn;
+	for (int i = 0; i < connectionCounts; i++) {
+		redisConn = new RedisConnection();
+		if (redisConn->Connect(ip, port) == false)
+			return false;
+
+		_connectionPool.push(redisConn);
+	}
 
 	return true;
 }
 
-void RedisManager::StringSet(const char* key, const char* value)
+RedisConnection* RedisConnectionPool::Pop()
 {
-	_reply = reinterpret_cast<redisReply*>(redisCommand(_context, "SET ", key, value));
+	lock_guard<mutex> lock(_mutex);
 
-	// TODO : Log
+	RedisConnection* conn = nullptr;
 
-	freeReplyObject(_reply);
+	if (_connectionPool.empty() == false) {
+
+		conn = _connectionPool.front();
+		_connectionPool.pop();
+	}
+
+	return conn;
 }
+
+void RedisConnectionPool::Push(RedisConnection* conn)
+{
+	lock_guard<mutex> lock(_mutex);
+
+	if(conn != nullptr)
+		_connectionPool.push(conn);
+}
+
+
+/*-------------------------------------------------------------------------------
+	RedisManager
+-------------------------------------------------------------------------------*/
+bool RedisDBManager::Connect(const char* ip, int32 port, int32 connectionCounts)
+{
+	return _pool->Connect(ip, port, connectionCounts);
+}
+
+RedisConnection* RedisDBManager::Pop()
+{
+	return _pool->Pop();
+}
+
+void RedisDBManager::Push(RedisConnection* conn)
+{
+	_pool->Push(conn);
+}
+
+
+
+
+//bool RedisManagerBef::StringGet(const char* key, string& getValue)
+//{
+//	_reply = reinterpret_cast<redisReply*>(redisCommand(_context, "GET %s", key));
+//	if (_reply->type != REDIS_REPLY_STRING) {
+//		cout << "Redis Get Error : Can't Find Key" << endl;
+//		return false;
+//	}
+//	
+//	getValue = _reply->str;
+//	
+//	freeReplyObject(_reply);
+//
+//	return true;
+//}
+//
+//void RedisManagerBef::StringSet(const char* key, const char* value)
+//{
+//	/*_reply = reinterpret_cast<redisReply*>(redisCommand(_context, "MULTI"));
+//	cout << _reply->str << endl;
+//	freeReplyObject(_reply);*/
+//
+//	_reply = reinterpret_cast<redisReply*>(redisCommand(_context, "SET %s %s", key, value));
+//	
+//	// TODO : Log
+//
+//	freeReplyObject(_reply);
+//}
+//
+//

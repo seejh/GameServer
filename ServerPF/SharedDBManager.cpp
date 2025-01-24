@@ -3,46 +3,54 @@
 
 #include<DBConnection.h>
 #include<DBConnectionPool.h>
+#include"GenSharedDBProcedures.h"
 
 #include"ConfigManager.h"
 #include"SessionManager.h"
-#include"DBDataModel.h"
-#include"GenSharedDBProcedures.h"
 
 bool SharedDBManager::Connect(int connectionCount, const WCHAR* connectionString)
 {
-	_connectionCounts = connectionCount + 1;
-	_dbConnectionPool = new DBConnectionPool();
+	if (_dbConnPool == nullptr)
+		_dbConnPool = new DBConnectionPool();
 
-	if (_dbConnectionPool->Connect(_connectionCounts, connectionString) == false)
+	_connectionCounts = connectionCount + 1;
+
+	if (_dbConnPool->Connect(_connectionCounts, connectionString) == false) {
+		cout << "[SharedDBManager] Connect Error - Connect Failed" << endl;
 		return false;
+	}
 
 	_dbConn = Pop();
-	if (_dbConn == nullptr)
+	if (_dbConn == nullptr) {
+		cout << "[SharedDBManager] Connect Error - _dbConn Nullptr" << endl;
 		return false;
-
-	// 여기서 빼야된다.
+	}
+	
 	//DoTimer(GetTickCount64() + (15 * 1000), [this]() {SaveServerInfo(); });
+
+	cout << "[SharedDbManager] Connect OK" << endl;
 
 	return true;
 }
 
 DBConnection* SharedDBManager::Pop()
 {
-	return _dbConnectionPool->Pop();
+	return _dbConnPool->Pop();
 }
 
 void SharedDBManager::Push(DBConnection* dbConn)
 {
-	_dbConnectionPool->Push(dbConn);
+	_dbConnPool->Push(dbConn);
 }
 
-void SharedDBManager::SaveServerInfo()
+void SharedDBManager::UpdateServerInfo()
 {
+	// 일단 여기다가 달아놓는 걸로
+
 	// 서버정보 & 현 세션 개수
 	ServerConfig config = ConfigManager::Instance()->_config;
 	int32 sessionCount = SessionManager::Instance()->GetSessionCount();
-	
+
 	// 
 	ServerInfoDB infoDb;
 	infoDb.ServerDbId = config.ServerDbId;
@@ -64,6 +72,11 @@ void SharedDBManager::SaveServerInfo()
 	}
 
 	// 다음 작업 예약 (15초)
-	uint64 tickAfter = GetTickCount64() + (1000 * 15);
-	//shared_ptr<Job> reservedJob = DoTimer(tickAfter, [this]() { SaveServerInfo(); });
+	uint64 tickAfter = 1000 * 5;
+
+	DoTimer(tickAfter, &SharedDBManager::UpdateServerInfo);
+
+	//shared_ptr<Job> reservedJob = DoTimer(tickAfter, [this]() { updaterserver });
 }
+
+

@@ -5,21 +5,8 @@ class Player;
 class Room;
 class DBConnection;
 class ClientSession;
-//class GameDBManager
-//{
-//public:
-//	bool Connect(int32 connectionCounts, const WCHAR* connectionString);
-//	// DBConnection* GetConn();
-//	DBConnection* Pop();
-//	void Push(DBConnection* dbConn);
-//
-//public:
-//	std::mutex _m;
-//
-//	int32 _connectionCounts;
-//	DBConnection* _dbConn = nullptr;
-//};
-
+class Item;
+class Quest;
 class GameDBManager : public JobQueue {
 public:
 	bool Connect(int32 connectionCounts, const WCHAR* connectionString);
@@ -28,20 +15,34 @@ public:
 	void Push(DBConnection* dbConn);
 
 	/*-------------------------------------------------------------------------------
-		DB Task (Room)
+		Room
 	--------------------------------------------------------------------------------*/
-
-	// 아이템
-	void InsertItem(shared_ptr<Player> player, ItemDB itemDB, void (Room::*memFunc)(shared_ptr<Player>, ItemDB));
+	/*void InsertItem(shared_ptr<Player> player, ItemDB itemDB, void (Room::*memFunc)(shared_ptr<Player>, ItemDB));
 	void UpdateItem(shared_ptr<Player> player, ItemDB itemDB, void (Room::*memFunc)(shared_ptr<Player>, ItemDB));
 	void DeleteItem(shared_ptr<Player> player, ItemDB itemDB, void (Room::*memFunc)(shared_ptr<Player>, ItemDB));
-
-	// 퀘스트
 	void InsertQuest(shared_ptr<Player> player, QuestDB questDB, void (Room::*memFunc)(shared_ptr<Player>, QuestDB));
 	void UpdateQuest(shared_ptr<Player> player, QuestDB questDB, void (Room::*memFunc)(shared_ptr<Player>, QuestDB));
-	void DeleteQuest(shared_ptr<Player> player, QuestDB questDB, void (Room::*memFunc)(shared_ptr<Player>, QuestDB));
+	void DeleteQuest(shared_ptr<Player> player, QuestDB questDB, void (Room::*memFunc)(shared_ptr<Player>, QuestDB));*/
+
+
+	
+	// Noti
+	void TransactNoti_EquipItem(shared_ptr<Player> player, shared_ptr<Item> equipment);
+	void TransactNoti_UpdateQuest(shared_ptr<Player> player, QuestDB questDB);
+
+	// Transact
+	// 퀘스트
+	void Transact_CompleteQuest(shared_ptr<Player> player, QuestDB questDB, vector<ItemDB> itemDBs);
+	void Transact_AddQuest(shared_ptr<Player> player, QuestDB questDB);
+	void Transact_RemoveQuest(shared_ptr<Player> player, QuestDB questDB);
+
+	// 아이템
+	void Transact_UseItem(shared_ptr<Player> player, ItemDB itemDB);
+	void Transact_AddItem(shared_ptr<Player> player, ItemDB itemDB);
 
 public:
-	int32 _connectionCounts;
 	DBConnection* _dbConn = nullptr;
+	DBConnectionPool* _dbConnPool;
+
+	int32 _connectionCounts;
 };

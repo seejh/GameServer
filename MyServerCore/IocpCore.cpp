@@ -32,9 +32,7 @@ void IocpCore::Dispatch(uint32 timeoutMs)
 		if (errCode == WAIT_TIMEOUT) 
 			return;
 		
-		cout << "IocpCore::Dispatch() Error : RecvLen : " << dwRecvBytes << ", Result : " << std::boolalpha << result << ", Code : " << errCode << endl;
-
-		
+		cout << "[IocpCore] Dispatch() Error, RecvLen: " << dwRecvBytes << ", Result: " << std::boolalpha << result << ", ErrorCode: " << errCode << endl;
 	}
 	
 	shared_ptr<IocpObject> iocpObject = iocpEvent->_ownerIocpObject;

@@ -65,10 +65,15 @@ public:
 
 	// 
 	void UseItem(int itemId);
-	
-	void TakeReward(int itemId, int quantity);
+	// void TakeReward(int itemId, int quantity);
 	void CalculateAddStat();
 	void AddExp(int exp);
+	ItemDB CanAddItemDB(int itemId, int count);
+	void AddItem(ItemDB itemDB);
+	void CompleteQuest(QuestDB questDB);
+	void RemoveQuest(QuestDB questDB);
+	void AddQuest(QuestDB questDB);
+	void UpdateQuest(QuestType questType, int objectiveId, int quantity);
 
 	// 플레이어 종료 시 메모리에 내용을 DB에 저장 (스텟, 아이템X, 퀘스트)
 	void SaveToDB(bool init);
@@ -85,6 +90,12 @@ public:
 
 	queue<ItemDB> _inventoryUpdateQueue;
 	shared_ptr<ClientSession> _ownerSession;
+
+	// TEST
+	bool _isBot = false;
+
+	float _testX;
+	float _testY;
 };
 
 class Monster : public GameObject {

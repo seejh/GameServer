@@ -169,7 +169,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT S_LoginDefaultTypeInternal _S_L
 constexpr C_Enter_Room::C_Enter_Room(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : object_(nullptr)
-  , roomnum_(uint64_t{0u}){}
+  , roomnum_(uint64_t{0u})
+  , isrespawn_(false){}
 struct C_Enter_RoomDefaultTypeInternal {
   constexpr C_Enter_RoomDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -674,8 +675,20 @@ struct S_TestDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT S_TestDefaultTypeInternal _S_Test_default_instance_;
+constexpr C_BotLogin::C_BotLogin(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : test_(false){}
+struct C_BotLoginDefaultTypeInternal {
+  constexpr C_BotLoginDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~C_BotLoginDefaultTypeInternal() {}
+  union {
+    C_BotLogin _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT C_BotLoginDefaultTypeInternal _C_BotLogin_default_instance_;
 }  // namespace PROTOCOL
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_Protocol3_2eproto[49];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_Protocol3_2eproto[50];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_Protocol3_2eproto[8];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_Protocol3_2eproto = nullptr;
 
@@ -791,6 +804,7 @@ const uint32_t TableStruct_Protocol3_2eproto::offsets[] PROTOBUF_SECTION_VARIABL
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::PROTOCOL::C_Enter_Room, roomnum_),
   PROTOBUF_FIELD_OFFSET(::PROTOCOL::C_Enter_Room, object_),
+  PROTOBUF_FIELD_OFFSET(::PROTOCOL::C_Enter_Room, isrespawn_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::PROTOCOL::S_Enter_Room, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -1087,6 +1101,13 @@ const uint32_t TableStruct_Protocol3_2eproto::offsets[] PROTOBUF_SECTION_VARIABL
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::PROTOCOL::S_Test, testint_),
   PROTOBUF_FIELD_OFFSET(::PROTOCOL::S_Test, testbool_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::PROTOCOL::C_BotLogin, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::PROTOCOL::C_BotLogin, test_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::PROTOCOL::Position)},
@@ -1099,45 +1120,46 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 85, -1, -1, sizeof(::PROTOCOL::C_Login)},
   { 94, -1, -1, sizeof(::PROTOCOL::S_Login)},
   { 103, -1, -1, sizeof(::PROTOCOL::C_Enter_Room)},
-  { 111, -1, -1, sizeof(::PROTOCOL::S_Enter_Room)},
-  { 120, -1, -1, sizeof(::PROTOCOL::C_Leave_Room)},
-  { 127, -1, -1, sizeof(::PROTOCOL::S_Leave_Room)},
-  { 135, -1, -1, sizeof(::PROTOCOL::C_Spawn)},
-  { 142, -1, -1, sizeof(::PROTOCOL::S_Spawn)},
-  { 150, -1, -1, sizeof(::PROTOCOL::S_DeSpawn)},
-  { 157, -1, -1, sizeof(::PROTOCOL::C_Move)},
-  { 164, -1, -1, sizeof(::PROTOCOL::S_Move)},
-  { 171, -1, -1, sizeof(::PROTOCOL::C_Skill)},
-  { 180, -1, -1, sizeof(::PROTOCOL::S_Skill)},
-  { 189, -1, -1, sizeof(::PROTOCOL::C_Chat)},
-  { 196, -1, -1, sizeof(::PROTOCOL::S_Chat)},
-  { 204, -1, -1, sizeof(::PROTOCOL::S_ChangeHp)},
-  { 212, -1, -1, sizeof(::PROTOCOL::S_Die)},
-  { 220, -1, -1, sizeof(::PROTOCOL::S_ItemList)},
-  { 227, -1, -1, sizeof(::PROTOCOL::C_AddItem)},
-  { 234, -1, -1, sizeof(::PROTOCOL::S_AddItem)},
-  { 241, -1, -1, sizeof(::PROTOCOL::S_UpdateItem)},
-  { 248, -1, -1, sizeof(::PROTOCOL::S_RemoveItem)},
-  { 255, -1, -1, sizeof(::PROTOCOL::C_EquipItem)},
-  { 264, -1, -1, sizeof(::PROTOCOL::S_EquipItem)},
-  { 273, -1, -1, sizeof(::PROTOCOL::C_UseItem)},
-  { 282, -1, -1, sizeof(::PROTOCOL::S_UseItem)},
-  { 289, -1, -1, sizeof(::PROTOCOL::S_ChangeStat)},
-  { 296, -1, -1, sizeof(::PROTOCOL::C_CreatePlayer)},
-  { 303, -1, -1, sizeof(::PROTOCOL::S_CreatePlayer)},
-  { 310, -1, -1, sizeof(::PROTOCOL::S_AddExp)},
-  { 317, -1, -1, sizeof(::PROTOCOL::S_LevelUp)},
-  { 324, -1, -1, sizeof(::PROTOCOL::C_AddQuest)},
-  { 331, -1, -1, sizeof(::PROTOCOL::S_AddQuest)},
-  { 339, -1, -1, sizeof(::PROTOCOL::S_QuestList)},
-  { 346, -1, -1, sizeof(::PROTOCOL::C_RemoveQuest)},
-  { 353, -1, -1, sizeof(::PROTOCOL::S_RemoveQuest)},
-  { 361, -1, -1, sizeof(::PROTOCOL::C_CompleteQuest)},
-  { 368, -1, -1, sizeof(::PROTOCOL::S_CompleteQuest)},
-  { 376, -1, -1, sizeof(::PROTOCOL::C_UpdateQuest)},
-  { 384, -1, -1, sizeof(::PROTOCOL::S_UpdateQuest)},
-  { 391, -1, -1, sizeof(::PROTOCOL::C_Test)},
-  { 399, -1, -1, sizeof(::PROTOCOL::S_Test)},
+  { 112, -1, -1, sizeof(::PROTOCOL::S_Enter_Room)},
+  { 121, -1, -1, sizeof(::PROTOCOL::C_Leave_Room)},
+  { 128, -1, -1, sizeof(::PROTOCOL::S_Leave_Room)},
+  { 136, -1, -1, sizeof(::PROTOCOL::C_Spawn)},
+  { 143, -1, -1, sizeof(::PROTOCOL::S_Spawn)},
+  { 151, -1, -1, sizeof(::PROTOCOL::S_DeSpawn)},
+  { 158, -1, -1, sizeof(::PROTOCOL::C_Move)},
+  { 165, -1, -1, sizeof(::PROTOCOL::S_Move)},
+  { 172, -1, -1, sizeof(::PROTOCOL::C_Skill)},
+  { 181, -1, -1, sizeof(::PROTOCOL::S_Skill)},
+  { 190, -1, -1, sizeof(::PROTOCOL::C_Chat)},
+  { 197, -1, -1, sizeof(::PROTOCOL::S_Chat)},
+  { 205, -1, -1, sizeof(::PROTOCOL::S_ChangeHp)},
+  { 213, -1, -1, sizeof(::PROTOCOL::S_Die)},
+  { 221, -1, -1, sizeof(::PROTOCOL::S_ItemList)},
+  { 228, -1, -1, sizeof(::PROTOCOL::C_AddItem)},
+  { 235, -1, -1, sizeof(::PROTOCOL::S_AddItem)},
+  { 242, -1, -1, sizeof(::PROTOCOL::S_UpdateItem)},
+  { 249, -1, -1, sizeof(::PROTOCOL::S_RemoveItem)},
+  { 256, -1, -1, sizeof(::PROTOCOL::C_EquipItem)},
+  { 265, -1, -1, sizeof(::PROTOCOL::S_EquipItem)},
+  { 274, -1, -1, sizeof(::PROTOCOL::C_UseItem)},
+  { 283, -1, -1, sizeof(::PROTOCOL::S_UseItem)},
+  { 290, -1, -1, sizeof(::PROTOCOL::S_ChangeStat)},
+  { 297, -1, -1, sizeof(::PROTOCOL::C_CreatePlayer)},
+  { 304, -1, -1, sizeof(::PROTOCOL::S_CreatePlayer)},
+  { 311, -1, -1, sizeof(::PROTOCOL::S_AddExp)},
+  { 318, -1, -1, sizeof(::PROTOCOL::S_LevelUp)},
+  { 325, -1, -1, sizeof(::PROTOCOL::C_AddQuest)},
+  { 332, -1, -1, sizeof(::PROTOCOL::S_AddQuest)},
+  { 340, -1, -1, sizeof(::PROTOCOL::S_QuestList)},
+  { 347, -1, -1, sizeof(::PROTOCOL::C_RemoveQuest)},
+  { 354, -1, -1, sizeof(::PROTOCOL::S_RemoveQuest)},
+  { 362, -1, -1, sizeof(::PROTOCOL::C_CompleteQuest)},
+  { 369, -1, -1, sizeof(::PROTOCOL::S_CompleteQuest)},
+  { 377, -1, -1, sizeof(::PROTOCOL::C_UpdateQuest)},
+  { 385, -1, -1, sizeof(::PROTOCOL::S_UpdateQuest)},
+  { 392, -1, -1, sizeof(::PROTOCOL::C_Test)},
+  { 400, -1, -1, sizeof(::PROTOCOL::S_Test)},
+  { 408, -1, -1, sizeof(::PROTOCOL::C_BotLogin)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -1190,6 +1212,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::PROTOCOL::_S_UpdateQuest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::PROTOCOL::_C_Test_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::PROTOCOL::_S_Test_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::PROTOCOL::_C_BotLogin_default_instance_),
 };
 
 const char descriptor_table_protodef_Protocol3_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -1222,99 +1245,101 @@ const char descriptor_table_protodef_Protocol3_2eproto[] PROTOBUF_SECTION_VARIAB
   "\007S_Login\022\017\n\007success\030\001 \001(\010\022)\n\013objectinfos"
   "\030\002 \003(\0132\024.PROTOCOL.ObjectInfo\0223\n\020lobbypla"
   "yerinfos\030\003 \003(\0132\031.PROTOCOL.LobbyPlayerInf"
-  "o\"E\n\014C_Enter_Room\022\017\n\007roomNum\030\001 \001(\004\022$\n\006ob"
-  "ject\030\002 \001(\0132\024.PROTOCOL.ObjectInfo\"h\n\014S_En"
-  "ter_Room\022\017\n\007success\030\001 \001(\010\022$\n\006object\030\002 \001("
-  "\0132\024.PROTOCOL.ObjectInfo\022!\n\005items\030\003 \003(\0132\022"
-  ".PROTOCOL.ItemInfo\"4\n\014C_Leave_Room\022$\n\006ob"
-  "ject\030\001 \001(\0132\024.PROTOCOL.ObjectInfo\"E\n\014S_Le"
-  "ave_Room\022\017\n\007success\030\001 \001(\010\022$\n\006object\030\002 \001("
-  "\0132\024.PROTOCOL.ObjectInfo\"/\n\007C_Spawn\022$\n\006ob"
-  "ject\030\001 \001(\0132\024.PROTOCOL.ObjectInfo\"@\n\007S_Sp"
-  "awn\022\017\n\007success\030\001 \001(\010\022$\n\006object\030\002 \003(\0132\024.P"
-  "ROTOCOL.ObjectInfo\"\036\n\tS_DeSpawn\022\021\n\tobjec"
-  "tids\030\001 \003(\005\".\n\006C_Move\022$\n\006object\030\001 \001(\0132\024.P"
-  "ROTOCOL.ObjectInfo\".\n\006S_Move\022$\n\006object\030\001"
-  " \001(\0132\024.PROTOCOL.ObjectInfo\"=\n\007C_Skill\022\017\n"
-  "\007skillid\030\001 \001(\005\022\020\n\010attacker\030\002 \001(\005\022\017\n\007vict"
-  "ims\030\003 \003(\005\"=\n\007S_Skill\022\017\n\007skillid\030\001 \001(\005\022\020\n"
-  "\010attacker\030\002 \001(\005\022\017\n\007victims\030\003 \003(\005\"\026\n\006C_Ch"
-  "at\022\014\n\004text\030\001 \001(\t\"<\n\006S_Chat\022$\n\006object\030\001 \001"
-  "(\0132\024.PROTOCOL.ObjectInfo\022\014\n\004text\030\002 \001(\t\"("
-  "\n\nS_ChangeHp\022\016\n\006object\030\001 \001(\005\022\n\n\002hp\030\002 \001(\005"
-  "\")\n\005S_Die\022\016\n\006victim\030\001 \001(\005\022\020\n\010attacker\030\002 "
-  "\001(\005\"/\n\nS_ItemList\022!\n\005items\030\001 \003(\0132\022.PROTO"
-  "COL.ItemInfo\".\n\tC_AddItem\022!\n\005items\030\001 \003(\013"
-  "2\022.PROTOCOL.ItemInfo\".\n\tS_AddItem\022!\n\005ite"
-  "ms\030\001 \003(\0132\022.PROTOCOL.ItemInfo\"1\n\014S_Update"
+  "o\"X\n\014C_Enter_Room\022\017\n\007roomNum\030\001 \001(\004\022$\n\006ob"
+  "ject\030\002 \001(\0132\024.PROTOCOL.ObjectInfo\022\021\n\tisre"
+  "spawn\030\003 \001(\010\"h\n\014S_Enter_Room\022\017\n\007success\030\001"
+  " \001(\010\022$\n\006object\030\002 \001(\0132\024.PROTOCOL.ObjectIn"
+  "fo\022!\n\005items\030\003 \003(\0132\022.PROTOCOL.ItemInfo\"4\n"
+  "\014C_Leave_Room\022$\n\006object\030\001 \001(\0132\024.PROTOCOL"
+  ".ObjectInfo\"E\n\014S_Leave_Room\022\017\n\007success\030\001"
+  " \001(\010\022$\n\006object\030\002 \001(\0132\024.PROTOCOL.ObjectIn"
+  "fo\"/\n\007C_Spawn\022$\n\006object\030\001 \001(\0132\024.PROTOCOL"
+  ".ObjectInfo\"@\n\007S_Spawn\022\017\n\007success\030\001 \001(\010\022"
+  "$\n\006object\030\002 \003(\0132\024.PROTOCOL.ObjectInfo\"\036\n"
+  "\tS_DeSpawn\022\021\n\tobjectids\030\001 \003(\005\".\n\006C_Move\022"
+  "$\n\006object\030\001 \001(\0132\024.PROTOCOL.ObjectInfo\".\n"
+  "\006S_Move\022$\n\006object\030\001 \001(\0132\024.PROTOCOL.Objec"
+  "tInfo\"=\n\007C_Skill\022\017\n\007skillid\030\001 \001(\005\022\020\n\010att"
+  "acker\030\002 \001(\005\022\017\n\007victims\030\003 \003(\005\"=\n\007S_Skill\022"
+  "\017\n\007skillid\030\001 \001(\005\022\020\n\010attacker\030\002 \001(\005\022\017\n\007vi"
+  "ctims\030\003 \003(\005\"\026\n\006C_Chat\022\014\n\004text\030\001 \001(\t\"<\n\006S"
+  "_Chat\022$\n\006object\030\001 \001(\0132\024.PROTOCOL.ObjectI"
+  "nfo\022\014\n\004text\030\002 \001(\t\"(\n\nS_ChangeHp\022\016\n\006objec"
+  "t\030\001 \001(\005\022\n\n\002hp\030\002 \001(\005\")\n\005S_Die\022\016\n\006victim\030\001"
+  " \001(\005\022\020\n\010attacker\030\002 \001(\005\"/\n\nS_ItemList\022!\n\005"
+  "items\030\001 \003(\0132\022.PROTOCOL.ItemInfo\".\n\tC_Add"
   "Item\022!\n\005items\030\001 \003(\0132\022.PROTOCOL.ItemInfo\""
-  "\035\n\014S_RemoveItem\022\r\n\005slots\030\001 \003(\005\"<\n\013C_Equi"
-  "pItem\022\020\n\010itemdbid\030\001 \001(\005\022\014\n\004slot\030\002 \001(\005\022\r\n"
-  "\005equip\030\003 \001(\010\"<\n\013S_EquipItem\022\020\n\010itemdbid\030"
-  "\001 \001(\005\022\014\n\004slot\030\002 \001(\005\022\r\n\005equip\030\003 \001(\010\"8\n\tC_"
-  "UseItem\022\020\n\010itemdbid\030\001 \001(\005\022\014\n\004slot\030\002 \001(\005\022"
-  "\013\n\003use\030\003 \001(\010\"-\n\tS_UseItem\022 \n\004item\030\001 \001(\0132"
-  "\022.PROTOCOL.ItemInfo\"4\n\014S_ChangeStat\022$\n\006o"
-  "bject\030\001 \001(\0132\024.PROTOCOL.ObjectInfo\"\036\n\016C_C"
-  "reatePlayer\022\014\n\004name\030\001 \001(\t\"6\n\016S_CreatePla"
-  "yer\022$\n\006object\030\001 \001(\0132\024.PROTOCOL.ObjectInf"
-  "o\"\027\n\010S_AddExp\022\013\n\003exp\030\001 \001(\005\"/\n\tS_LevelUp\022"
-  "\"\n\004info\030\001 \001(\0132\024.PROTOCOL.ObjectInfo\"0\n\nC"
-  "_AddQuest\022\"\n\005quest\030\001 \001(\0132\023.PROTOCOL.Ques"
-  "tInfo\"@\n\nS_AddQuest\022\016\n\006result\030\001 \001(\010\022\"\n\005q"
-  "uest\030\002 \001(\0132\023.PROTOCOL.QuestInfo\"2\n\013S_Que"
-  "stList\022#\n\006quests\030\001 \003(\0132\023.PROTOCOL.QuestI"
-  "nfo\"\"\n\rC_RemoveQuest\022\021\n\tquestdbid\030\001 \001(\005\""
-  "0\n\rS_RemoveQuest\022\016\n\006result\030\001 \001(\010\022\017\n\007ques"
-  "tid\030\002 \001(\005\"$\n\017C_CompleteQuest\022\021\n\tquestdbi"
-  "d\030\001 \001(\005\"2\n\017S_CompleteQuest\022\016\n\006result\030\001 \001"
-  "(\010\022\017\n\007questid\030\002 \001(\005\"I\n\rC_UpdateQuest\022&\n\t"
-  "questinfo\030\001 \001(\0132\023.PROTOCOL.QuestInfo\022\020\n\010"
-  "objectid\030\002 \001(\005\"7\n\rS_UpdateQuest\022&\n\tquest"
-  "Info\030\001 \001(\0132\023.PROTOCOL.QuestInfo\"+\n\006C_Tes"
-  "t\022\017\n\007testint\030\001 \001(\005\022\020\n\010testbool\030\002 \001(\010\"+\n\006"
-  "S_Test\022\017\n\007testint\030\001 \001(\005\022\020\n\010testbool\030\002 \001("
-  "\010*\332\005\n\005MsgId\022\013\n\007C_LOGIN\020\000\022\013\n\007S_LOGIN\020\001\022\020\n"
-  "\014C_ENTER_ROOM\020\002\022\020\n\014S_ENTER_ROOM\020\003\022\020\n\014C_L"
-  "EAVE_ROOM\020\004\022\020\n\014S_LEAVE_ROOM\020\005\022\013\n\007C_SPAWN"
-  "\020\006\022\013\n\007S_SPAWN\020\007\022\r\n\tC_DESPAWN\020\010\022\r\n\tS_DESP"
-  "AWN\020\t\022\n\n\006C_MOVE\020\n\022\n\n\006S_MOVE\020\013\022\013\n\007C_SKILL"
-  "\020\014\022\013\n\007S_SKILL\020\r\022\n\n\006C_CHAT\020\016\022\n\n\006S_CHAT\020\017\022"
-  "\n\n\006C_PING\020\020\022\n\n\006S_PONG\020\021\022\017\n\013S_CHANGE_HP\020\022"
-  "\022\t\n\005S_DIE\020\023\022\017\n\013S_ITEM_LIST\020\024\022\016\n\nC_ADD_IT"
-  "EM\020\025\022\016\n\nS_ADD_ITEM\020\026\022\021\n\rS_UPDATE_ITEM\020\027\022"
-  "\021\n\rS_REMOVE_ITEM\020\030\022\017\n\013C_EQUIPITEM\020\031\022\017\n\013S"
-  "_EQUIPITEM\020\032\022\r\n\tC_USEITEM\020\033\022\r\n\tS_USEITEM"
-  "\020\034\022\021\n\rS_CHANGE_STAT\020\035\022\023\n\017C_CREATE_PLAYER"
-  "\020\036\022\023\n\017S_CREATE_PLAYER\020\037\022\r\n\tS_ADD_EXP\020 \022\016"
-  "\n\nS_LEVEL_UP\020!\022\017\n\013C_ADD_QUEST\020\"\022\017\n\013S_ADD"
-  "_QUEST\020#\022\020\n\014S_QUEST_LIST\020$\022\022\n\016C_REMOVE_Q"
-  "UEST\020%\022\022\n\016S_REMOVE_QUEST\020&\022\024\n\020C_COMPLETE"
-  "_QUEST\020\'\022\024\n\020S_COMPLETE_QUEST\020(\022\022\n\016C_UPDA"
-  "TE_QUEST\020)\022\022\n\016S_UPDATE_QUEST\020*\022\n\n\006C_TEST"
-  "\020+\022\n\n\006S_TEST\020,*\215\001\n\021PlayerServerState\022\025\n\021"
-  "SERVER_STATE_NONE\020\000\022\032\n\026SERVER_STATE_CONN"
-  "ECTED\020\001\022\026\n\022SERVER_STATE_LOGIN\020\002\022\026\n\022SERVE"
-  "R_STATE_LOBBY\020\003\022\025\n\021SERVER_STATE_GAME\020\004*X"
-  "\n\016GameObjectType\022\010\n\004NONE\020\000\022\n\n\006PLAYER\020\001\022\013"
-  "\n\007MONSTER\020\002\022\016\n\nPROJECTILE\020\003\022\007\n\003NPC\020\004\022\n\n\006"
-  "Object\020\005*B\n\tSkillType\022\016\n\nSKILL_NONE\020\000\022\016\n"
-  "\nSKILL_AUTO\020\001\022\025\n\021SKILL_PROJECTTILE\020\002*c\n\010"
-  "ItemType\022\022\n\016ITEM_TYPE_NONE\020\000\022\024\n\020ITEM_TYP"
-  "E_WEAPON\020\001\022\023\n\017ITEM_TYPE_ARMOR\020\002\022\030\n\024ITEM_"
-  "TYPE_CONSUMABLE\020\003*N\n\nWeaponType\022\024\n\020WEAPO"
-  "N_TYPE_NONE\020\000\022\025\n\021WEAPON_TYPE_SWORD\020\001\022\023\n\017"
-  "WEAPON_TYPE_AXE\020\002*M\n\tArmorType\022\023\n\017ARMOR_"
-  "TYPE_NONE\020\000\022\025\n\021ARMOR_TYPE_HELMET\020\001\022\024\n\020AR"
-  "MOR_TYPE_ARMOR\020\002*h\n\016ConsumableType\022\030\n\024CO"
-  "NSUMABLE_TYPE_NONE\020\000\022\035\n\031CONSUMABLE_TYPE_"
-  "HP_POTION\020\001\022\035\n\031CONSUMABLE_TYPE_MP_POTION"
-  "\020\002b\006proto3"
+  ".\n\tS_AddItem\022!\n\005items\030\001 \003(\0132\022.PROTOCOL.I"
+  "temInfo\"1\n\014S_UpdateItem\022!\n\005items\030\001 \003(\0132\022"
+  ".PROTOCOL.ItemInfo\"\035\n\014S_RemoveItem\022\r\n\005sl"
+  "ots\030\001 \003(\005\"<\n\013C_EquipItem\022\020\n\010itemdbid\030\001 \001"
+  "(\005\022\014\n\004slot\030\002 \001(\005\022\r\n\005equip\030\003 \001(\010\"<\n\013S_Equ"
+  "ipItem\022\020\n\010itemdbid\030\001 \001(\005\022\014\n\004slot\030\002 \001(\005\022\r"
+  "\n\005equip\030\003 \001(\010\"8\n\tC_UseItem\022\020\n\010itemdbid\030\001"
+  " \001(\005\022\014\n\004slot\030\002 \001(\005\022\013\n\003use\030\003 \001(\010\"-\n\tS_Use"
+  "Item\022 \n\004item\030\001 \001(\0132\022.PROTOCOL.ItemInfo\"4"
+  "\n\014S_ChangeStat\022$\n\006object\030\001 \001(\0132\024.PROTOCO"
+  "L.ObjectInfo\"\036\n\016C_CreatePlayer\022\014\n\004name\030\001"
+  " \001(\t\"6\n\016S_CreatePlayer\022$\n\006object\030\001 \001(\0132\024"
+  ".PROTOCOL.ObjectInfo\"\027\n\010S_AddExp\022\013\n\003exp\030"
+  "\001 \001(\005\"/\n\tS_LevelUp\022\"\n\004info\030\001 \001(\0132\024.PROTO"
+  "COL.ObjectInfo\"0\n\nC_AddQuest\022\"\n\005quest\030\001 "
+  "\001(\0132\023.PROTOCOL.QuestInfo\"@\n\nS_AddQuest\022\016"
+  "\n\006result\030\001 \001(\010\022\"\n\005quest\030\002 \001(\0132\023.PROTOCOL"
+  ".QuestInfo\"2\n\013S_QuestList\022#\n\006quests\030\001 \003("
+  "\0132\023.PROTOCOL.QuestInfo\"\"\n\rC_RemoveQuest\022"
+  "\021\n\tquestdbid\030\001 \001(\005\"0\n\rS_RemoveQuest\022\016\n\006r"
+  "esult\030\001 \001(\010\022\017\n\007questid\030\002 \001(\005\"$\n\017C_Comple"
+  "teQuest\022\021\n\tquestdbid\030\001 \001(\005\"2\n\017S_Complete"
+  "Quest\022\016\n\006result\030\001 \001(\010\022\017\n\007questid\030\002 \001(\005\"I"
+  "\n\rC_UpdateQuest\022&\n\tquestinfo\030\001 \001(\0132\023.PRO"
+  "TOCOL.QuestInfo\022\020\n\010objectid\030\002 \001(\005\"7\n\rS_U"
+  "pdateQuest\022&\n\tquestInfo\030\001 \001(\0132\023.PROTOCOL"
+  ".QuestInfo\"+\n\006C_Test\022\017\n\007testint\030\001 \001(\005\022\020\n"
+  "\010testbool\030\002 \001(\010\"+\n\006S_Test\022\017\n\007testint\030\001 \001"
+  "(\005\022\020\n\010testbool\030\002 \001(\010\"\032\n\nC_BotLogin\022\014\n\004te"
+  "st\030\001 \001(\010*\374\005\n\005MsgId\022\013\n\007C_LOGIN\020\000\022\013\n\007S_LOG"
+  "IN\020\001\022\020\n\014C_ENTER_ROOM\020\002\022\020\n\014S_ENTER_ROOM\020\003"
+  "\022\020\n\014C_LEAVE_ROOM\020\004\022\020\n\014S_LEAVE_ROOM\020\005\022\013\n\007"
+  "C_SPAWN\020\006\022\013\n\007S_SPAWN\020\007\022\r\n\tC_DESPAWN\020\010\022\r\n"
+  "\tS_DESPAWN\020\t\022\n\n\006C_MOVE\020\n\022\n\n\006S_MOVE\020\013\022\013\n\007"
+  "C_SKILL\020\014\022\013\n\007S_SKILL\020\r\022\n\n\006C_CHAT\020\016\022\n\n\006S_"
+  "CHAT\020\017\022\n\n\006C_PING\020\020\022\n\n\006S_PONG\020\021\022\017\n\013S_CHAN"
+  "GE_HP\020\022\022\t\n\005S_DIE\020\023\022\017\n\013S_ITEM_LIST\020\024\022\016\n\nC"
+  "_ADD_ITEM\020\025\022\016\n\nS_ADD_ITEM\020\026\022\021\n\rS_UPDATE_"
+  "ITEM\020\027\022\021\n\rS_REMOVE_ITEM\020\030\022\017\n\013C_EQUIPITEM"
+  "\020\031\022\017\n\013S_EQUIPITEM\020\032\022\r\n\tC_USEITEM\020\033\022\r\n\tS_"
+  "USEITEM\020\034\022\021\n\rS_CHANGE_STAT\020\035\022\023\n\017C_CREATE"
+  "_PLAYER\020\036\022\023\n\017S_CREATE_PLAYER\020\037\022\r\n\tS_ADD_"
+  "EXP\020 \022\016\n\nS_LEVEL_UP\020!\022\017\n\013C_ADD_QUEST\020\"\022\017"
+  "\n\013S_ADD_QUEST\020#\022\020\n\014S_QUEST_LIST\020$\022\022\n\016C_R"
+  "EMOVE_QUEST\020%\022\022\n\016S_REMOVE_QUEST\020&\022\024\n\020C_C"
+  "OMPLETE_QUEST\020\'\022\024\n\020S_COMPLETE_QUEST\020(\022\022\n"
+  "\016C_UPDATE_QUEST\020)\022\022\n\016S_UPDATE_QUEST\020*\022\n\n"
+  "\006C_TEST\020+\022\n\n\006S_TEST\020,\022\017\n\013C_BOT_LOGIN\020-\022\017"
+  "\n\013S_BOT_LOGIN\020.*\215\001\n\021PlayerServerState\022\025\n"
+  "\021SERVER_STATE_NONE\020\000\022\032\n\026SERVER_STATE_CON"
+  "NECTED\020\001\022\026\n\022SERVER_STATE_LOGIN\020\002\022\026\n\022SERV"
+  "ER_STATE_LOBBY\020\003\022\025\n\021SERVER_STATE_GAME\020\004*"
+  "X\n\016GameObjectType\022\010\n\004NONE\020\000\022\n\n\006PLAYER\020\001\022"
+  "\013\n\007MONSTER\020\002\022\016\n\nPROJECTILE\020\003\022\007\n\003NPC\020\004\022\n\n"
+  "\006Object\020\005*B\n\tSkillType\022\016\n\nSKILL_NONE\020\000\022\016"
+  "\n\nSKILL_AUTO\020\001\022\025\n\021SKILL_PROJECTTILE\020\002*c\n"
+  "\010ItemType\022\022\n\016ITEM_TYPE_NONE\020\000\022\024\n\020ITEM_TY"
+  "PE_WEAPON\020\001\022\023\n\017ITEM_TYPE_ARMOR\020\002\022\030\n\024ITEM"
+  "_TYPE_CONSUMABLE\020\003*N\n\nWeaponType\022\024\n\020WEAP"
+  "ON_TYPE_NONE\020\000\022\025\n\021WEAPON_TYPE_SWORD\020\001\022\023\n"
+  "\017WEAPON_TYPE_AXE\020\002*M\n\tArmorType\022\023\n\017ARMOR"
+  "_TYPE_NONE\020\000\022\025\n\021ARMOR_TYPE_HELMET\020\001\022\024\n\020A"
+  "RMOR_TYPE_ARMOR\020\002*h\n\016ConsumableType\022\030\n\024C"
+  "ONSUMABLE_TYPE_NONE\020\000\022\035\n\031CONSUMABLE_TYPE"
+  "_HP_POTION\020\001\022\035\n\031CONSUMABLE_TYPE_MP_POTIO"
+  "N\020\002b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_Protocol3_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Protocol3_2eproto = {
-  false, false, 4650, descriptor_table_protodef_Protocol3_2eproto, "Protocol3.proto", 
-  &descriptor_table_Protocol3_2eproto_once, nullptr, 0, 49,
+  false, false, 4731, descriptor_table_protodef_Protocol3_2eproto, "Protocol3.proto", 
+  &descriptor_table_Protocol3_2eproto_once, nullptr, 0, 50,
   schemas, file_default_instances, TableStruct_Protocol3_2eproto::offsets,
   file_level_metadata_Protocol3_2eproto, file_level_enum_descriptors_Protocol3_2eproto, file_level_service_descriptors_Protocol3_2eproto,
 };
@@ -1376,6 +1401,8 @@ bool MsgId_IsValid(int value) {
     case 42:
     case 43:
     case 44:
+    case 45:
+    case 46:
       return true;
     default:
       return false;
@@ -4459,15 +4486,17 @@ C_Enter_Room::C_Enter_Room(const C_Enter_Room& from)
   } else {
     object_ = nullptr;
   }
-  roomnum_ = from.roomnum_;
+  ::memcpy(&roomnum_, &from.roomnum_,
+    static_cast<size_t>(reinterpret_cast<char*>(&isrespawn_) -
+    reinterpret_cast<char*>(&roomnum_)) + sizeof(isrespawn_));
   // @@protoc_insertion_point(copy_constructor:PROTOCOL.C_Enter_Room)
 }
 
 inline void C_Enter_Room::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&object_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&roomnum_) -
-    reinterpret_cast<char*>(&object_)) + sizeof(roomnum_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&isrespawn_) -
+    reinterpret_cast<char*>(&object_)) + sizeof(isrespawn_));
 }
 
 C_Enter_Room::~C_Enter_Room() {
@@ -4502,7 +4531,9 @@ void C_Enter_Room::Clear() {
     delete object_;
   }
   object_ = nullptr;
-  roomnum_ = uint64_t{0u};
+  ::memset(&roomnum_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&isrespawn_) -
+      reinterpret_cast<char*>(&roomnum_)) + sizeof(isrespawn_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -4524,6 +4555,14 @@ const char* C_Enter_Room::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_object(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // bool isrespawn = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          isrespawn_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -4571,6 +4610,12 @@ uint8_t* C_Enter_Room::_InternalSerialize(
         2, _Internal::object(this), target, stream);
   }
 
+  // bool isrespawn = 3;
+  if (this->_internal_isrespawn() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(3, this->_internal_isrespawn(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -4597,6 +4642,11 @@ size_t C_Enter_Room::ByteSizeLong() const {
   // uint64 roomNum = 1;
   if (this->_internal_roomnum() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64SizePlusOne(this->_internal_roomnum());
+  }
+
+  // bool isrespawn = 3;
+  if (this->_internal_isrespawn() != 0) {
+    total_size += 1 + 1;
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -4627,6 +4677,9 @@ void C_Enter_Room::MergeFrom(const C_Enter_Room& from) {
   if (from._internal_roomnum() != 0) {
     _internal_set_roomnum(from._internal_roomnum());
   }
+  if (from._internal_isrespawn() != 0) {
+    _internal_set_isrespawn(from._internal_isrespawn());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -4645,8 +4698,8 @@ void C_Enter_Room::InternalSwap(C_Enter_Room* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(C_Enter_Room, roomnum_)
-      + sizeof(C_Enter_Room::roomnum_)
+      PROTOBUF_FIELD_OFFSET(C_Enter_Room, isrespawn_)
+      + sizeof(C_Enter_Room::isrespawn_)
       - PROTOBUF_FIELD_OFFSET(C_Enter_Room, object_)>(
           reinterpret_cast<char*>(&object_),
           reinterpret_cast<char*>(&other->object_));
@@ -12733,6 +12786,184 @@ void S_Test::InternalSwap(S_Test* other) {
       file_level_metadata_Protocol3_2eproto[48]);
 }
 
+// ===================================================================
+
+class C_BotLogin::_Internal {
+ public:
+};
+
+C_BotLogin::C_BotLogin(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:PROTOCOL.C_BotLogin)
+}
+C_BotLogin::C_BotLogin(const C_BotLogin& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  test_ = from.test_;
+  // @@protoc_insertion_point(copy_constructor:PROTOCOL.C_BotLogin)
+}
+
+inline void C_BotLogin::SharedCtor() {
+test_ = false;
+}
+
+C_BotLogin::~C_BotLogin() {
+  // @@protoc_insertion_point(destructor:PROTOCOL.C_BotLogin)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void C_BotLogin::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void C_BotLogin::ArenaDtor(void* object) {
+  C_BotLogin* _this = reinterpret_cast< C_BotLogin* >(object);
+  (void)_this;
+}
+void C_BotLogin::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void C_BotLogin::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void C_BotLogin::Clear() {
+// @@protoc_insertion_point(message_clear_start:PROTOCOL.C_BotLogin)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  test_ = false;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* C_BotLogin::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // bool test = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          test_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* C_BotLogin::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:PROTOCOL.C_BotLogin)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // bool test = 1;
+  if (this->_internal_test() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(1, this->_internal_test(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:PROTOCOL.C_BotLogin)
+  return target;
+}
+
+size_t C_BotLogin::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:PROTOCOL.C_BotLogin)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // bool test = 1;
+  if (this->_internal_test() != 0) {
+    total_size += 1 + 1;
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData C_BotLogin::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    C_BotLogin::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*C_BotLogin::GetClassData() const { return &_class_data_; }
+
+void C_BotLogin::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<C_BotLogin *>(to)->MergeFrom(
+      static_cast<const C_BotLogin &>(from));
+}
+
+
+void C_BotLogin::MergeFrom(const C_BotLogin& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:PROTOCOL.C_BotLogin)
+  GOOGLE_DCHECK_NE(&from, this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_test() != 0) {
+    _internal_set_test(from._internal_test());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void C_BotLogin::CopyFrom(const C_BotLogin& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:PROTOCOL.C_BotLogin)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool C_BotLogin::IsInitialized() const {
+  return true;
+}
+
+void C_BotLogin::InternalSwap(C_BotLogin* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(test_, other->test_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata C_BotLogin::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_Protocol3_2eproto_getter, &descriptor_table_Protocol3_2eproto_once,
+      file_level_metadata_Protocol3_2eproto[49]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace PROTOCOL
 PROTOBUF_NAMESPACE_OPEN
@@ -12882,6 +13113,9 @@ template<> PROTOBUF_NOINLINE ::PROTOCOL::C_Test* Arena::CreateMaybeMessage< ::PR
 }
 template<> PROTOBUF_NOINLINE ::PROTOCOL::S_Test* Arena::CreateMaybeMessage< ::PROTOCOL::S_Test >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOCOL::S_Test >(arena);
+}
+template<> PROTOBUF_NOINLINE ::PROTOCOL::C_BotLogin* Arena::CreateMaybeMessage< ::PROTOCOL::C_BotLogin >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::PROTOCOL::C_BotLogin >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

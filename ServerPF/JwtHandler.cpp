@@ -7,33 +7,33 @@
 
 
 
-bool JwtHandler::VerifyToken(string token)
+bool JwtHandler::VerifyToken(string token, int32& accountDbId)
 {
+	// 디코드
 	auto decoded = jwt::decode(token);
+	
+	// 시크릿키
+	string secretKey("This is my Secret Secret Key for authenticatation");
 
-	string secretKey("This is my custom Secret Key for authenticatation");
-
+	// 확인
 	auto verifier = jwt::verify().allow_algorithm(jwt::algorithm::hs256(secretKey));
-	for (auto& e : decoded.get_payload_json())
+	for (auto& e : decoded.get_payload_json()) {
 		verifier.with_claim(e.first, jwt::claim(e.second));
-
+		if (e.first.compare("UserName") == 0)
+			accountDbId = stoi(e.second.to_str());
+	}
+	
+	// 검증
 	try {
 		verifier.verify(decoded);
 	}
 	catch (exception e) {
-		// TODO : Log
+		cout << "[JwtHandler] VerifyToken Failed" << endl;
 		return false;
 	}
+
+	cout << "[JwtHandler] VerifyToken Succeed" << endl;
 
 	return true;
 }
 
-// TODO :  토큰을 새로 만듬으로써 비교할려고
-bool JwtHandler::MakeCompare(string token)
-{
-	string secretKey("This is my custom Secret Key for authenticatation");
-
-	//auto token2 = jwt::create().
-
-	return false;
-}

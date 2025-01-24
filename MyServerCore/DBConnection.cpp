@@ -9,7 +9,7 @@ bool DBConnection::Connect(SQLHENV henv, const WCHAR* connectionString)
 
 	WCHAR stringBuffer[MAX_PATH] = { 0 };
 	::wcscpy_s(stringBuffer, connectionString);
-
+	
 	WCHAR resultString[MAX_PATH] = { 0 };
 	SQLSMALLINT resultStringLen = 0;
 
@@ -17,7 +17,7 @@ bool DBConnection::Connect(SQLHENV henv, const WCHAR* connectionString)
 		reinterpret_cast<SQLWCHAR*>(stringBuffer), _countof(stringBuffer),
 		OUT reinterpret_cast<SQLWCHAR*>(resultString), _countof(resultString), OUT & resultStringLen,
 		SQL_DRIVER_NOPROMPT);
-
+	
 	if (::SQLAllocHandle(SQL_HANDLE_STMT, _connection, &_statement) != SQL_SUCCESS)
 		return false;
 
@@ -30,7 +30,7 @@ void DBConnection::Clear()
 		::SQLFreeHandle(SQL_HANDLE_DBC, _connection);
 		_connection = SQL_NULL_HANDLE;
 	}
-
+	
 	if (_statement != SQL_NULL_HANDLE) {
 		::SQLFreeHandle(SQL_HANDLE_STMT, _statement);
 		_statement = SQL_NULL_HANDLE;
@@ -42,8 +42,9 @@ bool DBConnection::Execute(const WCHAR* query)
 	SQLRETURN ret = ::SQLExecDirectW(_statement, (SQLWCHAR*)query, SQL_NTSL);
 	if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO)
 		return true;
-
+	
 	HandleError(ret);
+
 	return false;
 }
 
@@ -81,6 +82,38 @@ void DBConnection::Unbind()
 	::SQLFreeStmt(_statement, SQL_UNBIND);
 	::SQLFreeStmt(_statement, SQL_RESET_PARAMS);
 	::SQLFreeStmt(_statement, SQL_CLOSE);
+}
+
+void DBConnection::SetAutoCommit(bool onOff)
+{
+	// ø¿≈‰ƒøπ‘ on
+	if (onOff == true)
+		SQLSetConnectAttr(_connection, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0);
+	// ø¿≈‰ƒøπ‘ off
+	else
+		SQLSetConnectAttr(_connection, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0);
+}
+
+bool DBConnection::Commit()
+{
+	SQLRETURN ret = SQLEndTran(SQL_HANDLE_DBC, _connection, SQL_COMMIT);
+	if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO)
+		return true;
+
+	HandleError(ret);
+
+	return false;
+}
+
+bool DBConnection::Rollback()
+{
+	SQLRETURN ret = SQLEndTran(SQL_HANDLE_DBC, _connection, SQL_ROLLBACK);
+	if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO)
+		return true;
+
+	HandleError(ret);
+
+	return false;
 }
 
 

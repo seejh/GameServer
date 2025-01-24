@@ -462,6 +462,31 @@ namespace SP
     	int32 _questDbId = {};
     };
 
+    class UpdateServerInfos : public DBBind<5,0>
+    {
+    public:
+    	UpdateServerInfos(DBConnection& conn) : DBBind(conn, L"{CALL dbo.spUpdateServerInfos(?,?,?,?,?)}") { }
+    	void In_ServerDbId(int32& v) { BindParam(0, v); };
+    	void In_ServerDbId(int32&& v) { _serverDbId = std::move(v); BindParam(0, _serverDbId); };
+    	template<int32 N> void In_Name(WCHAR(&v)[N]) { BindParam(1, v); };
+    	template<int32 N> void In_Name(const WCHAR(&v)[N]) { BindParam(1, v); };
+    	void In_Name(WCHAR* v, int32 count) { BindParam(1, v, count); };
+    	void In_Name(const WCHAR* v, int32 count) { BindParam(1, v, count); };
+    	template<int32 N> void In_IpAddress(WCHAR(&v)[N]) { BindParam(2, v); };
+    	template<int32 N> void In_IpAddress(const WCHAR(&v)[N]) { BindParam(2, v); };
+    	void In_IpAddress(WCHAR* v, int32 count) { BindParam(2, v, count); };
+    	void In_IpAddress(const WCHAR* v, int32 count) { BindParam(2, v, count); };
+    	void In_Port(int32& v) { BindParam(3, v); };
+    	void In_Port(int32&& v) { _port = std::move(v); BindParam(3, _port); };
+    	void In_BusyScore(int32& v) { BindParam(4, v); };
+    	void In_BusyScore(int32&& v) { _busyScore = std::move(v); BindParam(4, _busyScore); };
+
+    private:
+    	int32 _serverDbId = {};
+    	int32 _port = {};
+    	int32 _busyScore = {};
+    };
+
 
      
 };

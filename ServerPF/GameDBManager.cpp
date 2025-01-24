@@ -9,49 +9,32 @@
 #include"DBDataModel.h"
 #include"GenProcedures.h"
 #include"Item.h"
+#include"Quest.h"
 #include"Inventory.h"
+#include"SessionManager.h"
 
-
-//bool GameDBManager::Connect(int32 connectionCounts, const WCHAR* connectionString)
-//{
-//	_connectionCounts = connectionCounts + 1;
-//	if (GDBConnectionPool->Connect(connectionCounts, connectionString) == false)
-//		return false;
-//	
-//	_dbConn = Pop();
-//	if (_dbConn == nullptr)
-//		return false;
-//
-//	return true;
-//}
-//
-//DBConnection* GameDBManager::Pop()
-//{
-//	lock_guard<mutex> lock(_m);
-//
-//	return GDBConnectionPool->Pop();
-//}
-//
-//void GameDBManager::Push(DBConnection* dbConn)
-//{
-//	lock_guard<mutex> lock(_m);
-//
-//	GDBConnectionPool->Push(dbConn);
-//}
-
-//////////////////////////////////////////////////////////
-// 잡큐 - 
 
 bool GameDBManager::Connect(int32 connectionCounts, const WCHAR* connectionString)
 {
+	if (_dbConnPool == nullptr)
+		_dbConnPool = new DBConnectionPool();
+
 	_connectionCounts = connectionCounts + 1;
 
-	if (GDBConnectionPool->Connect(connectionCounts, connectionString) == false)
+	/*if (GDBConnectionPool->Connect(connectionCounts, connectionString) == false)
+		return false;*/
+	if (_dbConnPool->Connect(_connectionCounts, connectionString) == false) {
+		cout << "[GameDBManager] Connect Error : Connect Failed" << endl;
 		return false;
+	}
 
 	_dbConn = Pop();
-	if (_dbConn == nullptr)
+	if (_dbConn == nullptr) {
+		cout << "[GameDBManager] Connect Error : Nullptr Connection" << endl;
 		return false;
+	}
+		
+	cout << "[GameDbManager] Connect OK" << endl;
 
 	return true;
 }
@@ -67,176 +50,276 @@ void GameDBManager::Push(DBConnection* dbConn)
 }
 
 
-/*-------------------------------------------------------------------------------
-	UPDATE, SELECt, INSERT, DELETE
---------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------------------
+	
+--------------------------------------------------------------------------------------*/
 
 
-/*---------------------------------------------------------------------------------
-	아이템
-----------------------------------------------------------------------------------*/
-void GameDBManager::InsertItem(shared_ptr<Player> player, ItemDB itemDB, void(Room::* memFunc)(shared_ptr<Player>, ItemDB))
+
+void GameDBManager::TransactNoti_EquipItem(shared_ptr<Player> player, shared_ptr<Item> equipment)
 {
-	string result;
+	// Room Thread에서 수행
 
-	// DB 작업
-	int64 identity;
-	SP::InsertItemAndSelectIdentity insertItem(*_dbConn);
-	insertItem.In_TemplateId(itemDB.TemplateId);
-	insertItem.In_PlayerDbId(itemDB.PlayerDbId);
-	insertItem.In_Count(itemDB.Count);
-	insertItem.In_Slot(itemDB.Slot);
-	insertItem.In_Equipped(itemDB.Equipped);
-	insertItem.Out_Identity(identity);
-	if (insertItem.Execute()) {
-		if (insertItem.Fetch()) {
-			itemDB.ItemDbId = identity;
-			itemDB.dbState = DB_STATE::INSERT_SUCCESS;
+	ItemDB itemDB;
+	itemDB.ItemDbId = equipment->_itemInfo.itemdbid();
+	itemDB.PlayerDbId = equipment->_itemInfo.playerdbid();
+	itemDB.TemplateId = equipment->_itemInfo.templateid();
+	itemDB.Count = equipment->_itemInfo.count();
+	itemDB.Slot = equipment->_itemInfo.slot();
+	itemDB.Equipped = equipment->_itemInfo.equipped();
 
-			result = ", INSERT_SUCCESS";
+	// GameDBManager Thread에서 수행
+	DoAsync(
+		[this, itemDB]() mutable {
+			SP::UpdateItem updateItem(*_dbConn);
+			updateItem.In_ItemDbId(itemDB.ItemDbId);
+			updateItem.In_PlayerDbId(itemDB.PlayerDbId);
+			updateItem.In_TemplateId(itemDB.TemplateId);
+			updateItem.In_Count(itemDB.Count);
+			updateItem.In_Slot(itemDB.Slot);
+			updateItem.In_Equipped(itemDB.Equipped);
+			if (updateItem.Execute()) {
+
+			}
+			else {
+
+			}
 		}
-		else {
-			result = ", INSERT_FAILED - Execute OK But Fetch Error";
-			itemDB.dbState = DB_STATE::INSERT_FAILED; // Fetch가 실패가 나는 것이 DB 작업이 실패인지 확인할 필요가 있다, 일단은 실패 판정
-		}
+	);
+}
+
+void GameDBManager::TransactNoti_UpdateQuest(shared_ptr<Player> player, QuestDB questDB)
+{
+	SP::UpdateQuest updateQuest(*_dbConn);
+	updateQuest.In_QuestDbId(questDB.QuestDbId);
+	updateQuest.In_PlayerDbId(questDB.PlayerDbId);
+	updateQuest.In_TemplateId(questDB.TemplateId);
+	updateQuest.In_Progress(questDB.Progress);
+	updateQuest.In_Completed(questDB.Completed);
+	if (updateQuest.Execute()) {
+		questDB.dbState = DB_STATE::UPDATE_SUCCESS;
 	}
 	else {
-		itemDB.dbState = DB_STATE::INSERT_FAILED;
-		result = ", INSERT_FAILED";
+		questDB.dbState = DB_STATE::UPDATE_FAILED;
+	}
+}
+
+void GameDBManager::Transact_CompleteQuest(shared_ptr<Player> player, QuestDB questDB, vector<ItemDB> itemDBs)
+{
+	// 오토 커밋 비활성화
+	_dbConn->SetAutoCommit(false);
+
+	bool result = true;
+	string resultLog = "";
+
+	// 아이템 지급
+	for (ItemDB itemDB : itemDBs) {
+		wstring query;
+		
+		// 인서트
+		if (itemDB.dbState == DB_STATE::INSERT_NEED) {
+			DBBind<5, 1> dbBind(*_dbConn, 
+				L"\
+				SET NOCOUNT ON;\
+				INSERT INTO [dbo].[Item]([TemplateId], [Count], [Slot], [Equipped], [PlayerDbId]) VALUES(?,?,?,?,?);\
+				SELECT @@IDENTITY;\
+				");
+			dbBind.BindParam(0, itemDB.TemplateId);
+			dbBind.BindParam(1, itemDB.Count);
+			dbBind.BindParam(2, itemDB.Slot);
+			dbBind.BindParam(3, itemDB.Equipped);
+			dbBind.BindParam(4, itemDB.PlayerDbId);
+			dbBind.BindCol(0, OUT itemDB.ItemDbId);
+			if (dbBind.Execute()) {
+				if (dbBind.Fetch()) {
+					// 로그
+					resultLog.append("ItemDbId : %d", itemDB.ItemDbId);
+				}
+				else {
+					result = false;
+					break;
+				}
+			}
+			else {
+				result = false;
+				break;
+			}
+		}
+		// 업데이트
+		else {
+			DBBind<5, 0> dbBind(*_dbConn,
+				L"UPDATE [dbo].[Item] SET TemplateId = ?, Count = ?, Slot = ?, Equipped = ?, PlayerDbId = ? WHERE ItemDbId = ?");
+			dbBind.BindParam(0, itemDB.TemplateId);
+			dbBind.BindParam(1, itemDB.Count);
+			dbBind.BindParam(2, itemDB.Slot);
+			dbBind.BindParam(3, itemDB.Equipped);
+			dbBind.BindParam(4, itemDB.PlayerDbId);
+			dbBind.BindParam(5, itemDB.ItemDbId);
+			if (dbBind.Execute()) {
+
+			}
+			else {
+				result = false;
+				break;
+			}
+		}
 	}
 
-	// 로그
-	cout << "[DB_INSERT_ITEM] - ItemDbId" << itemDB.ItemDbId << ", Slot:" << itemDB.Slot << result << endl;
 
-	// 요청한 곳에 콜백으로 넘겨줌
-	if (player->_ownerRoom != nullptr)
-		player->_ownerRoom->DoAsync(memFunc, player, itemDB);
+	// 퀘스트 업데이트
+	if (result == true) {
+		DBBind<5, 0> dbBind(*_dbConn, L"UPDATE [dbo].[Quest] SET TemplateId = ?, Progress = ?, Completed = ?, PlayerDbId = ? WHERE QuestDbId = ?");
+		dbBind.BindParam(0, questDB.TemplateId);
+		dbBind.BindParam(1, questDB.Progress);
+		dbBind.BindParam(2, questDB.Completed);
+		dbBind.BindParam(3, questDB.PlayerDbId);
+		dbBind.BindParam(4, questDB.QuestDbId);
+		if (dbBind.Execute()) {
+
+		}
+		else {
+			result = false;
+		}
+	}
+
+	// 커밋 or 롤백
+	if (result == true) {
+		_dbConn->Commit();
+
+		cout << "[DB] COMPLETE QUEST - SUCCEED, COMMIT" << endl;
+
+		// 요청한 곳으로 
+		if (player->_ownerRoom)
+			player->_ownerRoom->DoAsync(&Room::DBCallback_CompleteQuest, player, questDB, itemDBs);
+	}
+	else {
+		cout << "[DB] COMPLETE QUEST - FAILED, ROLLBACK" << endl;
+
+		_dbConn->Rollback();
+	}
+
+	// 오토 커밋 활성화
+	_dbConn->SetAutoCommit(true);
 }
 
-void GameDBManager::UpdateItem(shared_ptr<Player> player, ItemDB itemDB, void(Room::* memFunc)(shared_ptr<Player>, ItemDB))
+void GameDBManager::Transact_AddQuest(shared_ptr<Player> player, QuestDB questDB)
 {
-	// DB 작업
-	SP::UpdateItem updateItem(*_dbConn);
-	updateItem.In_ItemDbId(itemDB.ItemDbId);
-	updateItem.In_TemplateId(itemDB.TemplateId);
-	updateItem.In_PlayerDbId(itemDB.PlayerDbId);
-	updateItem.In_Count(itemDB.Count);
-	updateItem.In_Slot(itemDB.Slot);
-	updateItem.In_Equipped(itemDB.Equipped);
-	if (updateItem.Execute())
-		itemDB.dbState = DB_STATE::UPDATE_SUCCESS;
-	else
-		itemDB.dbState = DB_STATE::UPDATE_FAILED;
-
-	//로그
-	cout << "[DB_UPDATE_ITEM] - ItemDbId:" << itemDB.ItemDbId << ", Slot:" << itemDB.Slot << ", Result:"
-		<< boolalpha << (itemDB.dbState == DB_STATE::UPDATE_SUCCESS ? "UPDATE_SUCCESS" : "UPDATE_FAILED") << endl;
-
-	// 요청한 곳에 콜백으로 넘겨줌
-	if (player->_ownerRoom != nullptr)
-		player->_ownerRoom->DoAsync(memFunc, player, itemDB);
-}
-
-void GameDBManager::DeleteItem(shared_ptr<Player> player, ItemDB itemDB, void(Room::* memFunc)(shared_ptr<Player>, ItemDB))
-{
-	// DB 작업
-	SP::DeleteItem deleteItem(*_dbConn);
-	deleteItem.In_ItemDbId(itemDB.ItemDbId);
-	if (deleteItem.Execute())
-		itemDB.dbState = DB_STATE::DELETE_SUCCESS;
-	else
-		itemDB.dbState = DB_STATE::DELETE_FAILED;
-
-	// 로그
-	cout << "[DB_DELETE_ITEM] - ItemDbId:" << itemDB.ItemDbId << ", Slot:" << itemDB.Slot << ", Result:"
-		<< boolalpha << (itemDB.dbState == DB_STATE::DELETE_SUCCESS ? "DELETE_SUCCESS" : "DELETE_FAILED") << endl;
-
-	// 요청한 곳에 콜백으로 넘겨줌
-	if (player->_ownerRoom != nullptr)
-		player->_ownerRoom->DoAsync(memFunc, player, itemDB);
-}
-
-
-/*---------------------------------------------------------------------------------
-	퀘스트
-----------------------------------------------------------------------------------*/
-void GameDBManager::InsertQuest(shared_ptr<Player> player, QuestDB questDB, void(Room::* memFunc)(shared_ptr<Player>, QuestDB))
-{
-	string result;
-
-	// DB 작업
 	int64 identity;
 	SP::InsertQuestAndSelectIdentity insertQuest(*_dbConn);
-	insertQuest.In_TemplateId(questDB.TemplateId);
 	insertQuest.In_PlayerDbId(questDB.PlayerDbId);
+	insertQuest.In_TemplateId(questDB.TemplateId);
 	insertQuest.In_Progress(questDB.Progress);
 	insertQuest.In_Completed(questDB.Completed);
 	insertQuest.Out_Identity(identity);
 	if (insertQuest.Execute()) {
 		if (insertQuest.Fetch()) {
-			// 생성 후 DB 인덱스
 			questDB.QuestDbId = identity;
-
-			result = " Result: INSERT_SUCCESS";
 			questDB.dbState = DB_STATE::INSERT_SUCCESS;
-		}
-		else {
-			result = " Result: INSERT_FAILED (Execute OK But Fetch Failed)";
-			questDB.dbState = DB_STATE::INSERT_FAILED;
 		}
 	}
 	else {
-		result = " Result: INSERT_FAILED";
 		questDB.dbState = DB_STATE::INSERT_FAILED;
 	}
 
-	// 로그
-	cout << "[DB_INSERT_QUEST] - QuestDbId:" << questDB.QuestDbId << ", TmeplateId:" << questDB.TemplateId <<
-		result << endl;
-
-	// 요청한 곳에 콜백으로 넘겨줌
-	if (player->_ownerRoom != nullptr)
-		player->_ownerRoom->DoAsync(memFunc, player, questDB);
+	if (player->_ownerRoom)
+		player->_ownerRoom->DoAsync(&Room::DBCallback_AddQuest, player, questDB);
 }
 
-void GameDBManager::UpdateQuest(shared_ptr<Player> player, QuestDB questDB, void(Room::* memFunc)(shared_ptr<Player>, QuestDB))
+void GameDBManager::Transact_RemoveQuest(shared_ptr<Player> player, QuestDB questDB)
 {
-	// DB 작업
-	SP::UpdateQuest updateQuest(*_dbConn);
-	updateQuest.In_QuestDbId(questDB.QuestDbId);
-	updateQuest.In_TemplateId(questDB.TemplateId);
-	updateQuest.In_PlayerDbId(questDB.PlayerDbId);
-	updateQuest.In_Progress(questDB.Progress);
-	updateQuest.In_Completed(questDB.Completed);
-	if (updateQuest.Execute())
-		questDB.dbState = DB_STATE::UPDATE_SUCCESS;
-	else
-		questDB.dbState = DB_STATE::UPDATE_FAILED;
-
-	// 로그
-	cout << "[DB_UPDATE_QUEST] - QuestDbId:" << questDB.QuestDbId << ", TemplateId:" << questDB.TemplateId <<
-		(questDB.dbState == DB_STATE::UPDATE_SUCCESS ? " Result: UPDATE_SUCCESS" : " Result: UPDATE_FAILED") << endl;
-
-	// 요청한 곳에 콜백으로 넘겨줌
-	if (player->_ownerRoom != nullptr)
-		player->_ownerRoom->DoAsync(memFunc, player, questDB);
-}
-
-void GameDBManager::DeleteQuest(shared_ptr<Player> player, QuestDB questDB, void(Room::* memFunc)(shared_ptr<Player>, QuestDB))
-{
-	// DB 작업
 	SP::DeleteQuest deleteQuest(*_dbConn);
 	deleteQuest.In_QuestDbId(questDB.QuestDbId);
-	if (deleteQuest.Execute())
+	if (deleteQuest.Execute()) {
 		questDB.dbState = DB_STATE::DELETE_SUCCESS;
-	else
+	}
+	else {
 		questDB.dbState = DB_STATE::DELETE_FAILED;
+	}
 
-	// 로그
-	cout << "[DB_DELETE_QUEST] - QuestDbId:" << questDB.QuestDbId << ", TemplateId:" << questDB.TemplateId <<
-		(questDB.dbState == DB_STATE::DELETE_SUCCESS ? " Result: DELETE_SUCCESS" : " Result: DELETE_FAILED") << endl;
-
-	// 요청한 곳에 콜백으로 넘겨줌
-	if (player->_ownerRoom != nullptr)
-		player->_ownerRoom->DoAsync(memFunc, player, questDB);
+	if (player->_ownerRoom)
+		player->_ownerRoom->DoAsync(&Room::DBCallback_RemoveQuest, player, questDB);
 }
+
+void GameDBManager::Transact_UseItem(shared_ptr<Player> player, ItemDB itemDB)
+{
+	if (itemDB.dbState == DB_STATE::UPDATE_NEED) {
+		SP::UpdateItem updateItem(*_dbConn);
+		updateItem.In_ItemDbId(itemDB.ItemDbId);
+		updateItem.In_PlayerDbId(itemDB.PlayerDbId);
+		updateItem.In_TemplateId(itemDB.TemplateId);
+		updateItem.In_Count(itemDB.Count);
+		updateItem.In_Slot(itemDB.Slot);
+		updateItem.In_Equipped(itemDB.Equipped);
+		if (updateItem.Execute()) {
+			itemDB.dbState = DB_STATE::UPDATE_SUCCESS;
+		}
+		else {
+			itemDB.dbState = DB_STATE::UPDATE_FAILED;
+		}
+	}
+	else if (itemDB.dbState == DB_STATE::DELETE_NEED) {
+		SP::DeleteItem deleteItem(*_dbConn);
+		deleteItem.In_ItemDbId(itemDB.ItemDbId);
+		if (deleteItem.Execute()) {
+			itemDB.dbState = DB_STATE::DELETE_SUCCESS;
+		}
+		else {
+			itemDB.dbState = DB_STATE::DELETE_FAILED;
+		}
+	}
+	else {
+
+	}
+
+	// 
+	if (player->_ownerRoom)
+		player->_ownerRoom->DoAsync(&Room::DBCallback_UseItem, player, itemDB);
+}
+
+void GameDBManager::Transact_AddItem(shared_ptr<Player> player, ItemDB itemDB)
+{
+	// 인서트
+	if (itemDB.dbState == DB_STATE::INSERT_NEED) {
+		int64 identity;
+		SP::InsertItemAndSelectIdentity insertItem(*_dbConn);
+		insertItem.In_PlayerDbId(itemDB.PlayerDbId);
+		insertItem.In_TemplateId(itemDB.TemplateId);
+		insertItem.In_Count(itemDB.Count);
+		insertItem.In_Slot(itemDB.Slot);
+		insertItem.In_Equipped(itemDB.Equipped);
+		insertItem.Out_Identity(identity);
+		if (insertItem.Execute()) {
+			if (insertItem.Fetch()) {
+				itemDB.ItemDbId = identity;
+				itemDB.dbState = DB_STATE::INSERT_SUCCESS;
+			}
+		}
+		else {
+			itemDB.dbState = DB_STATE::INSERT_FAILED;
+		}
+	}
+	// 업데이트
+	else if (itemDB.dbState == DB_STATE::UPDATE_NEED) {
+		SP::UpdateItem updateItem(*_dbConn);
+		updateItem.In_ItemDbId(itemDB.ItemDbId);
+		updateItem.In_PlayerDbId(itemDB.PlayerDbId);
+		updateItem.In_TemplateId(itemDB.TemplateId);
+		updateItem.In_Count(itemDB.Count);
+		updateItem.In_Slot(itemDB.Slot);
+		updateItem.In_Equipped(itemDB.Equipped);
+		if (updateItem.Execute()) {
+			itemDB.dbState = DB_STATE::UPDATE_SUCCESS;
+		}
+		else {
+			itemDB.dbState = DB_STATE::UPDATE_FAILED;
+		}
+	}
+	// 
+	else {
+
+	}
+
+	if (player->_ownerRoom)
+		player->_ownerRoom->DoAsync(&Room::DBCallback_AddItem, player, itemDB);
+}
+

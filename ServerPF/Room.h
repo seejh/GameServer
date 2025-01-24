@@ -19,20 +19,17 @@ public:
 	~Room();
 
 	void Init(int minX, int maxX, int minY, int maxY);
-
-	// Adjacent 연산량에 대해서
+	// void Update();
+	
+	// 
 	Zone* GetZone(float targetX, float targetY);
 	void GetAdjacentZone(float targetX, float targetY, vector<Zone*>& zones);
 	float DistanceToTargetSimple(float dx, float dy);
 	float DistanceToTarget(float dx, float dy);
 
-	void Update();
-
+	// 
 	void EnterRoom(shared_ptr<GameObject> object);
 	void LeaveRoom(int objectId);
-
-	// 패킷 핸들
-	void HandleAddItem(shared_ptr<Player> player, PROTOCOL::C_AddItem fromPkt);
 	void HandleUseItem(shared_ptr<Player> player, PROTOCOL::C_UseItem fromPkt);
 	void HandleEquipItem(shared_ptr<Player> player, PROTOCOL::C_EquipItem fromPkt);
 	void HandleAddQuest(shared_ptr<Player> player, PROTOCOL::C_AddQuest fromPkt);
@@ -41,16 +38,14 @@ public:
 	void HandleUpdateQuest(shared_ptr<Player> player, PROTOCOL::C_UpdateQuest fromPkt);
 
 	// DB
-	// DB - 아이템
-	void DBCallback_EquipItem(shared_ptr<Player> player, ItemDB itemDB);
+	// 
 	void DBCallback_UseItem(shared_ptr<Player> player, ItemDB itemDB);
-	void DBCallback_RewardItem(shared_ptr<Player> player, ItemDB itemDB);
-	// DB - 퀘스트
+	void DBCallback_AddItem(shared_ptr<Player> player, ItemDB itemDB);
+
+	// 
 	void DBCallback_RemoveQuest(shared_ptr<Player> player, QuestDB questDB);
 	void DBCallback_AddQuest(shared_ptr<Player> player, QuestDB questDB);
-	void DBCallback_CompleteQuest(shared_ptr<Player> player, QuestDB questDB);
-	void DBCallback_UpdateQuest(shared_ptr<Player> player, QuestDB questDB);
-	
+	void DBCallback_CompleteQuest(shared_ptr<Player> player, QuestDB questDB, vector<ItemDB> itemDBs);
 
 	// 룸 브로드캐스트, 패킷 바로 보낼지 기다렸다 보낼지, 일단 이렇게
 	void Broadcast(float locX, float locY, shared_ptr<SendBuffer> sendBuffer);

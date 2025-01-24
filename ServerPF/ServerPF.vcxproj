@@ -152,7 +152,6 @@
   <ItemGroup>
     <ClCompile Include="ClientPacketHandler.cpp" />
     <ClCompile Include="ClientSession.cpp" />
-    <ClCompile Include="CSVReader.cpp" />
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="DataContents.cpp" />
     <ClCompile Include="DataManager.cpp" />
@@ -187,7 +186,6 @@
   <ItemGroup>
     <ClInclude Include="ClientPacketHandler.h" />
     <ClInclude Include="ClientSession.h" />
-    <ClInclude Include="CSVReader.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="DataContents.h" />
     <ClInclude Include="DataManager.h" />
@@ -231,7 +229,6 @@
     <None Include="..\Common\Data\SkillData.json" />
     <None Include="..\Common\Data\StatData.json" />
     <None Include="..\Common\Procedures\GenProcs.bat" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

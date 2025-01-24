@@ -26,6 +26,11 @@ void StateIdle::Enter(shared_ptr<Monster> monster)
 void StateIdle::Execute(shared_ptr<Monster> monster)
 {
     // 범위 안에 타겟(플레이어)가 있는가
+    // 여기서 ownerroom이 nullptr인 경우 - 예상 죽고나서 잡이 취소 되기전 가동
+    // 일단...
+    if (monster->_ownerRoom == nullptr)
+        return;
+
     float dt = monster->_ownerRoom->GetPlayerAround(monster);
 
     // 없다 - 순찰 or 대기
@@ -249,7 +254,7 @@ void StateReturn::Enter(shared_ptr<Monster> monster)
     // TODO : 돌아갈 때 피격을 받지 않게
     // 풀피
     monster->_info.mutable_stat()->set_hp(monster->_info.mutable_stat()->maxhp());
-    
+
     PROTOCOL::ObjectInfo nextPos;
     monster->GetNextPos(nextPos);
     monster->_ownerRoom->ActorMove(monster, nextPos);

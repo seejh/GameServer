@@ -35,7 +35,7 @@ bool DataManager::Init()
 		return false;
 	}
 
-	cout << "DataManager Load Data OK" << endl;
+	cout << "[DataManager] Load Data OK" << endl;
 
 	return true;
 }

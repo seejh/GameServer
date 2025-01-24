@@ -11,6 +11,7 @@ shared_ptr<GameObject> ObjectManager::Add(PROTOCOL::GameObjectType objectType)
 {
 	// 락 걸고
 	lock_guard<mutex> lock(_m);
+
 	shared_ptr<GameObject> object;
 	
 	// ID 생성 발급
@@ -61,16 +62,19 @@ shared_ptr<GameObject> ObjectManager::Add(PROTOCOL::GameObjectType objectType)
 	return object;
 }
 
-bool ObjectManager::Remove(int objectId)
+void ObjectManager::Remove(int objectId)
 {
 	PROTOCOL::GameObjectType objectType = GetObjectTypeById(objectId);
 
 	lock_guard<mutex> lock(_m);
+	
+	if (objectType == PROTOCOL::GameObjectType::PLAYER) {
 
-	if (objectType == PROTOCOL::GameObjectType::PLAYER)
-		return _objects.erase(objectId);
+		_objects.erase(objectId);
 
-	return false;
+		//if (_objects.erase(objectId) != 0)
+			//_counter.fetch_sub(1);
+	}
 }
 
 int ObjectManager::GeneratedId(PROTOCOL::GameObjectType type)

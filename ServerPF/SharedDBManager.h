@@ -1,22 +1,24 @@
 #pragma once
 
+#include"DBDataModel.h"
 
-// DBConnectionPool 객체가 내부적으로 락을 사용
+// DBConnectionPool 객체 내부 락 사용
 class DBConnection;
-class SharedDBManager //: public JobQueue
+class SharedDBManager : public JobQueue
 {
 public:
 	bool			Connect(int connectionCount, const WCHAR* connectionString);
-	// DBConnection*	GetConn();
+	
 	DBConnection*	Pop();
 	void			Push(DBConnection* dbConn);
 
-	//
-	void SaveServerInfo();
+	// 일단 여기다가 달아놓는걸로
+	void UpdateServerInfo(/*ServerInfoDB serverInfoDB*/);
 
 public:
-	int32 _connectionCounts;
 	DBConnection* _dbConn;
-	DBConnectionPool* _dbConnectionPool;
+	DBConnectionPool* _dbConnPool;
+
+	int32 _connectionCounts;
 };
 
