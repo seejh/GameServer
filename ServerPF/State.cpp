@@ -37,16 +37,12 @@ void StateIdle::Execute(shared_ptr<Monster> monster)
 
         // 현재 순찰 중이라면
         if (monster->_isPatrol) {
-            //
-            // cout << "Monster OnPatrol, NowPos - " << monster->_info.pos().location().x() << ", " << monster->_info.pos().location().y() << monster->_info.pos().location().z() << endl;
-            // cout << "Monster OnPatrol, PatrolPos - " << monster->_patrolPos.x() << ", " << monster->_patrolPos.y() << ", " << monster->_patrolPos.z() << endl;
-
+            
             // 순찰 위치 도착했다면
             if (monster->_info.pos().location().x() == monster->_patrolPos.x() &&
                 monster->_info.pos().location().y() == monster->_patrolPos.y()) {
 
                 // 순찰 해제, 순찰 쿨타임 업데이트
-                cout << "Monster Patrol End" << endl;
                 monster->_isPatrol = false;
                 monster->_nextPatrolTime = monster->_nowUpdateTime + 7000;
             }
@@ -64,16 +60,13 @@ void StateIdle::Execute(shared_ptr<Monster> monster)
         else {
             // 순찰 쿨 확인
             if (monster->_nextPatrolTime < monster->_nowUpdateTime) {
+                
                 // 경로 요청
                 if (monster->_ownerRoom->FindRandomPos(monster) == true) {
                     PROTOCOL::PFVector destPos;
                     if (monster->_ownerRoom->FindPath(monster, monster->_patrolPos, destPos) == true) {
-
                         // 순찰 플래그 
                         monster->_isPatrol = true;
-
-                        cout << "Monster Start Patrol" << endl;
-
                         monster->_ownerRoom->ActorMove(monster, destPos);
                     }
                 }
@@ -262,11 +255,6 @@ void StateReturn::Enter(shared_ptr<Monster> monster)
     monster->_info.mutable_stat()->set_hp(monster->_info.mutable_stat()->maxhp());
 
     //
-    // monster->_moveDelta += monster->_nowUpdateTime - monster->_lastUpdateTime;
-    // 경로 요청 (기본 위치)
-    //if (monster->_ownerRoom)
-    //     monster->_ownerRoom->AI_Request_PathFind(monster, monster->_basePos);
-
     if (monster->_ownerRoom) {
         PROTOCOL::PFVector destPos;
         if (monster->_ownerRoom->FindPath(monster, monster->_basePos, destPos) == true) 
@@ -286,13 +274,7 @@ void StateReturn::Execute(shared_ptr<Monster> monster)
 
     // 기본 위치가 아님
     else {
-        // 경로 요청 (기본 위치)
-
         //
-        //monster->_moveDelta += monster->_nowUpdateTime - monster->_lastUpdateTime;
-        // if (monster->_ownerRoom)
-        //    monster->_ownerRoom->AI_Request_PathFind(monster, monster->_basePos);
-
         if (monster->_ownerRoom) {
             PROTOCOL::PFVector destPos;
             if (monster->_ownerRoom->FindPath(monster, monster->_basePos, destPos) == true)

@@ -69,12 +69,6 @@ public:
 
 	// TEST
 	PROTOCOL::PFVector CalculatePathFind(shared_ptr<Monster>& monster, vector<PROTOCOL::PFVector>& paths);
-	//void AI_Request_PathFind(shared_ptr<Monster> monster, PROTOCOL::PFVector targetPos);
-	//void AI_Response_PathFind(shared_ptr<AIServerSession> aiServerSession, PROTOCOL::AI_S_PATHFIND fromPkt);
-	//void AI_Request_PathFindRandom(shared_ptr<Monster> monster);
-	//void AI_Response_PathFindRandom(shared_ptr<AIServerSession> aiServerSession, PROTOCOL::AI_S_PATHFIND_RANDOM fromPkt);
-	//void AddAISesison(shared_ptr<AIServerSession> aiServerSession);
-
 	bool FindPath(shared_ptr<Monster> monster, PROTOCOL::PFVector ep, PROTOCOL::PFVector& destPos);
 	bool FindRandomPos(shared_ptr<Monster> monster);
 

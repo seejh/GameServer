@@ -11,8 +11,6 @@
 #include"QuestManager.h"
 #include"Quest.h"
 #include"GameMap.h"
-#include"AIServerPacketHandler.h"
-#include"AIServerSession.h"
 
 GameRoom::GameRoom()
 {
@@ -41,87 +39,87 @@ void GameRoom::Init()
 		// 몬스터 게임룸 진입
 		EnterRoom(monster);
 	}
-	//{// 몬스터
-	//	shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-	//	monster->Init(0);
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
 
-	//	monster->_basePos.CopyFrom(MakePFVector(2000, -3000, 145.f));
-	//	monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
+		monster->_basePos.CopyFrom(MakePFVector(2000, -3000, 145.f));
+		monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
 
-	//	EnterRoom(monster);
-	//}
-	//{// 몬스터
-	//	shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-	//	monster->Init(0);
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
 
-	//	monster->_basePos.CopyFrom(MakePFVector(4000, 0, 145.f));
-	//	monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
+		monster->_basePos.CopyFrom(MakePFVector(4000, 0, 145.f));
+		monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
 
-	//	EnterRoom(monster);
-	//}
-	//{// 몬스터
-	//	shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-	//	monster->Init(0);
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
 
-	//	monster->_basePos.CopyFrom(MakePFVector(4000, -3000, 145.f));
-	//	monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
+		monster->_basePos.CopyFrom(MakePFVector(4000, -3000, 145.f));
+		monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
 
-	//	EnterRoom(monster);
-	//}
-	//{// 몬스터
-	//	shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-	//	monster->Init(0);
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
 
-	//	monster->_basePos.CopyFrom(MakePFVector(6000, 0, 145.f));
-	//	monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
+		monster->_basePos.CopyFrom(MakePFVector(6000, 0, 145.f));
+		monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
 
-	//	EnterRoom(monster);
-	//}
-	//{// 몬스터
-	//	shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-	//	monster->Init(0);
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
 
-	//	monster->_basePos.CopyFrom(MakePFVector(6000, -3000, 145.f));
-	//	monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
+		monster->_basePos.CopyFrom(MakePFVector(6000, -3000, 145.f));
+		monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
 
-	//	EnterRoom(monster);
-	//}
-	//{// 몬스터
-	//	shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-	//	monster->Init(1);
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(1);
 
-	//	monster->_basePos.CopyFrom(MakePFVector(8000, 0, 145.f));
-	//	monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
-	//	
-	//	EnterRoom(monster);
-	//}
-	//{// 몬스터
-	//	shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-	//	monster->Init(1);
+		monster->_basePos.CopyFrom(MakePFVector(8000, 0, 145.f));
+		monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
+		
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(1);
 
-	//	monster->_basePos.CopyFrom(MakePFVector(8000, -3000, 145.f));
-	//	monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
-	//	
-	//	EnterRoom(monster);
-	//}
-	//{// 몬스터
-	//	shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-	//	monster->Init(0);
+		monster->_basePos.CopyFrom(MakePFVector(8000, -3000, 145.f));
+		monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
+		
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
 
-	//	monster->_basePos.CopyFrom(MakePFVector(0, -5000, 145.f));
-	//	monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
-	//	
-	//	EnterRoom(monster);
-	//}
-	//{// 몬스터
-	//	shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
-	//	monster->Init(0);
+		monster->_basePos.CopyFrom(MakePFVector(0, -5000, 145.f));
+		monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
+		
+		EnterRoom(monster);
+	}
+	{// 몬스터
+		shared_ptr<Monster> monster = static_pointer_cast<Monster>(ObjectManager::Instance()->Add(PROTOCOL::GameObjectType::MONSTER));
+		monster->Init(0);
 
-	//	monster->_basePos.CopyFrom(MakePFVector(2000, -5000, 145.f));
-	//	monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
-	//	
-	//	EnterRoom(monster);
-	//}
+		monster->_basePos.CopyFrom(MakePFVector(2000, -5000, 145.f));
+		monster->_info.mutable_pos()->mutable_location()->CopyFrom(monster->_basePos);
+		
+		EnterRoom(monster);
+	}
 
 
 	{ // NPC
@@ -872,89 +870,6 @@ PROTOCOL::PFVector GameRoom::CalculatePathFind(shared_ptr<Monster>& monster, vec
 
 	return destPos;
 }
-//
-//
-//void GameRoom::AI_Request_PathFind(shared_ptr<Monster> monster, PROTOCOL::PFVector targetPos)
-//{
-//	if (_aiSession == nullptr)
-//		return;
-//
-//	// 패스파인드 요청 패킷
-//	PROTOCOL::AI_C_PATHFIND toPkt;
-//	toPkt.set_monsterid(monster->_info.objectid());
-//	toPkt.set_mapid(1); // 아직 사용 x
-//	toPkt.mutable_sp()->CopyFrom(monster->_info.pos().location());
-//	toPkt.mutable_ep()->CopyFrom(targetPos);
-//	
-//	// 패킷 전송
-//	auto sendBuffer = AIServerPacketHandler::MakeSendBuffer(toPkt);
-//	_aiSession->Send(sendBuffer);
-//}
-//
-//void GameRoom::AI_Response_PathFind(shared_ptr<AIServerSession> aiServerSession, PROTOCOL::AI_S_PATHFIND fromPkt)
-//{
-//	// 결과 확인
-//	if (fromPkt.result() == false) {
-//		return;
-//	}
-//
-//	// 해당 몬스터 탐색
-//	auto it = _gameMap->_monsters.find(fromPkt.monsterid());
-//	if (it == _gameMap->_monsters.end())
-//		return;
-//
-//	// 경로에서 좌표 확정
-//	vector<PROTOCOL::PFVector> paths;
-//	for (int i = 0; i < fromPkt.paths_size(); i++)
-//		paths.push_back(fromPkt.paths(i));
-//	PROTOCOL::PFVector destPos = CalculatePathFind(it->second, paths);
-//
-//	// 확정난 좌표로 이동
-//	ActorMove(it->second, destPos);
-//}
-//
-//void GameRoom::AI_Request_PathFindRandom(shared_ptr<Monster> monster)
-//{
-//	if (_aiSession == nullptr)
-//		return;
-//
-//	// 패스파인드 랜덤 요청 패킷
-//	PROTOCOL::AI_C_PATHFIND_RANDOM toPkt;
-//	toPkt.set_monsterid(monster->_info.objectid());
-//	toPkt.set_mapid(1); // 아직 사용 x
-//	toPkt.mutable_bp()->CopyFrom(monster->_basePos);
-//	toPkt.mutable_sp()->CopyFrom(monster->_info.pos().location());
-//	toPkt.set_radius(monster->_info.stat().returndistance());
-//
-//	// 패킷 전송
-//	auto sendBuffer = AIServerPacketHandler::MakeSendBuffer(toPkt);
-//	_aiSession->Send(sendBuffer);
-//}
-//
-//void GameRoom::AI_Response_PathFindRandom(shared_ptr<AIServerSession> aiServerSession, PROTOCOL::AI_S_PATHFIND_RANDOM fromPkt)
-//{
-//	// 결과 확인
-//	if (fromPkt.result() == false) {
-//		return;
-//	}
-//
-//	// 해당 몬스터 탐색
-//	auto it = _gameMap->_monsters.find(fromPkt.monsterid());
-//	if (it == _gameMap->_monsters.end()) {
-//		return;
-//	}
-//
-//	cout << "Response PathFindRandom - " << fromPkt.ep().x() << ", " << fromPkt.ep().y() << ", " << fromPkt.ep().z() << endl;
-//
-//	// 경로에서 좌표 확정
-//	vector<PROTOCOL::PFVector> paths;
-//	for (int i = 0; i < fromPkt.paths_size(); i++)
-//		paths.push_back(fromPkt.paths(i));
-//	PROTOCOL::PFVector destPos = CalculatePathFind(it->second, paths);
-//
-//	// 확정난 좌표로 이동
-//	ActorMove(it->second, destPos);
-//}
 
 void GameRoom::ActorMove(shared_ptr<GameObject> gameObject, PROTOCOL::PFVector destPos)
 {
@@ -986,12 +901,6 @@ void GameRoom::ActorMove(shared_ptr<GameObject> gameObject, PROTOCOL::PFVector d
 	auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 	Broadcast(afterX, afterY, sendBuffer);
 }
-
-//void GameRoom::AddAISesison(shared_ptr<AIServerSession> aiServerSession)
-//{
-//	_aiSession = aiServerSession;
-//	_aiSession->_ownerRoom = static_pointer_cast<GameRoom>(shared_from_this());
-//}
 
 bool GameRoom::FindPath(shared_ptr<Monster> monster, PROTOCOL::PFVector ep, PROTOCOL::PFVector& destPos)
 {
