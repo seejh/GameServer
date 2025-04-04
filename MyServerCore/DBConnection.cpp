@@ -15,9 +15,31 @@ bool DBConnection::Connect(SQLHENV henv, const WCHAR* connectionString)
 
 	SQLRETURN ret = ::SQLDriverConnectW(_connection, NULL,
 		reinterpret_cast<SQLWCHAR*>(stringBuffer), _countof(stringBuffer),
-		OUT reinterpret_cast<SQLWCHAR*>(resultString), _countof(resultString), OUT & resultStringLen,
-		SQL_DRIVER_NOPROMPT);
+		OUT reinterpret_cast<SQLWCHAR*>(resultString), _countof(resultString), 
+		OUT &resultStringLen, SQL_DRIVER_NOPROMPT);
 	
+	if (::SQLAllocHandle(SQL_HANDLE_STMT, _connection, &_statement) != SQL_SUCCESS)
+		return false;
+
+	return (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO);
+}
+
+bool DBConnection::ConnectA(SQLHENV henv, const CHAR* connectionString)
+{
+	if (::SQLAllocHandle(SQL_HANDLE_DBC, henv, &_connection) != SQL_SUCCESS)
+		return false;
+
+	CHAR stringBuffer[MAX_PATH] = { 0 };
+	::strcpy_s(stringBuffer, connectionString);
+	
+	CHAR resultString[MAX_PATH] = { 0 };
+	SQLSMALLINT resultStringLen = 0;
+
+	SQLRETURN ret = ::SQLDriverConnectA(_connection, NULL,
+		reinterpret_cast<SQLCHAR*>(stringBuffer), _countof(stringBuffer),
+		OUT reinterpret_cast<SQLCHAR*>(resultString), _countof(resultString),
+		OUT &resultStringLen, SQL_DRIVER_NOPROMPT);
+
 	if (::SQLAllocHandle(SQL_HANDLE_STMT, _connection, &_statement) != SQL_SUCCESS)
 		return false;
 

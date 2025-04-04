@@ -7,9 +7,9 @@
 #include"GameDBManager.h"
 #include"GenProcedures.h"
 #include"GameObject.h"
-#include"ClientPacketHandler.h"
+#include"GameClientPacketHandler.h"
 #include"ObjectManager.h"
-#include"Room.h"
+#include"GameRoom.h"
 
 
 bool QuestManager::Add(shared_ptr<Quest> quest)

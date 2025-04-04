@@ -602,10 +602,16 @@
   C:GenSharedDBProcedures.h
   1개 파일이 복사되었습니다.
   계속하려면 아무 키나 누르십시오 . . . 
-  ClientPacketHandler.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xe24 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
-  ClientSession.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xe24 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+  GameClientPacketHandler.cpp
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(95,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(96,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(97,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xcd7 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+  GameSession.cpp
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xcd7 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(95,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(96,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(97,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
@@ -616,10 +622,13 @@ C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): 
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(185,54): warning C4267: '인수': 'size_t'에서 'int32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\ClientSession.cpp(234,25): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameSession.cpp(183,54): warning C4267: '인수': 'size_t'에서 'int32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameSession.cpp(232,25): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   DBManager.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xe24 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xcd7 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(95,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(96,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(97,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
@@ -631,21 +640,23 @@ C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): 
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
   GameDBManager.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xe24 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
-C:\Users\see\source\repos\ServerPF\ServerPF\GameDBManager.cpp(216,24): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\GameDBManager.cpp(293,23): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xcd7 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(95,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(96,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(97,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameDBManager.cpp(241,24): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameDBManager.cpp(318,23): warning C4244: '=': 'int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   GameObject.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xe24 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.cpp(695,29): warning C4244: '=': 'float'에서 'uint64'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  JwtHandler.cpp
-C:\Users\see\source\repos\ServerPF\packages\jwt-cpp.0.7.0\lib\native\include\jwt-cpp\base.h(96,24): warning C4244: 'return': '__int64'에서 'uint32_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\packages\jwt-cpp.0.7.0\lib\native\include\jwt-cpp\jwt.h(2180,85): warning C4244: '인수': 'double'에서 '__time64_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\packages\jwt-cpp.0.7.0\lib\native\include\jwt-cpp\jwt.h(2178,1): message : 클래스 템플릿 멤버 함수 'jwt::date jwt::basic_claim<jwt::traits::kazuho_picojson>::as_date(void) const'을(를) 컴파일하는 중입니다.
-C:\Users\see\source\repos\ServerPF\packages\jwt-cpp.0.7.0\lib\native\include\jwt-cpp\jwt.h(2394,32): message : 컴파일되는 함수 템플릿 인스턴스화 'jwt::date jwt::basic_claim<jwt::traits::kazuho_picojson>::as_date(void) const'에 대한 참조를 확인하세요.
-C:\Users\see\source\repos\ServerPF\packages\jwt-cpp.0.7.0\lib\native\include\jwt-cpp\jwt.h(3207,1): message : 컴파일되는 클래스 템플릿 인스턴스화 'jwt::basic_claim<jwt::traits::kazuho_picojson>'에 대한 참조를 확인하세요.
-C:\Users\see\source\repos\ServerPF\packages\jwt-cpp.0.7.0\lib\native\include\jwt-cpp\traits\kazuho-picojson\defaults.h(19,67): message : 컴파일되는 클래스 템플릿 인스턴스화 'jwt::verifier<jwt::default_clock,jwt::traits::kazuho_picojson>'에 대한 참조를 확인하세요.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xcd7 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(95,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(96,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(97,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.cpp(697,36): warning C4244: '=': 'float'에서 'uint64'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   Main.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xe24 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(95,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(96,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(97,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xcd7 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(55,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(61,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
@@ -656,13 +667,14 @@ C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): 
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(73,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): warning C4200: 비표준 확장이 사용됨: 구조체/공용 구조체의 배열 크기가 0입니다.
 C:\Users\see\source\repos\ServerPF\Library\include\hiredis-master\sds.h(79,10): message : 이 멤버는 기본값으로 설정된 생성자 또는 복사/이동 대입 연산자에서 무시됩니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\Main.cpp(112,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   QuestManager.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xe24 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xcd7 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(95,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(96,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(97,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   SharedDBManager.cpp
   코드를 생성하고 있습니다.
-  1 of 9865 functions (<0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    5 functions had inline decision re-evaluated but remain unchanged
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 10467 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   코드를 생성했습니다.
   ServerPF.vcxproj -> C:\Users\see\source\repos\ServerPF\x64\Release\ServerPF.exe

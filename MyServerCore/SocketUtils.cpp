@@ -6,12 +6,18 @@ LPFN_DISCONNECTEX SocketUtils::_disconnectEx = nullptr;
 LPFN_CONNECTEX SocketUtils::_connectEx = nullptr;
 
 bool SocketUtils::Init() {
-	if (!WsaStartup())  return HandleError("NetUtils::Init WsaStartup");
+	if (!WsaStartup()) 
+		return HandleError("NetUtils::Init WsaStartup");
 
 	SOCKET tmpSocket = CreateSocket();
-	if (!WsaIoctl(tmpSocket, WSAID_ACCEPTEX, reinterpret_cast<LPVOID*>(&_acceptEx))) return HandleError("NetUtils::Init WsaIoctl AcceptEx");
-	if (!WsaIoctl(tmpSocket, WSAID_DISCONNECTEX, reinterpret_cast<LPVOID*>(&_disconnectEx))) return HandleError("NetUtils::Init WsaIoctl DisconnectEx");
-	if (!WsaIoctl(tmpSocket, WSAID_CONNECTEX, reinterpret_cast<LPVOID*>(&_connectEx))) return HandleError("NetUtils::Init WsaIoctl ConnectEx");
+
+	if (!WsaIoctl(tmpSocket, WSAID_ACCEPTEX, reinterpret_cast<LPVOID*>(&_acceptEx))) 
+		return HandleError("NetUtils::Init WsaIoctl AcceptEx");
+	if (!WsaIoctl(tmpSocket, WSAID_DISCONNECTEX, reinterpret_cast<LPVOID*>(&_disconnectEx))) 
+		return HandleError("NetUtils::Init WsaIoctl DisconnectEx");
+	if (!WsaIoctl(tmpSocket, WSAID_CONNECTEX, reinterpret_cast<LPVOID*>(&_connectEx))) 
+		return HandleError("NetUtils::Init WsaIoctl ConnectEx");
+	
 	CloseSocket(tmpSocket);
 
 	return true;

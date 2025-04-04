@@ -3,8 +3,9 @@
 
 #include"GameObject.h"
 #include"Zone.h"
-#include"Room.h"
-#include"ClientPacketHandler.h"
+#include"GameRoom.h"
+#include"GameClientPacketHandler.h"
+#include"GameSession.h"
 
 VisionCube::VisionCube()
 {
@@ -13,15 +14,15 @@ VisionCube::VisionCube()
 void VisionCube::Gather(set<shared_ptr<GameObject>>& newObjects)
 {
 	// 이 플레이어의 위치
-	float x = _ownerPlayer->_info.pos().locationx();
-	float y = _ownerPlayer->_info.pos().locationy();
+	float x = _ownerPlayer->_info.pos().location().x();
+	float y = _ownerPlayer->_info.pos().location().y();
 
 	// 플레이어 위치 기반으로 주위 존들 추출
-	vector<Zone*> zones;
+	vector<shared_ptr<Zone>> zones;
 	_ownerPlayer->_ownerRoom->GetAdjacentZone(x, y, zones);
 
 	// 존들에서, 오브젝트 별로 따로 추출
-	for (Zone* z : zones) {
+	for (shared_ptr<Zone>& z : zones) {
 		// 플레이어
 		for (shared_ptr<Player> player : z->_players) {
 			// 추출한 것이 자기 자신이면 패스
@@ -53,7 +54,7 @@ void VisionCube::Update()
 	Gather(newObjects);
 	
 	// DeSpawn 처리 - 시야에 보이던 오브젝트가 사라짐
-	PROTOCOL::S_DeSpawn despawnPkt;
+	PROTOCOL::S_DESPAWN despawnPkt;
 	{
 		// 과거에 있었던 것
 		for (shared_ptr<GameObject> prevObj : _prevObjects) {
@@ -64,13 +65,13 @@ void VisionCube::Update()
 
 		// 디스폰 패킷 전송
 		if (despawnPkt.objectids_size() != 0) {
-			shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::MakeSendBuffer(despawnPkt);
+			shared_ptr<SendBuffer> sendBuffer = GameClientPacketHandler::MakeSendBuffer(despawnPkt);
 			_ownerPlayer->_ownerSession->SendPacket(sendBuffer);
 		}
 	}
 	
 	// Spawn 처리 - 시야에 새로운 오브젝트가 추가
-	PROTOCOL::S_Spawn spawnPkt; 
+	PROTOCOL::S_SPAWN spawnPkt; 
 	{
 		// 현재 있는게
 		for (shared_ptr<GameObject> newObj : newObjects) {
@@ -84,7 +85,7 @@ void VisionCube::Update()
 
 		// 스폰 패킷 전송
 		if (spawnPkt.object_size() != 0) {
-			shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::MakeSendBuffer(spawnPkt);
+			shared_ptr<SendBuffer> sendBuffer = GameClientPacketHandler::MakeSendBuffer(spawnPkt);
 			_ownerPlayer->_ownerSession->SendPacket(sendBuffer);
 		}
 	}

@@ -23,12 +23,37 @@ bool DBConnectionPool::Connect(int32 connectionCount, const WCHAR* connectionStr
 	if (::SQLSetEnvAttr(_environment, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0) != SQL_SUCCESS)
 		return false;
 
-	// 커넥션 카운트를 스레드 개수 만큼
+	// 커넥션 생성 (커넥션 개수만큼)
 	for (int32 i = 0; i < connectionCount; i++) {
 		DBConnection* connection = xnew<DBConnection>();
 		if (connection->Connect(_environment, connectionString) == false)
 			return false;
 		
+		// 
+		_connections.push_back(connection);
+	}
+
+	return true;
+}
+
+bool DBConnectionPool::ConnectA(int32 connectionCount, const CHAR* connectionString)
+{
+	lock_guard<mutex> _lock(_mutex);
+
+	if (::SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &_environment) != SQL_SUCCESS)
+		return false;
+
+	// sql odbc3 버전
+	if (::SQLSetEnvAttr(_environment, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0) != SQL_SUCCESS)
+		return false;
+
+	// 커넥션 생성 (커넥션 개수만큼)
+	for (int32 i = 0; i < connectionCount; i++) {
+		DBConnection* connection = xnew<DBConnection>();
+		if (connection->ConnectA(_environment, connectionString) == false)
+			return false;
+		
+		// 
 		_connections.push_back(connection);
 	}
 

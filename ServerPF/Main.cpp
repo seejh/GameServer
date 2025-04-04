@@ -3,13 +3,13 @@
 #include"pch.h"
 #include"NetService.h"
 
-#include"ClientSession.h"
+#include"GameSession.h"
 #include"DBBind.h"
 #include"DBConnectionPool.h"
-#include"ClientPacketHandler.h"
+#include"GameClientPacketHandler.h"
 
-#include"SessionManager.h"
-#include"Room.h"
+#include"GameSessionManager.h"
+#include"GameRoom.h"
 #include"GameObject.h"
 #include"GlobalQueue.h"
 #include"CoreGlobal.h"
@@ -26,14 +26,13 @@
 #include"RoomManager.h"
 #include"GameDBManager.h"
 #include"SharedDBManager.h"
-#include"ConfigManager.h"
 #include"RedisManager.h"
 
-#include<hiredis-master/hiredis.h>
+#include"ConfigManager.h"
 
-#pragma region Task
+#pragma region ThreadTask
 
-void IocpAndJobTask(NetService* service) {
+void GameServerIocpAndJob(NetService* service) {
     while (true) {
         // IOCP - 0 ~ 10ms
         service->_iocpCore->Dispatch(10);
@@ -56,7 +55,7 @@ void NetworkFlushTask() {
     while (true) {
         uint64 now = GetTickCount64();
 
-        SessionManager::Instance()->FlushSend();
+        GameSessionManager::Instance()->FlushSend();
 
         this_thread::sleep_for(chrono::milliseconds(sendTerm));
     }
@@ -77,16 +76,32 @@ void DBSync() {
 }
 
 int main() {
-    uint32 threadCounts = thread::hardware_concurrency();
-
-    // 엔진 전역 객체, 데이터매니저
+    // 엔진 전역 객체
     CoreGlobal::Instance()->Init();
+    
+    // 컨피그, 데이터 매니저
     ASSERT_CRASH(DataManager::Instance()->Init());
-    ASSERT_CRASH(ConfigManager::Instance()->Init());
-    ASSERT_CRASH(DBManager::Instance()->Init(
-        threadCounts, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=MyDB;Trusted_Connection=Yes;",
-        threadCounts, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=SharedDB;Trusted_Connection=Yes;",
-        threadCounts, "127.0.0.1", 6379));
+    ASSERT_CRASH(ConfigManager::Instance()->LoadConfigFile("..\\Common\\Data\\ServerConfig.json"));
+
+    // 컨피그 로드
+    ServerConfig gameServerCfg;
+    ASSERT_CRASH(ConfigManager::Instance()->LoadConfigByName("GameServer", &gameServerCfg));
+
+    RDBConfig gameDBCfg;
+    ASSERT_CRASH(ConfigManager::Instance()->LoadConfigByName("GameDB", &gameDBCfg));
+    
+    RDBConfig sharedDBCfg;
+    ASSERT_CRASH(ConfigManager::Instance()->LoadConfigByName("SharedDB", &sharedDBCfg));
+   
+    MDBConfig redisCfg;
+    ASSERT_CRASH(ConfigManager::Instance()->LoadConfigByName("Redis", &redisCfg));
+
+    // DB
+    ASSERT_CRASH(DBManager::Instance()->InitA(
+        gameDBCfg._connectionCount, gameDBCfg._connectionString.c_str(),
+        sharedDBCfg._connectionCount, sharedDBCfg._connectionString.c_str(),
+        redisCfg._connectionCount, redisCfg._ip.c_str(), redisCfg._port
+    ));
 
     // 확률 시드
     srand(GetTickCount());
@@ -95,23 +110,23 @@ int main() {
     // DBSync();
 
     // 룸매니저 게임룸 생성, 
-    SessionManager::Instance()->Init();
+    GameSessionManager::Instance()->Init();
     RoomManager::Instance()->Init();
     DBManager::Instance()->_sharedDbManager->DoAsync(&SharedDBManager::UpdateServerInfo);
+    
+    // 게임 - 패킷 핸들러, 네트워크 서비스
+    GameClientPacketHandler::Init();
+    ServerService* gameServerService = new ServerService(make_shared<GameSession>,
+        gameServerCfg._ip,
+        gameServerCfg._port,
+        gameServerCfg._threadCount
+    );
+    ASSERT_CRASH(gameServerService->Init());
 
-    // 패킷 핸들러, 네트워크 시동
-    ClientPacketHandler::Init();
-    ServerService* service = new ServerService(make_shared<ClientSession>,
-        ConfigManager::Instance()->_config.IpAddress,
-        ConfigManager::Instance()->_config.Port,
-        1);
-    if (service->Init() == false)
-        return 0;
-
-    // 
-    for (int i = 0; i < threadCounts; i++) {
+    // 게임 서버 - 스레드
+    for (int i = 0; i < gameServerCfg._threadCount; i++) {
         GThreadManager->Launch(
-            [&service]() {IocpAndJobTask(service); }
+            [&gameServerService]() {GameServerIocpAndJob(gameServerService); }
         );
     }
 

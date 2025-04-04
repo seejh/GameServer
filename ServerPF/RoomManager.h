@@ -1,7 +1,8 @@
 #pragma once
 
-class Room;
+class GameRoom;
 
+// 고칠 필요가 있음
 class RoomManager : public JobQueue
 {
 public:
@@ -15,15 +16,15 @@ public:
 
 	bool Init();
 
-	shared_ptr<Room> Add(int mapId);
+	shared_ptr<GameRoom> Add(int mapId);
 	bool Remove(int roomId);
 
-	shared_ptr<Room> Find(int roomId);
+	shared_ptr<GameRoom> Find(int roomId);
 
 	// void Update();
 
 public:
-	map<int, shared_ptr<Room>> _rooms;
+	map<int, shared_ptr<GameRoom>> _rooms;
 	int _roomId = 1;
 };
 

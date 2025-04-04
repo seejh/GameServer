@@ -6,6 +6,7 @@
 
 #include"GlobalQueue.h"
 #include"JobTimer.h"
+#include"DeadLockProfiler.h"
 #include"ThreadManager.h"
 #include"ConsoleLog.h"
 
@@ -18,8 +19,10 @@ Memory*						GMemory = nullptr;
 ThreadManager*				GThreadManager = nullptr;
 GlobalQueue*				GGlobalQueue = nullptr;
 JobTimer*					GJobTimer = nullptr;
+DeadLockProfiler* GDeadLockProfiler = nullptr;
 DBConnectionPool*			GDBConnectionPool = nullptr;
 ConsoleLog*					GConsoleLogger = nullptr;
+
 
 /*--------------------------------------------------------------
 	CoreGlobal
@@ -35,6 +38,7 @@ void CoreGlobal::Init()
 	GThreadManager			= new ThreadManager();
 	GGlobalQueue			= new GlobalQueue();
 	GJobTimer				= new JobTimer();
+	GDeadLockProfiler		= new DeadLockProfiler();
 	GDBConnectionPool		= new DBConnectionPool();
 	GConsoleLogger			= new ConsoleLog();
 }

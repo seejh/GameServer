@@ -24,7 +24,7 @@ void IocpCore::Dispatch(uint32 timeoutMs)
 {
 	DWORD dwRecvBytes;
 	ULONG_PTR ulongPtr;
-	IocpEvent* iocpEvent;
+	IocpEvent* iocpEvent = nullptr;
 
 	bool result = ::GetQueuedCompletionStatus(_iocpHandle, &dwRecvBytes, &ulongPtr, reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), timeoutMs);
 	if (!result) {

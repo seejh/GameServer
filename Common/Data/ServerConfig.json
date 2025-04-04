@@ -1,6 +1,39 @@
 {
-  "ServerDbId" : 1,
-  "Name": "GameServer1",
-  "IpAddress": "127.0.0.1",
-  "Port": 7777
+  "GameServer": {
+    "ServerDbId": 1,
+    "ServerName": "GameServer1",
+    "Ip": "127.0.0.1",
+    "Port": 7777,
+    "ThreadCount": 4,
+    "Type": "SERVER"
+  },
+  "NpcServer": {
+    "ServerDbId": 100,
+    "ServerName": "NpcServer",
+    "Ip": "127.0.0.1",
+    "Port": 6666,
+    "ThreadCount": 2,
+    "Type": "SERVER"
+  },
+  "GameDB": {
+    "ConnectionString": "Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=MyDB;Trusted_Connection=Yes;",
+    "ConnectionCount": 4,
+    "Type": "RDB"
+  },
+  "SharedDB": {
+    "ConnectionString": "Driver={SQL Server Native Client 11.0};Server=(localdb)\\MSSQLLocalDB;Database=SharedDB;Trusted_Connection=Yes;",
+    "ConnectionCount": 4,
+    "Type": "RDB"
+  },
+  "WebDB": {
+    "ConnectionString": "",
+    "ConnectionCount": 4,
+    "Type": "RDB"
+  },
+  "Redis": {
+    "Ip": "127.0.0.1",
+    "Port": 6379,
+    "ConnectionCount": 1,
+    "Type": "MDB"
+  }
 }

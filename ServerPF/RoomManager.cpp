@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "RoomManager.h"
 
-#include"Room.h"
+#include"GameRoom.h"
 
 
 
@@ -14,10 +14,10 @@ bool RoomManager::Init()
 }
 
 // 해당 룸에 어떤 맵을 불러올 것인지 인자로 받음
-shared_ptr<Room> RoomManager::Add(int mapId)
+shared_ptr<GameRoom> RoomManager::Add(int mapId)
 {
-	shared_ptr<Room> room = make_shared<Room>();
-	room->Init(-500, 9500, -6500, 500); // minX, maxX, minY, maxY
+	shared_ptr<GameRoom> room = make_shared<GameRoom>();
+	room->Init();
 
 	_rooms[_roomId] = room;
 	_roomId++;
@@ -33,7 +33,7 @@ bool RoomManager::Remove(int roomId)
 	return false;
 }
 
-shared_ptr<Room> RoomManager::Find(int roomId)
+shared_ptr<GameRoom> RoomManager::Find(int roomId)
 {
 	auto it = _rooms.find(roomId);
 	if (it != _rooms.end()) 

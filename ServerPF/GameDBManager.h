@@ -2,14 +2,15 @@
 #include"DBDataModel.h"
 
 class Player;
-class Room;
+class GameRoom;
 class DBConnection;
-class ClientSession;
+class GameSession;
 class Item;
 class Quest;
 class GameDBManager : public JobQueue {
 public:
 	bool Connect(int32 connectionCounts, const WCHAR* connectionString);
+	bool ConnectA(int32 connectionCounts, const CHAR* connectionString);
 
 	DBConnection* Pop();
 	void Push(DBConnection* dbConn);

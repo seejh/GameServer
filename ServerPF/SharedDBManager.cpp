@@ -4,9 +4,9 @@
 #include<DBConnection.h>
 #include<DBConnectionPool.h>
 #include"GenSharedDBProcedures.h"
+#include"GameSessionManager.h"
 
 #include"ConfigManager.h"
-#include"SessionManager.h"
 
 bool SharedDBManager::Connect(int connectionCount, const WCHAR* connectionString)
 {
@@ -33,6 +33,29 @@ bool SharedDBManager::Connect(int connectionCount, const WCHAR* connectionString
 	return true;
 }
 
+bool SharedDBManager::ConnectA(int connectionCount, const CHAR* connectionString)
+{
+	if (_dbConnPool == nullptr)
+		_dbConnPool = new DBConnectionPool();
+
+	_connectionCounts = connectionCount + 1;
+
+	if (_dbConnPool->ConnectA(_connectionCounts, connectionString) == false) {
+		cout << "[SharedDBManager] ConnectA Error - Connect Failed" << endl;
+		return false;
+	}
+
+	_dbConn = Pop();
+	if (_dbConn == nullptr) {
+		cout << "[SharedDBManager] ConnectA Error - _dbConn Nullptr" << endl;
+		return false;
+	}
+
+	cout << "[SharedDBManager] Connect OK" << endl;
+
+	return true;
+}
+
 DBConnection* SharedDBManager::Pop()
 {
 	return _dbConnPool->Pop();
@@ -48,15 +71,18 @@ void SharedDBManager::UpdateServerInfo()
 	// 일단 여기다가 달아놓는 걸로
 
 	// 서버정보 & 현 세션 개수
-	ServerConfig config = ConfigManager::Instance()->_config;
-	int32 sessionCount = SessionManager::Instance()->GetSessionCount();
+	int32 sessionCount = GameSessionManager::Instance()->GetSessionCount();
 
 	// 
 	ServerInfoDB infoDb;
-	infoDb.ServerDbId = config.ServerDbId;
-	wcscpy_s(infoDb.Name, config.Name.c_str());
-	wcscpy_s(infoDb.IpAddress, config.IpAddress.c_str());
-	infoDb.Port = config.Port;
+	ServerConfig serverConfig;
+	ConfigManager::Instance()->LoadConfigByName("GameServer", &serverConfig);
+
+	infoDb.ServerDbId = serverConfig._serverDbId;
+	// str -> wstr
+	wcscpy_s(infoDb.Name, Config::StrToWstr(serverConfig._serverName).c_str());
+	wcscpy_s(infoDb.IpAddress, Config::StrToWstr(serverConfig._ip).c_str());
+	infoDb.Port = serverConfig._port;
 	infoDb.BusyScore = sessionCount;
 
 	// 서버 정보 업데이트
@@ -75,8 +101,6 @@ void SharedDBManager::UpdateServerInfo()
 	uint64 tickAfter = 1000 * 5;
 
 	DoTimer(tickAfter, &SharedDBManager::UpdateServerInfo);
-
-	//shared_ptr<Job> reservedJob = DoTimer(tickAfter, [this]() { updaterserver });
 }
 
 

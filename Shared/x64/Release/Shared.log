@@ -1,0 +1,4 @@
+﻿  pch.cpp
+  ConfigManager.cpp
+  JsonParser.cpp
+  Shared.vcxproj -> C:\Users\see\source\repos\ServerPF\Library\Lib\Shared\Release\Shared.lib

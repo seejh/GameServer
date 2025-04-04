@@ -12,10 +12,10 @@ enum class ServiceType : uint8 {
 class NetService
 {
 public:
-	NetService(ServiceType type, function<shared_ptr<Session>()> sessionFactory, wstring ip, int port, int maxSessionCounts);
+	NetService(ServiceType type, function<shared_ptr<Session>()> sessionFactory, string ip, int port, int maxSessionCounts);
 	virtual ~NetService();
 
-	virtual bool Init();
+	virtual bool Init() abstract;
 
 	shared_ptr<Session> CreateSession();
 	void AddSession(shared_ptr<Session> session);
@@ -25,6 +25,7 @@ public:
 public:
 	shared_ptr<IocpCore> _iocpCore;
 	shared_ptr<ListenSession> _listenSession;
+	SOCKADDR_IN _sockAddr;
 
 	set<shared_ptr<Session>> _sessions;
 	int _connectedSessionCount = 0;
@@ -33,14 +34,14 @@ public:
 	function<shared_ptr<Session>()> _sessionFactory;
 	
 	ServiceType _serviceType;
-	wstring _ip;
+	string _ip;
 	int _port;
 	mutex _mutex;
 };
 
 class ClientService : public NetService {
 public:
-	ClientService(function<shared_ptr<Session>()> sessionFactory, wstring ip, int port, int maxSessionCounts);
+	ClientService(function<shared_ptr<Session>()> sessionFactory, string ip, int port, int maxSessionCounts);
 	virtual ~ClientService() {}
 
 	virtual bool Init() override;
@@ -49,7 +50,7 @@ public:
 
 class ServerService : public NetService {
 public:
-	ServerService(function<shared_ptr<Session>()> sessionFactory, wstring ip, int port, int maxSessionCounts);
+	ServerService(function<shared_ptr<Session>()> sessionFactory, string ip, int port, int maxSessionCounts);
 	virtual ~ServerService() {}
 
 	virtual bool Init() override;

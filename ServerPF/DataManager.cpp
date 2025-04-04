@@ -2,11 +2,8 @@
 #include "DataManager.h"
 
 #include"DataContents.h"
-#include"JsonParser.h"
-#include"rapidjson/document.h"
 
-//#include<picojson/picojson.h>
-#include<fstream>
+#include"JsonParser.h"
 
 bool DataManager::Init()
 {
@@ -41,32 +38,23 @@ bool DataManager::Init()
 }
 
 // 스텟
-bool DataManager::LoadStatTable()
-{
-	//
-	//picojson::value v;
-	//picojson::parse(v, jsonString);
-
-
-	// Json 파일 파싱
-	rapidjson::Document doc;
-	if (JsonParser::Parse("..\\Common\\Data\\StatData.json", doc) == false)
+bool DataManager::LoadStatTable() {
+	JsonParser parser;
+	if (parser.ParseFromFile("..\\Common\\Data\\StatData.json") == false)
 		return false;
 
-	// Json 오브젝트(스텟)
-	const rapidjson::Value& v = doc["stats"];
-	for (rapidjson::Value::ConstValueIterator it = v.Begin(); it != v.End(); it++) {
-		
-		// StatData 변수에 담고 스텟 테이블에 적재, 레벨로 분류
+	for (rapidjson::Value::ConstValueIterator it = parser["stats"].Begin(); it != parser["stats"].End(); it++) {
+
+		//
 		StatData statData;
 
-		// 스텟
+		//
 		statData.level = (*it)["level"].GetInt();
 		statData.maxhp = (*it)["maxHp"].GetInt();
 		statData.damage = (*it)["damage"].GetInt();
 		statData.totalExp = (*it)["totalExp"].GetInt();
 
-		// 테이블 적재
+		//
 		_statTable[statData.level] = statData;
 	}
 
@@ -77,12 +65,12 @@ bool DataManager::LoadStatTable()
 bool DataManager::LoadItemTable()
 {
 	// Json 파일 파싱
-	rapidjson::Document doc;
-	if (JsonParser::Parse("..\\Common\\Data\\ItemData.json", doc) == false)
+	JsonParser parser;
+	if (parser.ParseFromFile("..\\Common\\Data\\ItemData.json") == false)
 		return false;
 	
 	// Json 오브젝트(무기)
-	const rapidjson::Value& v = doc["weapons"];
+	const rapidjson::Value& v = parser["weapons"];
 	for (rapidjson::Value::ConstValueIterator it = v.Begin(); it != v.End(); it++) {
 		
 		// WeaponData 변수에 담고 무기 테이블에 적재
@@ -107,7 +95,7 @@ bool DataManager::LoadItemTable()
 	}
 
 	// Json 오브젝트(방어구)
-	const rapidjson::Value& vv = doc["armors"];
+	const rapidjson::Value& vv = parser["armors"];
 	for (rapidjson::Value::ConstValueIterator it = vv.Begin(); it != vv.End(); it++) {
 		
 		// ArmorData 변수에 담고 방어구 테이블에 적재
@@ -132,7 +120,7 @@ bool DataManager::LoadItemTable()
 	}
 
 	// Json 오브젝트(소모품)
-	const rapidjson::Value& vvv = doc["consumables"];
+	const rapidjson::Value& vvv = parser["consumables"];
 	for (rapidjson::Value::ConstValueIterator it = vvv.Begin(); it != vvv.End(); it++) {
 		
 		// ConsumableData 변수에 담고 소모품 테이블에 적재
@@ -164,12 +152,12 @@ bool DataManager::LoadItemTable()
 bool DataManager::LoadMonsterTable()
 {
 	// Json 파일 파싱
-	rapidjson::Document doc;
-	if (JsonParser::Parse("..\\Common\\Data\\MonsterData.json", doc) == false)
+	JsonParser parser;
+	if (parser.ParseFromFile("..\\Common\\Data\\MonsterData.json") == false)
 		return false;
 
 	// Json 오브젝트(몬스터)
-	const rapidjson::Value& v = doc["monsters"];
+	const rapidjson::Value& v = parser["monsters"];
 	for (rapidjson::Value::ConstValueIterator it = v.Begin(); it != v.End(); it++) {
 		// MonsterData 변수에 담고 몬스터 테이블에 적재
 		MonsterData* data = new MonsterData();
@@ -214,12 +202,12 @@ bool DataManager::LoadMonsterTable()
 bool DataManager::LoadSkillTable()
 {
 	// Json 파일 파싱
-	rapidjson::Document doc;
-	if (JsonParser::Parse("..\\Common\\Data\\SkillData.json", doc) == false)
+	JsonParser parser;
+	if (parser.ParseFromFile("..\\Common\\Data\\SkillData.json") == false)
 		return false;
 	
 	// Json 오브젝트(스킬) 
-	const rapidjson::Value& v = doc["skills"];
+	const rapidjson::Value& v = parser["skills"];
 	for (rapidjson::Value::ConstValueIterator it = v.Begin(); it != v.End(); it++) {
 
 		// SkillData 변수에 담고 테이블에 적재
@@ -251,11 +239,11 @@ bool DataManager::LoadSkillTable()
 bool DataManager::LoadNpcTable()
 {
 	// 
-	rapidjson::Document doc;
-	if (JsonParser::Parse("..\\Common\\Data\\NpcData.json", doc) == false)
+	JsonParser parser;
+	if (parser.ParseFromFile("..\\Common\\Data\\NpcData.json") == false)
 		return false;
 
-	const rapidjson::Value& v = doc["Npcs"];
+	const rapidjson::Value& v = parser["Npcs"];
 	for (rapidjson::Value::ConstValueIterator it = v.Begin(); it != v.End(); it++) {
 		NpcData* data = new NpcData();
 
@@ -285,11 +273,11 @@ bool DataManager::LoadNpcTable()
 bool DataManager::LoadQuestTable()
 {
 	// 
-	rapidjson::Document doc;
-	if (JsonParser::Parse("..\\Common\\Data\\QuestData.json", doc) == false)
+	JsonParser parser;
+	if (parser.ParseFromFile("..\\Common\\Data\\QuestData.json") == false)
 		return false;
 
-	const rapidjson::Value& v = doc["Quests"];
+	const rapidjson::Value& v = parser["Quests"];
 	for (auto it = v.Begin(); it != v.End(); it++) {
 		QuestData* data = new QuestData();
 

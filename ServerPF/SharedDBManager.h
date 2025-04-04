@@ -8,7 +8,8 @@ class SharedDBManager : public JobQueue
 {
 public:
 	bool			Connect(int connectionCount, const WCHAR* connectionString);
-	
+	bool			ConnectA(int connectionCount, const CHAR* connectionString);
+
 	DBConnection*	Pop();
 	void			Push(DBConnection* dbConn);
 

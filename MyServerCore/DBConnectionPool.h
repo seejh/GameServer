@@ -12,6 +12,7 @@ public:
 	~DBConnectionPool();
 
 	bool			Connect(int32 connectionCount, const WCHAR* connectionString);
+	bool			ConnectA(int32 connectionCount, const CHAR* connectionString);
 	void			Clear();
 
 

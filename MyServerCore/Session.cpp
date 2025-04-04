@@ -12,6 +12,7 @@
 
 Session::Session()
 {
+	_socket = SocketUtils::CreateSocket();
 }
 
 Session::~Session()
@@ -57,7 +58,7 @@ bool Session::RegisterConnect()
 	if (_ownerNetService->_serviceType != ServiceType::CLIENT)
 		return false;
 
-	if (SocketUtils::SetReuseAddr(_socket, true) == false)
+	if (SocketUtils::SetReuseAddr(_socket, true) == false) 
 		return false;
 
 	// 이걸 누락하면 ConnectEx()에서 에러 발생
@@ -68,8 +69,8 @@ bool Session::RegisterConnect()
 	_connectEvent._ownerIocpObject = shared_from_this();
 
 	DWORD numOfBytes = 0;
-	SOCKADDR_IN sockAddr = _ownerNetService->_listenSession->_serverAddr;
-
+	SOCKADDR_IN sockAddr = _ownerNetService->_sockAddr;
+	
 	if (false == SocketUtils::_connectEx(_socket, reinterpret_cast<SOCKADDR*>(&sockAddr),
 		sizeof(sockAddr), nullptr, 0, &numOfBytes, &_connectEvent)) {
 
@@ -101,9 +102,8 @@ void Session::ProcessConnect()
 
 void Session::RegisterRecv()
 {
-	if (!_isConnected.load()) {
+	if (_isConnected.load() == false) 
 		return;
-	}
 
 	_recvEvent._ownerIocpObject = shared_from_this();
 
@@ -160,40 +160,42 @@ void Session::ProcessRecv(int recvLen)
 
 void Session::Send(vector<shared_ptr<SendBuffer>, StlAllocator<shared_ptr<SendBuffer>>>&& sendBufferArray)
 {
-	if (!_isConnected.load())
+	if (_isConnected.load() == false)
 		return;
 
-	bool sendRegistered = false;
+	bool isMeRegisterSend = false;
 
 	{
-		lock_guard<mutex> lock(_mutex);
-		
+		WRITE_LOCK;
+
 		for (shared_ptr<SendBuffer> s : sendBufferArray) 
 			_sendBuffer.push_back(s);
 		
-		sendRegistered = _sendRegistered.exchange(true);
+		if (_sendRegistered.exchange(true) == false)
+			isMeRegisterSend = true;
 	}
 
-	if (!sendRegistered)
+	if (isMeRegisterSend)
 		RegisterSend();
 }
 
 void Session::Send(shared_ptr<SendBuffer> sendBuffer)
 {
-	if (!_isConnected.load()) 
+	if (_isConnected.load() == false) 
 		return;
 
-	bool sendRegistered = false;
+	bool isMeRegisterSend = false;
 	
 	{
-		lock_guard<mutex> lock(_mutex);
+		WRITE_LOCK;
 
 		_sendBuffer.push_back(sendBuffer);
 		
-		sendRegistered = _sendRegistered.exchange(true);
+		if (_sendRegistered.exchange(true) == false)
+			isMeRegisterSend = true;
 	}
 
-	if (!sendRegistered)
+	if (isMeRegisterSend)
 		RegisterSend();
 
 }
@@ -203,15 +205,15 @@ void Session::RegisterSend()
 	if (!_isConnected.load())
 		return;
 
+	//
+	_sendEvent._ownerIocpObject = shared_from_this();
 
 	// 락 걸고 큐 교환
 	{
-		lock_guard<mutex> lock(_mutex);
+		WRITE_LOCK;
 
 		_sendEvent._sendEventBuffer.swap(_sendBuffer);
 	}
-
-	_sendEvent._ownerIocpObject = shared_from_this();
 
 	// Scatter-Gather()
 	vector<WSABUF> wsaBufs;
@@ -230,15 +232,12 @@ void Session::RegisterSend()
 			_sendEvent.OverlappedReset();
 			_sendEvent._ownerIocpObject.reset();
 			_sendEvent._sendEventBuffer.clear();
-
 		}
 	}
 }
 
 void Session::ProcessSend(int sendLen)
 {
-
-	// _sendEvent reset
 	_sendEvent.OverlappedReset();
 	_sendEvent._ownerIocpObject.reset();
 
@@ -257,21 +256,16 @@ void Session::ProcessSend(int sendLen)
 
 	OnSend(sendLen);
 
-	{
-		lock_guard<mutex> lock(_mutex);
-		if (_sendBuffer.empty())
-			_sendRegistered.store(false);
-		else
-			RegisterSend();
-	}	
+	WRITE_LOCK;
+	if (_sendBuffer.empty())
+		_sendRegistered.store(false);
+	else
+		RegisterSend(); // 이부분에서 Send, 중첩 락을 사용하지 않으면 안됨
 }
 
 void Session::Disconnect(const char* cause)
 {
-	//cout << "Disconnect() : " << cause << endl;
-
 	// Disconnect 한 번만 걸기위해서
-
 	if (_isConnected.exchange(false) == false)
 		return;
 
@@ -281,7 +275,6 @@ void Session::Disconnect(const char* cause)
 bool Session::RegisterDisconnect()
 {
 	_disconnectEvent._ownerIocpObject = shared_from_this();
-
 
 	if (SocketUtils::_disconnectEx(_socket, &_disconnectEvent, TF_REUSE_SOCKET, 0)) {
 		if (WSAGetLastError() != WSA_IO_PENDING) {

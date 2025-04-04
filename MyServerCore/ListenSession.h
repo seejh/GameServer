@@ -15,7 +15,7 @@ public:
 	virtual HANDLE GetHandle() override;
 	virtual void Dispatch(IocpEvent* iocpEvent, int len) override;
 
-	bool Init(string ip, int port);
+	bool Init();
 
 	bool RegisterAccept(AcceptEvent* acceptEvent);
 	void ProcessAccept(AcceptEvent* acceptEvent);
@@ -23,11 +23,11 @@ public:
 	NetService* OwnerNetService();
 public:
 	SOCKET _listenSocket;
-	SOCKADDR_IN _serverAddr;
+	// SOCKADDR_IN _serverAddr;
 
 	NetService* _ownerNetService;
 
-	AcceptEvent* _acceptEvents;
-	int _acceptCount = 5;
+	// AcceptEvent* 
+	vector<AcceptEvent*> _acceptEvents;
 };
 

@@ -5,9 +5,10 @@
 #include"DataManager.h"
 #include"ObjectManager.h"
 #include"Item.h"
-#include"ClientPacketHandler.h"
-#include"Room.h"
+#include"GameClientPacketHandler.h"
+#include"GameRoom.h"
 #include"State.h"
+#include"GameSession.h"
 
 #include"GameDBManager.h"
 #include"DBConnectionPool.h"
@@ -40,14 +41,14 @@ void GameObject::OnDamaged(shared_ptr<GameObject> attacker, int damage)
 	_info.mutable_stat()->set_hp(hp);
 
 	// S_ChangeHp 패킷
-	PROTOCOL::S_ChangeHp toPkt;
+	PROTOCOL::S_CHANGE_HP toPkt;
 	toPkt.set_object(_info.objectid());
 	toPkt.set_hp(hp);
 	
 	// 지역 브로드캐스팅
-	shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+	shared_ptr<SendBuffer> sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 	if (_ownerRoom != nullptr) {
-		_ownerRoom->Broadcast(_info.pos().locationx(), _info.pos().locationy(), sendBuffer);
+		_ownerRoom->Broadcast(_info.pos().location().x(), _info.pos().location().y(), sendBuffer);
 
 		// DEAD
 		if (hp <= 0)
@@ -58,11 +59,11 @@ void GameObject::OnDamaged(shared_ptr<GameObject> attacker, int damage)
 void GameObject::OnDead(shared_ptr<GameObject> attacker)
 {
 	// S_Die 패킷 (공격자, 피해자 설정) 지역 브로드캐스팅
-	PROTOCOL::S_Die toPkt;
+	PROTOCOL::S_DIE toPkt;
 	toPkt.set_attacker(attacker->_info.objectid());
 	toPkt.set_victim(_info.objectid());
-	shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-	_ownerRoom->Broadcast(_info.pos().locationx(), _info.pos().locationy(), sendBuffer);
+	shared_ptr<SendBuffer> sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
+	_ownerRoom->Broadcast(_info.pos().location().x(), _info.pos().location().y(), sendBuffer);
 	
 	// 방 퇴장
 	_ownerRoom->LeaveRoom(_info.objectid());
@@ -133,9 +134,9 @@ void Player::OnLeaveGame()
 		updatePlayer.In_MaxHp(_info.stat().maxhp());
 		updatePlayer.In_Hp(_info.stat().hp());
 		updatePlayer.In_Damage(_info.stat().damage());
-		updatePlayer.In_LocationX(_info.pos().locationx());
-		updatePlayer.In_LocationY(_info.pos().locationy());
-		updatePlayer.In_LocationZ(_info.pos().locationz());
+		updatePlayer.In_LocationX(_info.pos().location().x());
+		updatePlayer.In_LocationY(_info.pos().location().y());
+		updatePlayer.In_LocationZ(_info.pos().location().z());
 		if (updatePlayer.Execute() == false)
 			cout << "[PLAYER-" << _info.objectid() << "] OnLeaveRoom Error - UpdatePlayer Execute Failed" << endl;
 
@@ -160,10 +161,10 @@ void Player::OnLeaveGame()
 	}
 
 	// 패킷
-	PROTOCOL::S_Leave_Room toPkt;
+	PROTOCOL::S_LEAVE_ROOM toPkt;
 	toPkt.mutable_object()->set_objectid(_info.objectid());
 	toPkt.mutable_object()->set_objecttype(_info.objecttype());
-	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+	auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 	_ownerSession->SendPacket(sendBuffer);
 
 	// 플레이어 비전 비활성화
@@ -185,10 +186,10 @@ void Player::OnEnterGame()
 	CalculateAddStat();
 
 	// 당사자에게만 S_EnterRoom
-	PROTOCOL::S_Enter_Room toPkt;
+	PROTOCOL::S_ENTER_ROOM toPkt;
 	toPkt.set_success(true);
 	toPkt.mutable_object()->CopyFrom(_info);
-	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+	auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 	_ownerSession->SendPacket(sendBuffer);
 
 	// 비전 플레이어 활성화
@@ -222,11 +223,11 @@ void Player::UseItem(int itemId)
 		_info.mutable_stat()->set_hp(afterHP);
 
 		// 패킷
-		PROTOCOL::S_ChangeHp toPkt;
+		PROTOCOL::S_CHANGE_HP toPkt;
 		toPkt.set_object(_info.objectid());
 		toPkt.set_hp(afterHP);
 
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+		auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 		_ownerSession->SendPacket(sendBuffer);
 	} 
 	break;
@@ -288,11 +289,11 @@ void Player::AddExp(int exp)
 	_info.mutable_stat()->set_exp(_info.stat().exp() + exp);
 	
 	// Exp 패킷
-	PROTOCOL::S_AddExp toPkt;
+	PROTOCOL::S_ADD_EXP toPkt;
 	toPkt.set_exp(_info.stat().exp());
 
 	// Exp 전송
-	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+	auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 	_ownerSession->SendPacket(sendBuffer);
 
 	// 레벨업
@@ -308,11 +309,11 @@ void Player::AddExp(int exp)
 		_info.mutable_stat()->set_totalexp(nextStat.totalExp);
 
 		// 레벨업 패킷
-		PROTOCOL::S_LevelUp toPkt2;
+		PROTOCOL::S_LEVEL_UP toPkt2;
 		toPkt2.mutable_info()->mutable_stat()->CopyFrom(_info.stat());
 
 		// 레벨업 패킷 전송
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt2);
+		auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt2);
 		_ownerSession->SendPacket(sendBuffer);
 	}
 }
@@ -393,9 +394,9 @@ void Player::AddItem(ItemDB itemDB)
 			_inven.Add(item);
 
 			// 생성 패킷
-			PROTOCOL::S_AddItem toPkt;
+			PROTOCOL::S_ADD_ITEM toPkt;
 			toPkt.add_items()->CopyFrom(item->_itemInfo);
-			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+			auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 			_ownerSession->SendPacket(sendBuffer);
 		}
 	}
@@ -412,9 +413,9 @@ void Player::AddItem(ItemDB itemDB)
 			item->_itemInfo.set_equipped(itemDB.Equipped);
 
 			// 업데이트 패킷
-			PROTOCOL::S_UpdateItem toPkt;
+			PROTOCOL::S_UPDATE_ITEM toPkt;
 			toPkt.add_items()->CopyFrom(item->_itemInfo);
-			auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+			auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 			_ownerSession->SendPacket(sendBuffer);
 		}
 	}
@@ -442,10 +443,10 @@ void Player::CompleteQuest(QuestDB questDB)
 		it->second->_questInfo.set_completed(questDB.Completed);
 
 		// 패킷
-		PROTOCOL::S_CompleteQuest toPkt;
+		PROTOCOL::S_COMPLETE_QUEST toPkt;
 		toPkt.set_questid(questDB.TemplateId);
 		toPkt.set_result(true);
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+		auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 		_ownerSession->SendPacket(sendBuffer);
 	}
 }
@@ -461,10 +462,10 @@ void Player::RemoveQuest(QuestDB questDB)
 		_questManager->Remove(questDB.TemplateId);
 
 		// 패킷
-		PROTOCOL::S_RemoveQuest toPkt;
+		PROTOCOL::S_REMOVE_QUEST toPkt;
 		toPkt.set_questid(questDB.TemplateId);
 		toPkt.set_result(true);
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+		auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 		_ownerSession->SendPacket(sendBuffer);
 	}
 }
@@ -479,13 +480,13 @@ void Player::AddQuest(QuestDB questDB)
 	_questManager->Add(quest);
 
 	// 패킷
-	PROTOCOL::S_AddQuest toPkt;
+	PROTOCOL::S_ADD_QUEST toPkt;
 	toPkt.mutable_quest()->set_questdbid(questDB.QuestDbId);
 	toPkt.mutable_quest()->set_playerdbid(questDB.PlayerDbId);
 	toPkt.mutable_quest()->set_templateid(questDB.TemplateId);
 	toPkt.mutable_quest()->set_progress(questDB.Progress);
 	toPkt.mutable_quest()->set_completed(questDB.Completed);
-	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+	auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 	_ownerSession->SendPacket(sendBuffer);
 }
 
@@ -519,9 +520,9 @@ void Player::UpdateQuest(QuestType questType, int objectiveId, int quantity)
 		DBManager::Instance()->_gameDbManager->DoAsync(&GameDBManager::TransactNoti_UpdateQuest, static_pointer_cast<Player>(shared_from_this()), questDB);
 
 		// 패킷
-		PROTOCOL::S_UpdateQuest toPkt;
+		PROTOCOL::S_UPDATE_QUEST toPkt;
 		toPkt.mutable_questinfo()->CopyFrom(p.second->_questInfo);
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
+		auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
 		_ownerSession->SendPacket(sendBuffer);
 	}
 }
@@ -544,7 +545,6 @@ void Player::SaveToDB(bool init)
 	_reservedJobs[PLAYERJOBS::PLAYER_JOB_SAVE] = _ownerRoom->DoTimer(saveTick, [this]() { SaveToDB(false); });
 }
 
-
 /*--------------------------------------------------------------------
 	몬스터
 -------------------------------------------------------------------*/
@@ -556,9 +556,13 @@ Monster::Monster() : _currentState(StateIdle::Instance())
 void Monster::Update()
 {
 	// 델타
-	uint64 nowTime = GetTickCount64();
+	/*uint64 nowTime = GetTickCount64();
 	_deltaTime = (float)(nowTime - _lastUpdateTime) / 1000;
-	_lastUpdateTime = nowTime;
+	_lastUpdateTime = nowTime;*/
+
+	// 
+	_lastUpdateTime = _nowUpdateTime;
+	_nowUpdateTime = GetTickCount64();
 
 	// 상태에 따른 Update
 	if (_currentState)
@@ -578,7 +582,7 @@ void Monster::OnDead(shared_ptr<GameObject> attacker)
 	// 예약 작업 취소, 플레이어 보상, 재입장 예약
 	GameObject::OnLeaveGame();
 
-	shared_ptr<Room> room = _ownerRoom;
+	shared_ptr<GameRoom> room = _ownerRoom;
 	
 	GameObject::OnDead(attacker);
 
@@ -613,14 +617,12 @@ void Monster::OnDead(shared_ptr<GameObject> attacker)
 	}
 
 	// 재입장 예약
-	_info.mutable_pos()->set_locationx(_basePos._x);
-	_info.mutable_pos()->set_locationy(_basePos._y);
-	_info.mutable_pos()->set_locationz(_basePos._z);
+	_info.mutable_pos()->mutable_location()->CopyFrom(_basePos);
 
 	_info.mutable_stat()->set_hp(_info.stat().maxhp());
 	_currentState = StateIdle::Instance();
 
-	room->DoTimer(10000, &Room::EnterRoom, shared_from_this());
+	room->DoTimer(10000, &GameRoom::EnterRoom, shared_from_this());
 }
 
 void Monster::OnLeaveGame()
@@ -674,13 +676,13 @@ void Monster::ChangeState(State* state)
 	_currentState->Enter(static_pointer_cast<Monster>(shared_from_this()));
 }
 
-void Monster::Skill(uint64 nowTime)
+void Monster::Skill()
 {
 	// 타겟 추출
 	shared_ptr<Player> target = _target.lock();
 	if (target != nullptr && _ownerRoom != nullptr) {
 		// S_Skill 패킷
-		PROTOCOL::S_Skill toPkt;
+		PROTOCOL::S_SKILL toPkt;
 
 		// 피해자 설정
 		toPkt.add_victims(target->_info.objectid());
@@ -692,11 +694,11 @@ void Monster::Skill(uint64 nowTime)
 		toPkt.set_skillid(PROTOCOL::SkillType::SKILL_AUTO);
 
 		// 스킬 쿨 계산
-		_nextAttackTime = nowTime + _info.stat().attackcooltime();
+		_nextAttackTime = _nowUpdateTime + _info.stat().attackcooltime();
 
 		// S_Skill 패킷 지역 브로드캐스팅
-		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(toPkt);
-		_ownerRoom->Broadcast(_info.pos().locationx(), _info.pos().locationy(), sendBuffer);
+		auto sendBuffer = GameClientPacketHandler::MakeSendBuffer(toPkt);
+		_ownerRoom->Broadcast(_info.pos().location().x(), _info.pos().location().y(), sendBuffer);
 
 		// 피격 업데이트
 		// 스킬 조회
@@ -734,11 +736,12 @@ RewardData Monster::GetRandomReward()
 	return RewardData();
 }
 
-FVector Monster::GetRandomPatrolPos()
+PROTOCOL::PFVector Monster::GetRandomPatrolPos()
 {
 	// basePos 기준으로 일정 반경 랜덤위치
 	
-	FVector patrolPos;
+	// FVector patrolPos;
+	PROTOCOL::PFVector patrolPos;
 
 	// 반경
 	int radius = 450;
@@ -750,124 +753,107 @@ FVector Monster::GetRandomPatrolPos()
 	// X
 	symbol = rand() % 2;
 	pos = rand() % radius;
-	patrolPos._x = _basePos._x + ((symbol == 0) ? pos * -1 : pos);
+	patrolPos.set_x(_basePos.x() + ((symbol == 0) ? pos * -1 : pos));
+	// patrolPos._x = _basePos._x + ((symbol == 0) ? pos * -1 : pos);
 	
 	// Y
 	symbol = rand() % 2;
 	pos = rand() % radius;
-	patrolPos._y = _basePos._y + ((symbol == 0) ? pos * -1 : pos);
+	patrolPos.set_y(_basePos.y() + ((symbol == 0) ? pos * -1 : pos));
+	// patrolPos._y = _basePos._y + ((symbol == 0) ? pos * -1 : pos);
 	
 	// Z
-	patrolPos._z = _info.pos().locationz();
+	// patrolPos._z = _info.pos().locationz();
+	patrolPos.set_z(_basePos.z());
 
 	return patrolPos;
 }
 
-bool Monster::GetNextPos(OUT PROTOCOL::ObjectInfo& nextPos)
-{
-	//
-	int test = 0;
-	if (_ownerRoom == nullptr) {
-		cout << "Monster::GetNextPos() _ownerRoom == nullptr, set now pos" << endl;
-		
-		nextPos.mutable_pos()->set_locationx(_info.pos().locationx());
-		nextPos.mutable_pos()->set_locationy(_info.pos().locationy());
+//bool Monster::GetNextPos(OUT PROTOCOL::ObjectInfo& nextPos)
+//{
+//	//
+//	int test = 0;
+//	if (_ownerRoom == nullptr) {
+//		cout << "Monster::GetNextPos() _ownerRoom == nullptr, set now pos" << endl;
+//		
+//		nextPos.mutable_pos()->set_locationx(_info.pos().locationx());
+//		nextPos.mutable_pos()->set_locationy(_info.pos().locationy());
+//
+//		return false;
+//	}
+//
+//	// 타겟할 위치
+//	float targetX;
+//	float targetY;
+//
+//	// 리턴, 추적, 순찰
+//	// 리턴일 때
+//	if (_currentState->GetType() == MONSTER_STATE::RETURN) {
+//		targetX = _basePos.x();
+//		targetY = _basePos.y();
+//
+//		test = 1;
+//	}
+//
+//	// 추적일 때
+//	else if (_currentState->GetType() == MONSTER_STATE::CHASE) {
+//		shared_ptr<Player> target = _target.lock();
+//		if (target == nullptr) {
+//			cout << "Monster::GetNextPos() Error - StateChase Invalid Target" << endl;
+//			return false;
+//		}
+//
+//		targetX = target->_info.pos().locationx();
+//		targetY = target->_info.pos().locationy();
+//
+//		test = 2;
+//	}
+//
+//	// 순찰
+//	else {
+//		targetX = _patrolPos.x();
+//		targetY = _patrolPos.y();
+//
+//		test = 3;
+//	}
+//
+//	///////////////////////////////////////////////// 계산
+//	
+//	// 이동 벡터 (각 성분)
+//	float moveVX = targetX - _info.pos().locationx();
+//	float moveVY = targetY - _info.pos().locationy();
+//	if (moveVX == 0 && moveVY == 0) {
+//		// 타겟 지점과 같음, 이동 필요 X
+//		nextPos.mutable_pos()->set_locationx(_info.pos().locationx());
+//		nextPos.mutable_pos()->set_locationy(_info.pos().locationy());
+//
+//		return true;
+//	}
+//
+//	// 이동 벡터 크기
+//	float dt = _ownerRoom->DistanceToTarget(moveVX, moveVY);
+//
+//	// 방향 벡터 (각 성분)
+//	float dirX = moveVX / dt;
+//	float dirY = moveVY / dt;
+//
+//	// 최대 이동 가능 위치
+//	float x = dirX * _info.stat().speed() * _deltaTime;
+//	float y = dirY * _info.stat().speed() * _deltaTime;
+//
+//	// 목적지 < 최대 이동 가능 거리 -> 목적지를 좌표로 설정
+//	if (abs(targetX) < abs(x)) x = targetX;
+//	if (abs(targetY) < abs(y)) y = targetY; // 주목할 필요
+//
+//	// 이동 처리
+//	nextPos.mutable_pos()->set_locationx(_info.pos().locationx() + x);
+//	nextPos.mutable_pos()->set_locationy(_info.pos().locationy() + y);
+//	nextPos.mutable_pos()->set_locationz(_info.pos().locationz());
+//
+//	return true;
+//
+//}
 
-		return false;
-	}
-
-	// 타겟할 위치
-	float targetX;
-	float targetY;
-
-	// 리턴, 추적, 순찰
-	// 리턴일 때
-	if (_currentState->GetType() == MONSTER_STATE::RETURN) {
-		targetX = _basePos._x;
-		targetY = _basePos._y;
-
-		test = 1;
-	}
-
-	// 추적일 때
-	else if (_currentState->GetType() == MONSTER_STATE::CHASE) {
-		shared_ptr<Player> target = _target.lock();
-		if (target == nullptr) {
-			cout << "Monster::GetNextPos() Error - StateChase Invalid Target" << endl;
-			return false;
-		}
-
-		targetX = target->_info.pos().locationx();
-		targetY = target->_info.pos().locationy();
-
-		test = 2;
-	}
-
-	// 순찰
-	else {
-		targetX = _patrolPos._x;
-		targetY = _patrolPos._y;
-
-		test = 3;
-	}
-
-	// 계산
-	// 벡터 x, y
-	float dx = targetX - _info.pos().locationx();
-	float dy = targetY - _info.pos().locationy();
-	if (dx == 0 && dy == 0) {
-		// 타겟지점과 완전히 똑같다는 말, 더 이동할 필요가 없다는 말 -> 현지점 넣고 리턴
-		
-		nextPos.mutable_pos()->set_locationx(_info.pos().locationx());
-		nextPos.mutable_pos()->set_locationy(_info.pos().locationy());
-
-		return true;
-	}
-
-	// 벡터 크기
-	float distance = _ownerRoom->DistanceToTarget(dx, dy);
-
-	// 방향 * 스피드 = 각 방향 최대 이동거리
-	float x = (dx / distance) * _info.stat().speed() * _deltaTime;
-	float y = (dy / distance) * _info.stat().speed() * _deltaTime;
-
-	// 목적지가 최대 이동 거리보다 짧을 때
-	if (abs(x) > abs(dx)) x = dx;
-	if (abs(y) > abs(dy)) y = dy;
-
-	// 산출된 다음 이동 위치
-	nextPos.mutable_pos()->set_locationx(_info.pos().locationx() + x);
-	nextPos.mutable_pos()->set_locationy(_info.pos().locationy() + y);
-	nextPos.mutable_pos()->set_locationz(_info.pos().locationz());
-	
-	return true;
-}
-
-
-
-/*-----------------------------------------------------------
-	Projectile
------------------------------------------------------------*/
-
-void Projectile::OnDamaged(shared_ptr<GameObject> attacker, int damage)
-{
-	GameObject::OnDamaged(attacker, damage);
-}
-
-void Projectile::OnDead(shared_ptr<GameObject> attacker)
-{
-	GameObject::OnDead(attacker);
-}
-
-void Projectile::OnLeaveGame()
-{
-	// GameObject::OnLeaveGame();
-}
-
-void Projectile::OnEnterGame()
-{
-	// GameObject::OnEnterGame();
-}
 
 /*
 	

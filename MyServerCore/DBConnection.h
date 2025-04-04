@@ -10,8 +10,12 @@ enum {
 class DBConnection
 {
 public:
-	// 실질적으로 DB에 커넥트 하는 함수
+	// 실질적으로 DB에 커넥트 하는 함수 - 원본
 	bool Connect(SQLHENV henv, const WCHAR* connectionString);
+
+	// 내가 구분
+	bool ConnectA(SQLHENV henv, const CHAR* connectionString);
+
 	void Clear();
 
 	// SQL query 실행

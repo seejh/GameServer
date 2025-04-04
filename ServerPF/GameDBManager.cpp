@@ -2,7 +2,7 @@
 #include "GameDBManager.h"
 
 #include"GameObject.h"
-#include"Room.h"
+#include"GameRoom.h"
 #include"DataManager.h"
 #include"DBConnection.h"
 #include"DBConnectionPool.h"
@@ -11,7 +11,7 @@
 #include"Item.h"
 #include"Quest.h"
 #include"Inventory.h"
-#include"SessionManager.h"
+#include"GameSessionManager.h"
 
 
 bool GameDBManager::Connect(int32 connectionCounts, const WCHAR* connectionString)
@@ -34,19 +34,44 @@ bool GameDBManager::Connect(int32 connectionCounts, const WCHAR* connectionStrin
 		return false;
 	}
 		
-	cout << "[GameDbManager] Connect OK" << endl;
+	cout << "[GameDBManager] Connect OK" << endl;
+
+	return true;
+}
+
+bool GameDBManager::ConnectA(int32 connectionCounts, const CHAR* connectionString)
+{
+	if (_dbConnPool == nullptr)
+		_dbConnPool = new DBConnectionPool();
+
+	_connectionCounts = connectionCounts + 1;
+
+	if (_dbConnPool->ConnectA(_connectionCounts, connectionString) == false) {
+		cout << "[GameDBManager] Connect Error : Connect Failed" << endl;
+		return false;
+	}
+
+	_dbConn = Pop();
+	if (_dbConn == nullptr) {
+		cout << "[GameDBManager] Connect Error : Nullptr Connection" << endl;
+		return false;
+	}
+
+	cout << "[GameDBManager] Connect OK" << endl;
 
 	return true;
 }
 
 DBConnection* GameDBManager::Pop()
 {
-	return GDBConnectionPool->Pop();
+	//GDBConnectionPool->Pop();
+	return _dbConnPool->Pop();
 }
 
 void GameDBManager::Push(DBConnection* dbConn)
 {
-	GDBConnectionPool->Push(dbConn);
+	// GDBConnectionPool->Push(dbConn);
+	_dbConnPool->Push(dbConn);
 }
 
 
@@ -190,7 +215,7 @@ void GameDBManager::Transact_CompleteQuest(shared_ptr<Player> player, QuestDB qu
 
 		// 요청한 곳으로 
 		if (player->_ownerRoom)
-			player->_ownerRoom->DoAsync(&Room::DBCallback_CompleteQuest, player, questDB, itemDBs);
+			player->_ownerRoom->DoAsync(&GameRoom::DB_Response_CompleteQuest, player, questDB, itemDBs);
 	}
 	else {
 		cout << "[DB] COMPLETE QUEST - FAILED, ROLLBACK" << endl;
@@ -222,7 +247,7 @@ void GameDBManager::Transact_AddQuest(shared_ptr<Player> player, QuestDB questDB
 	}
 
 	if (player->_ownerRoom)
-		player->_ownerRoom->DoAsync(&Room::DBCallback_AddQuest, player, questDB);
+		player->_ownerRoom->DoAsync(&GameRoom::DB_Response_AddQuest, player, questDB);
 }
 
 void GameDBManager::Transact_RemoveQuest(shared_ptr<Player> player, QuestDB questDB)
@@ -237,7 +262,7 @@ void GameDBManager::Transact_RemoveQuest(shared_ptr<Player> player, QuestDB ques
 	}
 
 	if (player->_ownerRoom)
-		player->_ownerRoom->DoAsync(&Room::DBCallback_RemoveQuest, player, questDB);
+		player->_ownerRoom->DoAsync(&GameRoom::DB_Response_RemoveQuest, player, questDB);
 }
 
 void GameDBManager::Transact_UseItem(shared_ptr<Player> player, ItemDB itemDB)
@@ -273,7 +298,7 @@ void GameDBManager::Transact_UseItem(shared_ptr<Player> player, ItemDB itemDB)
 
 	// 
 	if (player->_ownerRoom)
-		player->_ownerRoom->DoAsync(&Room::DBCallback_UseItem, player, itemDB);
+		player->_ownerRoom->DoAsync(&GameRoom::DB_Response_UseItem, player, itemDB);
 }
 
 void GameDBManager::Transact_AddItem(shared_ptr<Player> player, ItemDB itemDB)
@@ -320,6 +345,6 @@ void GameDBManager::Transact_AddItem(shared_ptr<Player> player, ItemDB itemDB)
 	}
 
 	if (player->_ownerRoom)
-		player->_ownerRoom->DoAsync(&Room::DBCallback_AddItem, player, itemDB);
+		player->_ownerRoom->DoAsync(&GameRoom::DB_Response_AddItem, player, itemDB);
 }
 

@@ -5,6 +5,8 @@
 #include"VisionCube.h"
 #include"DBDataModel.h"
 
+// 추후 제거 필요
+
 enum {
 	OBJECT_JOB_SIZE = 20,
 };
@@ -17,17 +19,9 @@ enum MONSTERJOBS {
 	MONSTER_JOB_NONE, MONSTER_JOB_UPDATE
 };
 
-// TODO : 제거
-class FVector {
-public:
-	float _x;
-	float _y;
-	float _z;
-};
-
 class State;
-class Room;
-class ClientSession;
+class GameRoom;
+class GameSession;
 class GameObject : public enable_shared_from_this<GameObject>
 {
 public:
@@ -47,7 +41,7 @@ public:
 
 	// weak_ptr<Job> _reservedJob;
 	vector<weak_ptr<Job>> _reservedJobs;
-	shared_ptr<Room> _ownerRoom;
+	shared_ptr<GameRoom> _ownerRoom;
 };
 
 class Player : public GameObject {
@@ -89,7 +83,7 @@ public:
 	shared_ptr<class QuestManager> _questManager;
 
 	queue<ItemDB> _inventoryUpdateQueue;
-	shared_ptr<ClientSession> _ownerSession;
+	shared_ptr<GameSession> _ownerSession;
 
 	// TEST
 	bool _isBot = false;
@@ -112,37 +106,26 @@ public:
 	void Init(int templateId);
 	void Update();
 	void ChangeState(State* state);
-	void Skill(uint64 nowTime);
+	void Skill();
 	
 	RewardData GetRandomReward();
-	FVector GetRandomPatrolPos();
-	bool GetNextPos(OUT PROTOCOL::ObjectInfo& nextPos);
+	PROTOCOL::PFVector GetRandomPatrolPos();
+	
+	// bool GetNextPos(OUT PROTOCOL::ObjectInfo& nextPos);
 public:
-	// int _templateId;
 	State* _currentState;
 	weak_ptr<Player> _target;
 
 	uint64 _lastUpdateTime = 0;
-	float _deltaTime = 0;
+	uint64 _nowUpdateTime = 0;
+	uint64 _moveDelta = 0;
+	
 	uint64 _nextAttackTime = 0;
 	uint64 _nextPatrolTime = 0;
 	bool _isPatrol = false;
 
-	FVector _basePos;
-	FVector _patrolPos;
-};
-
-class Projectile : public GameObject {
-public:
-	// override
-	virtual void OnDamaged(shared_ptr<GameObject> attacker, int damage) override;
-	virtual void OnDead(shared_ptr<GameObject> attacker) override;
-	virtual void OnLeaveGame() override;
-	virtual void OnEnterGame() override;
-
-	//
-public:
-
+	PROTOCOL::PFVector _basePos;
+	PROTOCOL::PFVector _patrolPos;
 };
 
 // 

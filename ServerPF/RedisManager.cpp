@@ -82,8 +82,6 @@ bool RedisConnection::Decrease(const char* key, OUT int32& afterValue)
 -------------------------------------------------------------------------------*/
 bool RedisConnectionPool::Connect(const char* ip, int32 port, int32 connectionCounts)
 {
-	lock_guard<mutex> lock(_mutex);
-
 	RedisConnection* redisConn;
 	for (int i = 0; i < connectionCounts; i++) {
 		redisConn = new RedisConnection();
@@ -125,7 +123,17 @@ void RedisConnectionPool::Push(RedisConnection* conn)
 -------------------------------------------------------------------------------*/
 bool RedisDBManager::Connect(const char* ip, int32 port, int32 connectionCounts)
 {
-	return _pool->Connect(ip, port, connectionCounts);
+	if (_pool == nullptr)
+		_pool = new RedisConnectionPool();
+
+	if (_pool->Connect(ip, port, connectionCounts) == false) {
+		cout << "[RedisManager] Error : Connect FAilED" << endl;
+		return false;
+	}
+		
+	cout << "[RedisManager] Connect OK" << endl;
+
+	return true;
 }
 
 RedisConnection* RedisDBManager::Pop()
@@ -139,34 +147,3 @@ void RedisDBManager::Push(RedisConnection* conn)
 }
 
 
-
-
-//bool RedisManagerBef::StringGet(const char* key, string& getValue)
-//{
-//	_reply = reinterpret_cast<redisReply*>(redisCommand(_context, "GET %s", key));
-//	if (_reply->type != REDIS_REPLY_STRING) {
-//		cout << "Redis Get Error : Can't Find Key" << endl;
-//		return false;
-//	}
-//	
-//	getValue = _reply->str;
-//	
-//	freeReplyObject(_reply);
-//
-//	return true;
-//}
-//
-//void RedisManagerBef::StringSet(const char* key, const char* value)
-//{
-//	/*_reply = reinterpret_cast<redisReply*>(redisCommand(_context, "MULTI"));
-//	cout << _reply->str << endl;
-//	freeReplyObject(_reply);*/
-//
-//	_reply = reinterpret_cast<redisReply*>(redisCommand(_context, "SET %s %s", key, value));
-//	
-//	// TODO : Log
-//
-//	freeReplyObject(_reply);
-//}
-//
-//

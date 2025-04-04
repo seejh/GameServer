@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Library\Lib\MyServerCore\$(Configuration)\</OutDir>
+    <OutDir>..\Library\lib\MyServerCore\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\Library\lib\MyServerCore\$(Configuration)\</OutDir>
@@ -156,6 +156,7 @@
     <ClInclude Include="CoreGlobal.h" />
     <ClInclude Include="DBModel.h" />
     <ClInclude Include="DBSynchronizer.h" />
+    <ClInclude Include="DeadLockProfiler.h" />
     <ClInclude Include="FileUtils.h" />
     <ClInclude Include="GlobalQueue.h" />
     <ClInclude Include="IocpCore.h" />
@@ -164,17 +165,18 @@
     <ClInclude Include="JobQueue.h" />
     <ClInclude Include="JobTimer.h" />
     <ClInclude Include="ListenSession.h" />
+    <ClInclude Include="Lock.h" />
     <ClInclude Include="LockQueue.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryPool.h" />
     <ClInclude Include="NetService.h" />
+    <ClInclude Include="rapidxml\rapidxml.hpp" />
+    <ClInclude Include="rapidxml\rapidxml_iterators.hpp" />
+    <ClInclude Include="rapidxml\rapidxml_print.hpp" />
+    <ClInclude Include="rapidxml\rapidxml_utils.hpp" />
     <ClInclude Include="SocketUtils.h" />
     <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="rapidxml.hpp" />
-    <ClInclude Include="rapidxml_iterators.hpp" />
-    <ClInclude Include="rapidxml_print.hpp" />
-    <ClInclude Include="rapidxml_utils.hpp" />
     <ClInclude Include="RecvBuffer.h" />
     <ClInclude Include="SendBuffer.h" />
     <ClInclude Include="Session.h" />
@@ -193,6 +195,7 @@
     </ClCompile>
     <ClCompile Include="DBModel.cpp" />
     <ClCompile Include="DBSynchronizer.cpp" />
+    <ClCompile Include="DeadLockProfiler.cpp" />
     <ClCompile Include="FileUtils.cpp" />
     <ClCompile Include="GlobalQueue.cpp" />
     <ClCompile Include="IocpCore.cpp" />
@@ -201,6 +204,7 @@
     <ClCompile Include="JobQueue.cpp" />
     <ClCompile Include="JobTimer.cpp" />
     <ClCompile Include="ListenSession.cpp" />
+    <ClCompile Include="Lock.cpp" />
     <ClCompile Include="LockQueue.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MemoryPool.cpp" />

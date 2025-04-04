@@ -1,11 +1,8 @@
 #pragma once
 
 
-
 #include<iostream>
 #define WIN32_LEAN_AND_MEAN
-
-
 
 #include<WinSock2.h>
 #include<MSWSock.h>
@@ -22,16 +19,14 @@
 #include<functional>
 #include<string>
 
+#include<map>
 #include<set>
 #include<vector>
 #include<queue>
+#include<stack>
 #include<concurrent_queue.h>
 
 #include<conio.h>
-
-//#include"MyEnum.pb.h"
-//#include"MyProtocol.pb.h"
-//#include"MyStruct.pb.h"
 
 using namespace std;
 
@@ -41,7 +36,6 @@ using namespace std;
 #include"SocketUtils.h"
 #include"Memory.h"
 #include"ObjectPool.h"
-//#include"JobQueue.h" // 잡큐가 먼저 있으면 에러남 나중에 이런 것도 체크해야댐
 #include"LockQueue.h"
 #include"JobQueue.h"
 #include"ConsoleLog.h"

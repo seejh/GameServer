@@ -72,11 +72,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>$(SolutionDir)Library\Lib\;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)MyServerCore\;$(SolutionDir)Library\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)MyServerCore\;$(SolutionDir)Library\include\;$(SolutionDir)Shared\;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)MyServerCore\;$(SolutionDir)Library\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)MyServerCore\;$(SolutionDir)Library\include\;$(SolutionDir)Shared\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Library\Lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -150,9 +150,9 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ClientPacketHandler.cpp" />
-    <ClCompile Include="ClientSession.cpp" />
-    <ClCompile Include="ConfigManager.cpp" />
+    <ClCompile Include="GameClientPacketHandler.cpp" />
+    <ClCompile Include="GameMap.cpp" />
+    <ClCompile Include="GameSession.cpp" />
     <ClCompile Include="DataContents.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="DBDataModel.cpp" />
@@ -161,35 +161,36 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Item.cpp" />
-    <ClCompile Include="JsonParser.cpp" />
     <ClCompile Include="JwtHandler.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="NavMeshTool.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Protocol3.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Quest.cpp" />
     <ClCompile Include="QuestManager.cpp" />
     <ClCompile Include="RedisManager.cpp" />
-    <ClCompile Include="Room.cpp" />
+    <ClCompile Include="GameRoom.cpp" />
     <ClCompile Include="RoomManager.cpp" />
-    <ClCompile Include="SessionManager.cpp" />
+    <ClCompile Include="GameSessionManager.cpp" />
     <ClCompile Include="SharedDBManager.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="VisionCube.cpp" />
     <ClCompile Include="Zone.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ClientPacketHandler.h" />
-    <ClInclude Include="ClientSession.h" />
-    <ClInclude Include="ConfigManager.h" />
+    <ClInclude Include="DBDataModel.h" />
+    <ClInclude Include="GameClientPacketHandler.h" />
+    <ClInclude Include="GameMap.h" />
+    <ClInclude Include="GameSession.h" />
     <ClInclude Include="DataContents.h" />
     <ClInclude Include="DataManager.h" />
-    <ClInclude Include="DBDataModel.h" />
     <ClInclude Include="DBManager.h" />
     <ClInclude Include="GameDBManager.h" />
     <ClInclude Include="GameObject.h" />
@@ -197,17 +198,17 @@
     <ClInclude Include="GenSharedDBProcedures.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="Item.h" />
-    <ClInclude Include="JsonParser.h" />
     <ClInclude Include="JwtHandler.h" />
+    <ClInclude Include="NavMeshTool.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Protocol3.pb.h" />
     <ClInclude Include="Quest.h" />
     <ClInclude Include="QuestManager.h" />
     <ClInclude Include="RedisManager.h" />
-    <ClInclude Include="Room.h" />
+    <ClInclude Include="GameRoom.h" />
     <ClInclude Include="RoomManager.h" />
-    <ClInclude Include="SessionManager.h" />
+    <ClInclude Include="GameSessionManager.h" />
     <ClInclude Include="SharedDBManager.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="VisionCube.h" />

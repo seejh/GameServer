@@ -88,6 +88,12 @@
     <ClCompile Include="pch.cpp">
       <Filter>ETC</Filter>
     </ClCompile>
+    <ClCompile Include="Lock.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="DeadLockProfiler.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IocpEvent.h">
@@ -168,18 +174,6 @@
     <ClInclude Include="LockQueue.h">
       <Filter>Thread</Filter>
     </ClInclude>
-    <ClInclude Include="rapidxml.hpp">
-      <Filter>Utils\Json</Filter>
-    </ClInclude>
-    <ClInclude Include="rapidxml_iterators.hpp">
-      <Filter>Utils\Json</Filter>
-    </ClInclude>
-    <ClInclude Include="rapidxml_print.hpp">
-      <Filter>Utils\Json</Filter>
-    </ClInclude>
-    <ClInclude Include="rapidxml_utils.hpp">
-      <Filter>Utils\Json</Filter>
-    </ClInclude>
     <ClInclude Include="CoreGlobal.h">
       <Filter>ETC</Filter>
     </ClInclude>
@@ -191,6 +185,24 @@
     </ClInclude>
     <ClInclude Include="Types.h">
       <Filter>ETC</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml.hpp">
+      <Filter>Utils\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml_iterators.hpp">
+      <Filter>Utils\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml_print.hpp">
+      <Filter>Utils\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml_utils.hpp">
+      <Filter>Utils\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="Lock.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="DeadLockProfiler.h">
+      <Filter>Thread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -215,11 +227,14 @@
     <Filter Include="Utils\Log">
       <UniqueIdentifier>{d4893180-5656-4d34-8850-965ea552fc3f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils\Json">
-      <UniqueIdentifier>{41d27038-3223-483d-8246-e7c59e117c01}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ETC">
       <UniqueIdentifier>{6776407d-f381-4c04-ae4f-bd032a6c8dd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Json">
+      <UniqueIdentifier>{bf6e10f0-1af8-4f9c-8525-6bb50fac6e4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\rapidxml">
+      <UniqueIdentifier>{41d27038-3223-483d-8246-e7c59e117c01}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

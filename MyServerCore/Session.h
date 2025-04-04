@@ -4,7 +4,7 @@
 #include"IocpEvent.h"
 #include"RecvBuffer.h"
 #include"SendBuffer.h"
-
+#include"Lock.h"
 
 
 /*--------------------------------------------------
@@ -65,8 +65,9 @@ public:
 	atomic<bool> _sendRegistered;
 
 	atomic<bool> _isConnected;
-
-	mutex _mutex;
+	
+	USE_LOCK;
+	// mutex _mutex;
 };
 
 
