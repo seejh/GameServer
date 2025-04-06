@@ -299,13 +299,8 @@ bool NavMeshTool::FindRandomPos(PROTOCOL::PFVector basePos, float radius, OUT PR
 
 	// 단위 변환 - 좌표 형식 (언리얼 -> 리캐스트), radius (언리얼 -> 리캐스트)
 	UnrealToRecastCoord(fbasePos);
-	// radius *= 0.8f;
+	radius /= 2.0f;
 	radius /= 100.f;
-
-	cout << "- NavMesh -" << endl;
-	cout << "basePos:" << fbasePos[0] << ", " << fbasePos[1] << ", " << fbasePos[2] << endl;
-	cout << "radius : " << radius << endl;
-
 
 	// 쿼리 추출
 	dtNavMeshQuery* query = Pop();
@@ -313,7 +308,6 @@ bool NavMeshTool::FindRandomPos(PROTOCOL::PFVector basePos, float radius, OUT PR
 		return false;
 
 	// 중심점이 해당하는 폴리곤
-	// dtStatus findPolyStatus = query->findNearestPoly(fbasePos, &radius, &m_filter, &baseRef, 0);
 	dtStatus findPolyStatus = query->findNearestPoly(fbasePos, m_polyPickExt, &m_filter, &baseRef, 0);
 	if (dtStatusSucceed(findPolyStatus) == false) {
 		return false;
@@ -325,7 +319,50 @@ bool NavMeshTool::FindRandomPos(PROTOCOL::PFVector basePos, float radius, OUT PR
 		return false;
 	}
 
-	cout << "randomPos:" << destPos[0] << ", " << destPos[1] << ", " << destPos[2] << endl;
+	// 랜덤포스가 회전 반경을 넘는다면
+	float dtSqr = dtVdistSqr(fbasePos, destPos);
+	float radiusSqr = radius * radius;
+	if (dtSqr > radiusSqr) {
+
+		float t;
+		float radiusMaxPos[3];
+		dtPolyRef polys[MAX_POLYS];
+		int npolys = 0;
+		float hitNormal[3];
+		float hitPos[3];
+
+		// 방향 벡터
+		dtVsub(radiusMaxPos, destPos, fbasePos);
+		dtVnormalize(radiusMaxPos);
+
+		// 이동 벡터 = 방향 벡터 * (거리 * frand)
+		float random = frand();
+		radiusMaxPos[0] *= radius * random;
+		radiusMaxPos[1] *= radius * random;
+		radiusMaxPos[2] *= radius * random;
+		
+		// 원래 위치 + 이동 벡터
+		radiusMaxPos[0] += fbasePos[0];
+		radiusMaxPos[1] += fbasePos[1];
+		radiusMaxPos[2] += fbasePos[2];
+
+		// 레이캐스팅
+		dtStatus raycastStatus = query->raycast(baseRef, fbasePos, radiusMaxPos, &m_filter, &t, hitNormal, polys, &npolys, MAX_POLYS);
+		if (dtStatusSucceed(raycastStatus) == false) {
+			cout << "Raycast Failed" << endl;
+			return false;
+		}
+
+		// No Hit
+		if (t > 1)
+			dtVcopy(hitPos, radiusMaxPos);
+		// Hit
+		else
+			dtVlerp(hitPos, fbasePos, radiusMaxPos, t);
+
+		// 레이캐스팅 후 결정 위치 변경
+		dtVcopy(destPos, hitPos);
+	}
 
 	// 좌표 형식 (리캐스트 -> 언리얼)
 	ep.set_x(destPos[0]);

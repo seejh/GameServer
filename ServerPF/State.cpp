@@ -42,6 +42,8 @@ void StateIdle::Execute(shared_ptr<Monster> monster)
             if (monster->_info.pos().location().x() == monster->_patrolPos.x() &&
                 monster->_info.pos().location().y() == monster->_patrolPos.y()) {
 
+                cout << "Arrived At PatrolPos, Patrol Off" << endl;
+
                 // 순찰 해제, 순찰 쿨타임 업데이트
                 monster->_isPatrol = false;
                 monster->_nextPatrolTime = monster->_nowUpdateTime + 7000;
@@ -50,6 +52,7 @@ void StateIdle::Execute(shared_ptr<Monster> monster)
             // 순찰 중이며 아직 순찰 목적지에 도착 못한 상태
             else {
                 // 경로 요청
+                cout << "Not Arrived At PatrolPos" << endl;
                 PROTOCOL::PFVector destPos;
                 if (monster->_ownerRoom->FindPath(monster, monster->_patrolPos, destPos) == true)
                     monster->_ownerRoom->ActorMove(monster, destPos);
@@ -61,14 +64,15 @@ void StateIdle::Execute(shared_ptr<Monster> monster)
             // 순찰 쿨 확인
             if (monster->_nextPatrolTime < monster->_nowUpdateTime) {
                 
-                // 경로 요청
+                // 순찰 위치 조회
                 if (monster->_ownerRoom->FindRandomPos(monster) == true) {
+                    // 순찰 플래그
+                    monster->_isPatrol = true;
+                    cout << "Find PatrolPos OK" << endl;
+
                     PROTOCOL::PFVector destPos;
-                    if (monster->_ownerRoom->FindPath(monster, monster->_patrolPos, destPos) == true) {
-                        // 순찰 플래그 
-                        monster->_isPatrol = true;
+                    if (monster->_ownerRoom->FindPath(monster, monster->_patrolPos, destPos) == true)
                         monster->_ownerRoom->ActorMove(monster, destPos);
-                    }
                 }
             }
         }

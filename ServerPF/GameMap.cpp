@@ -59,10 +59,10 @@ bool GameMap::FindRandomPos(shared_ptr<Monster> monster, PROTOCOL::PFVector& des
 	if (_tool->FindRandomPos(monster->_basePos, monster->_info.stat().returndistance(), destPos) == false)
 		return false;
 
-	cout << "- Unreal -" << endl;
+	/*cout << "- Unreal -" << endl;
 	cout << "basePos:" << monster->_basePos.x() << ", " << monster->_basePos.y() << ", " << monster->_basePos.z() << endl;
 	cout << "returndistance:" << monster->_info.stat().returndistance() << endl;
-	cout << "randomPos:" << destPos.x() << ", " << destPos.y() << ", " << destPos.z() << endl;
+	cout << "randomPos:" << destPos.x() << ", " << destPos.y() << ", " << destPos.z() << endl;*/
 
 	return true;
 }

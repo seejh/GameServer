@@ -684,24 +684,9 @@ C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: �
 C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(89,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(90,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(91,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  RoomManager.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(89,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(90,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(91,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   SharedDBManager.cpp
-  State.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xcd7 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
-C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(89,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(90,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(91,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  VisionCube.cpp
-C:\Users\see\source\repos\ServerPF\ServerPF\GameObject.h(1,1): warning C4828: 파일에 0xcd7 오프셋에서 시작하는 문자가 포함되어 있습니다. 이 문자는 현재 원본 문자 집합에서 잘못된 문자입니다(코드 페이지 949).
-C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(89,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(90,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\see\source\repos\ServerPF\ServerPF\GameRoom.h(91,23): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   코드를 생성하고 있습니다.
-  5 of 10467 functions (<0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    97 functions had inline decision re-evaluated but remain unchanged
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 10471 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   코드를 생성했습니다.
   ServerPF.vcxproj -> C:\Users\see\source\repos\ServerPF\x64\Release\ServerPF.exe
